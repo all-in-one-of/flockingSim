@@ -7,6 +7,8 @@ CONFIG -= qt
 # Input
 SOURCES += src/main.cpp \
            src/boid.cpp \
+    src/prey.cpp
 
 
 HEADERS += include/boid.h \
+    include/prey.h
