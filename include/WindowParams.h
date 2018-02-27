@@ -1,94 +1,57 @@
-#ifndef NGLSCENE_H_
-#define NGLSCENE_H_
+#ifndef WINDOWPARAMS_H_
+#define WINDOWPARAMS_H_
 
-
-#include "Shader.h"
-#include "TrackballCamera.h"
-#include "Mesh.h"
-
-#include <gtc/matrix_transform.hpp>
-#include <gtc/type_ptr.hpp>
-#include <ext.hpp>
-#include <glm.hpp>
-#include <QOpenGLWidget>
-#include <QResizeEvent>
-#include <QEvent>
-#include <memory>
-#include "Buffer.h"
-
-
-class GLWindow : public QOpenGLWidget
+struct WinParams
 {
-Q_OBJECT        // must include this if you use Qt signals/slots
-public :
-  /// @brief Constructor for GLWindow
   //----------------------------------------------------------------------------------------------------------------------
-  /// @brief Constructor for GLWindow
-  /// @param [in] _parent the parent window to create the GL context in
+  /// @brief used to store the x rotation mouse value
   //----------------------------------------------------------------------------------------------------------------------
-  GLWindow( QWidget *_parent );
-
-    /// @brief dtor
-  ~GLWindow();
-  void mouseMove( QMouseEvent * _event );
-  void mouseClick( QMouseEvent * _event );
-
-public slots:
-  void rotating( const bool _rotating ) { m_rotating = _rotating; }
-  void init();
-    void generateNewGeometry();
-protected:
-  /// @brief  The following methods must be implimented in the sub class
-  /// this is called when the window is created
-  void initializeGL();
-
-  /// @brief this is called whenever the window is re-sized
-  /// @param[in] _w the width of the resized window
-  /// @param[in] _h the height of the resized window
-  void resizeGL(int _w , int _h);
-  /// @brief this is the main gl drawing routine which is called whenever the window needs to be re-drawn
-  void paintGL();
-  void renderScene();
-
-private :
+  int spinXFace = 0;
   //----------------------------------------------------------------------------------------------------------------------
-  Mesh * m_mesh;
+  /// @brief used to store the y rotation mouse value
   //----------------------------------------------------------------------------------------------------------------------
-  std::array<Mesh, 5>m_meshes;
+  int spinYFace = 0;
   //----------------------------------------------------------------------------------------------------------------------
-  Shader m_shader;
+  /// @brief flag to indicate if the mouse button is pressed when dragging
   //----------------------------------------------------------------------------------------------------------------------
-  GLuint m_vao;
+  bool rotate = false;
   //----------------------------------------------------------------------------------------------------------------------
-  GLuint m_vbo;
+  /// @brief flag to indicate if the Right mouse button is pressed when dragging
   //----------------------------------------------------------------------------------------------------------------------
-  GLuint m_nbo;
+  bool translate = false;
   //----------------------------------------------------------------------------------------------------------------------
-  GLint m_vertexPositionAddress;
+  /// @brief the previous x mouse value
   //----------------------------------------------------------------------------------------------------------------------
-  GLint m_vertexNormalAddress;
+  int origX = 0;
   //----------------------------------------------------------------------------------------------------------------------
-  GLint m_MVAddress;
+  /// @brief the previous y mouse value
   //----------------------------------------------------------------------------------------------------------------------
-  GLint m_MVPAddress;
+  int origY = 0;
   //----------------------------------------------------------------------------------------------------------------------
-  GLint m_NAddress;
+  /// @brief the previous x mouse value for Position changes
   //----------------------------------------------------------------------------------------------------------------------
-  glm::mat4 m_projection;
+  int origXPos = 0;
   //----------------------------------------------------------------------------------------------------------------------
-  glm::mat4 m_view;
+  /// @brief the previous y mouse value for Position changes
   //----------------------------------------------------------------------------------------------------------------------
-  glm::mat4 m_MV;
+  int origYPos = 0;
   //----------------------------------------------------------------------------------------------------------------------
-  glm::mat4 m_MVP;
+  /// @brief window width
   //----------------------------------------------------------------------------------------------------------------------
-  TrackballCamera m_camera;
+  int width = 1024;
   //----------------------------------------------------------------------------------------------------------------------
-  bool m_rotating;
+  /// @brief window height
   //----------------------------------------------------------------------------------------------------------------------
-  Buffer m_buffer;
-  //----------------------------------------------------------------------------------------------------------------------
-  int m_amountVertexData;
+  int height = 720;
 };
+
+//----------------------------------------------------------------------------------------------------------------------
+/// @brief the increment for x/y translation with mouse movement
+//----------------------------------------------------------------------------------------------------------------------
+constexpr float INCREMENT = 0.01f;
+//----------------------------------------------------------------------------------------------------------------------
+/// @brief the increment for the wheel zoom
+//----------------------------------------------------------------------------------------------------------------------
+constexpr float ZOOM = 0.1f;
 
 #endif
