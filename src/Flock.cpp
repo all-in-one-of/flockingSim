@@ -7,7 +7,8 @@ Flock::Flock(int _numBoids )
 {
     for (int i=0; i< _numBoids; ++i)
 	{
-    m_Boids.push_back(Boid(this));
+    m_Boids.push_back(Boid(this,i));
+
 	}
     m_numBoids=_numBoids;
 }

@@ -103,7 +103,7 @@ void NGLScene::initializeGL()
   ngl::VAOPrimitives *prim=ngl::VAOPrimitives::instance();
 
   prim->createSphere("sphere",0.1f,10);
-  m_Flock.reset(  new Flock(200));
+  m_Flock.reset(  new Flock(20));
   m_Flock->setCam(&m_cam);
   m_Flock->setShaderName("Phong");
   m_text.reset( new ngl::Text(QFont("Arial",14)));

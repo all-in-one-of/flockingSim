@@ -12,17 +12,22 @@ class Boid
 public :
 
 	/// @brief ctor
-    /// @param _pos the start position of the Boid
-    Boid(Flock *_Flock	);
+    Boid(Flock *_Flock, int _ID);
 
     /// @brief a method to update the Boid position
   void update();
     /// @brief a method to draw the Boid
   void draw() const;
 
+  float distanceToBoid(const Boid _boid);
+
+  int getID(){return m_ID;}
+
     /// @brief mutator for the Boid life
 	inline void setLifeTime(int _l){m_lifetime=_l;}
 private :
+    /// @brief the curent Boid' position's ID number, used to make avoid comparing with current boid in nearest neighbour
+    int m_ID;
     /// @brief the curent Boid position
 	ngl::Vec3 m_pos;
     /// @brief the velocity vector of the Boid
@@ -37,7 +42,7 @@ private :
 	int m_lifetime;
     /// @brief colour of the Boid
 	ngl::Colour m_colour;
-    const Flock *m_Flock;
+    Flock *m_Flock;
     void updateRotation();
     void flock();
     ngl::Vec3 alignBoid();

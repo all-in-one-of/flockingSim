@@ -3,6 +3,7 @@
 #include <vector>
 #include <ngl/Vec3.h>
 #include <ngl/Camera.h>
+#include "iostream"
 
 #include "Boid.h"
 
@@ -19,10 +20,15 @@ public :
   void update();
     /// @brief a method to draw all the Boids contained in the system
   void draw();
+  int getNoBoids(){return m_numBoids;}
+  std::vector <Boid> getBoidsVector(){return m_Boids;}
+
   inline void setCam(ngl::Camera *_cam){m_cam=_cam;}
   inline ngl::Camera * getCam()const {return m_cam;}
   inline void setShaderName(const std::string &_n){m_shaderName=_n;}
   inline const std::string getShaderName()const {return m_shaderName;}
+
+
 private :
     /// @brief the number of Boids
     int m_numBoids;
