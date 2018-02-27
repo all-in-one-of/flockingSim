@@ -1,3 +1,2 @@
-# Simple Particle System
+# Flocking Simulation
 
-simple particle system
