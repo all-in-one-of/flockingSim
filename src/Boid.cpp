@@ -14,18 +14,16 @@ Boid::Boid(Flock *_Flock, int _ID)
   m_ID = _ID;
 
 
-
-
-
-
-
   ngl::Random *rand=ngl::Random::instance();
 
-  m_pos=rand->getRandomVec3();
+  m_pos=rand->getRandomVec3()*2;
+  m_pos.m_y = 0;
 
-  m_vel=rand->getRandomNormalizedVec3();
-  m_vel.m_z = 0;
-  m_vel.operator /=(10000);
+  //m_vel.operator =(ngl::Vec3{0,0,0});
+
+  m_vel.operator =(rand->getRandomNormalizedVec3());
+  m_vel.m_y = 0;
+  //m_vel.operator /=(100);
 
   m_colour=rand->getRandomColour();
   m_lifetime=rand->randomPositiveNumber(200)*1000;
@@ -80,6 +78,11 @@ void Boid::flock()
     cohesion.operator =(cohesionBoid());
     separation.operator =(seperateBoid());
 
+    std::cout<<"align"<<alignment[0]<<alignment[2]<<"\n";
+    std::cout<<"cohesion"<<cohesion[0]<<cohesion[2]<<"\n";
+    std::cout<<"seperation"<<separation[0]<<separation[2]<<"\n";
+
+
     //flocking component weights
     float alignmentWeight = 1;
     float cohesionWeight = 1;
@@ -89,15 +92,31 @@ void Boid::flock()
     steer[0] += (cohesion[0] * cohesionWeight) + (alignment[0] * alignmentWeight) + (separation[0] * separationWeight);
     steer[2] += (cohesion[2] * cohesionWeight) + (alignment[2] * alignmentWeight) + (separation[2] * separationWeight);
 
-    steer.normalize();
+    //steer[0] += cohesion[0] + separation[0];// * separationWeight;
+    //steer[2] += cohesion[2] + separation[2];// * separationWeight;
+
+    //steer[0] += alignment[0];// * separationWeight;
+    //steer[2] += alignment[2];// * separationWeight;
+
+
+    if(steer.operator !=(ngl::Vec3{0,0,0}))
+    {
+        steer.normalize();
+    }
+
 
     //steer towards flocking vector
     m_vel[0] += steer[0];//steerBoid(steer)[0];
     m_vel[2] += steer[2];//steerBoid(steer)[2];
 
-    m_vel.normalize();
+    if(steer.operator !=(ngl::Vec3{0,0,0}))
+    {
+        m_vel.normalize();
 
-    m_vel.operator /=(400);
+        m_vel.operator =( (m_vel/m_vel.length())*0.001);
+
+
+    }
 
 //    //steer away from predator if near
 //    if m_flockFlag == True && currentAgent.distanceToAgent(currentAgent.detectedPredator) < 8:
@@ -138,26 +157,32 @@ ngl::Vec3 Boid::alignBoid()
     {
         //only flock with other flocking boids
         if(boidsVector[i].getID() != getID())
+        {
             if(boidsVector[i].m_flockFlag == true)
-                if( distanceToBoid(boidsVector[i]) < 2)
+            {
+                if( distanceToBoid(boidsVector[i]) < 0.7)
+                {
+
                     alignmentVector[0] += boidsVector[i].m_vel[0];
                     alignmentVector[2] += boidsVector[i].m_vel[2];
 
                     numberOfNeighbours += 1;
+                }
+            }
         }
+    }
 
-        // avoid dividing by zero
-        if(numberOfNeighbours != 0)
-        {
+    // avoid dividing by zero
+    if(numberOfNeighbours != 0 && alignmentVector.operator !=(ngl::Vec3{0,0,0}))
+    {
 
-            //find average velocity of boids in the current boids neighborhood
-            alignmentVector[0] /= numberOfNeighbours;
-            alignmentVector[2] /= numberOfNeighbours;
+        //find average velocity of boids in the current boids neighborhood
+        alignmentVector[0] /= numberOfNeighbours;
+        alignmentVector[2] /= numberOfNeighbours;
 
 
-            alignmentVector.normalize();
-        }
-
+        alignmentVector.normalize();
+    }
 
     return alignmentVector;
 
@@ -170,13 +195,14 @@ ngl::Vec3 Boid::seperateBoid()
     std::vector <Boid> boidsVector = m_Flock->getBoidsVector();
 
     ngl::Vec3 diff {0,0,0};
+
     for(int i = 0; i <m_Flock->getNoBoids(); i++)
     {
         if(boidsVector[i].getID() != getID())
         {
             if(boidsVector[i].m_flockFlag == true)
             {
-                if(distanceToBoid(boidsVector[i]) <1.0)
+                if(distanceToBoid(boidsVector[i]) <0.5)
                 {
 
                     //vector from current boid to neighbor
@@ -208,6 +234,8 @@ ngl::Vec3 Boid::seperateBoid()
         seperationVector.normalize();
     }
 
+
+
     return seperationVector;
 
 }
@@ -225,11 +253,15 @@ ngl::Vec3 Boid::cohesionBoid()
         {
             if( boidsVector[i].m_flockFlag = true)
             {
-                if(distanceToBoid(boidsVector[i]) < 10)
+                if(distanceToBoid(boidsVector[i]) < 4)
                 {
+
+
+
 
                     cohesionVector[0] += boidsVector[i].m_pos[0];
                     cohesionVector[2] += boidsVector[i].m_pos[2];
+
 
                     numberOfNeighbours += 1;
                 }
@@ -246,9 +278,8 @@ ngl::Vec3 Boid::cohesionBoid()
         cohesionVector[2] /= numberOfNeighbours;
 
         //find vector from agent to average position
-        cohesionVector[0] = (m_pos[0] - cohesionVector[0]);
-        cohesionVector[2] = (m_pos[2] - cohesionVector[2]);
-
+        cohesionVector[0] = (cohesionVector[0] - m_pos[0]);
+        cohesionVector[2] = (cohesionVector[2] - m_pos[2]);
 
         cohesionVector.normalize();
     }
@@ -285,10 +316,6 @@ void Boid::update()
     flock();
 
     m_pos+=m_vel;
-
-
-
-    std::cout<<m_Flock->getBoidsVector()[0].getID()<<"\n";
 
     //updateRotation();
 

@@ -35,7 +35,7 @@ private :
     /// @brief the rotation vector of the Boid
     ngl::Vec3 m_rotation;
     /// @brief bool to determine whether the boid should flock
-    bool m_flockFlag;
+    bool m_flockFlag = true;
     /// @brief the current life value of the Boid
 	int m_currentLife;
     /// @brief the total lifetime of the current Boid
