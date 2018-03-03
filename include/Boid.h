@@ -23,8 +23,12 @@ public :
 
   int getID(){return m_ID;}
 
-    /// @brief mutator for the Boid life
-	inline void setLifeTime(int _l){m_lifetime=_l;}
+  ngl::Vec3 getVel(){return m_vel;}
+
+  void setVel(ngl::Vec3 _vel){m_vel = _vel;}
+
+  void limitVel(float _limit);
+
 private :
     /// @brief the curent Boid' position's ID number, used to make avoid comparing with current boid in nearest neighbour
     int m_ID;
@@ -32,23 +36,23 @@ private :
 	ngl::Vec3 m_pos;
     /// @brief the velocity vector of the Boid
     ngl::Vec3 m_vel;
+
+    ngl::Vec3 m_accel;
     /// @brief the rotation vector of the Boid
     ngl::Vec3 m_rotation;
     /// @brief bool to determine whether the boid should flock
     bool m_flockFlag = true;
-    /// @brief the current life value of the Boid
-	int m_currentLife;
-    /// @brief the total lifetime of the current Boid
-	int m_lifetime;
-    /// @brief colour of the Boid
-	ngl::Colour m_colour;
+
     Flock *m_Flock;
+
     void updateRotation();
     void flock();
+
     ngl::Vec3 alignBoid();
     ngl::Vec3 seperateBoid();
     ngl::Vec3 cohesionBoid();
-    ngl::Vec3 steerBoid(ngl::Vec3);
+
+    ngl::Vec3 steerBoid(ngl::Vec3 _target);
 };
 
 
