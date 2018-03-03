@@ -19,7 +19,7 @@ public :
     /// @brief a method to draw the Boid
   void draw() const;
 
-  float distanceToBoid(const Boid _boid);
+  float distanceToBoid(const Boid *_boid);
 
   int getID(){return m_ID;}
 

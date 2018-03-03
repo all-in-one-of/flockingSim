@@ -23,7 +23,9 @@ Boid::Boid(Flock *_Flock, int _ID)
 
   m_vel = rand->getRandomNormalizedVec3();
   m_vel.m_y = 0;
-  m_vel.operator /=(10000);
+  m_vel.operator /=(100);
+
+     std::cout<<"vel"<<m_vel[0]<<"\n";
 
 
   m_Flock = _Flock;
@@ -76,9 +78,9 @@ void Boid::flock()
     cohesion.operator =(cohesionBoid());
     separation.operator =(seperateBoid());
 
-    std::cout<<"align"<<alignment[0]<<alignment[2]<<"\n";
-    std::cout<<"cohesion"<<cohesion[0]<<cohesion[2]<<"\n";
-    std::cout<<"seperation"<<separation[0]<<separation[2]<<"\n";
+    //std::cout<<"align"<<alignment[0]<<alignment[2]<<"\n";
+    //std::cout<<"cohesion"<<cohesion[0]<<cohesion[2]<<"\n";
+    //std::cout<<"seperation"<<separation[0]<<separation[2]<<"\n";
 
 
     //flocking component weights
@@ -90,12 +92,6 @@ void Boid::flock()
     steer[0] += (cohesion[0] * cohesionWeight) + (alignment[0] * alignmentWeight) + (separation[0] * separationWeight);
     steer[2] += (cohesion[2] * cohesionWeight) + (alignment[2] * alignmentWeight) + (separation[2] * separationWeight);
 
-    //steer[0] += cohesion[0];// + separation[0];// * separationWeight;
-    //steer[2] += cohesion[2];// + separation[2];// * separationWeight;
-
-    //steer[0] += alignment[0];// * separationWeight;
-    //steer[2] += alignment[2];// * separationWeight;
-
 
     if(steer.operator !=(ngl::Vec3{0,0,0}))
     {
@@ -104,19 +100,24 @@ void Boid::flock()
 
     }
 
+    ngl::Vec3 target = {0,0,0};
 
+    // target velocity = current velocity + flocking force, used for steering
+    target.operator =(m_vel);
+    target.operator +=(steer);
 
-
-    //steer towards flocking vector
-    m_vel[0] += steer[0];//steerBoid(steer)[0];
-    m_vel[2] += steer[2];//steerBoid(steer)[2];
+    //steer towards target velocity
+    m_vel[0] += steerBoid(target)[0];
+    m_vel[2] += steerBoid(target)[2];
 
     if(m_vel.operator !=(ngl::Vec3{0,0,0}))
     {
         m_vel.normalize();
 
         // limit velocity
-        limitVel(0.008);
+        limitVel(0.002);
+
+
 
     }
 
@@ -150,23 +151,20 @@ ngl::Vec3 Boid::alignBoid()
     int numberOfNeighbours = 0;
     ngl::Vec3 alignmentVector {0,0,0};
 
-    std::vector <Boid> boidsVector = m_Flock->getBoidsVector();
-
-
-
+    std::vector <Boid *> boidsVector; //= m_Flock->getBoidsVector();
 
     for(int i = 0; i< m_Flock->getNoBoids(); i++)
     {
         //only flock with other flocking boids
-        if(boidsVector[i].getID() != getID())
+        if(boidsVector[i]->getID() != getID())
         {
-            if(boidsVector[i].m_flockFlag == true)
+            if(boidsVector[i]->m_flockFlag == true)
             {
                 if( distanceToBoid(boidsVector[i]) < 0.8)
                 {
 
-                    alignmentVector[0] += boidsVector[i].m_vel[0];
-                    alignmentVector[2] += boidsVector[i].m_vel[2];
+                    alignmentVector[0] += boidsVector[i]->m_vel[0];
+                    alignmentVector[2] += boidsVector[i]->m_vel[2];
 
                     numberOfNeighbours += 1;
                 }
@@ -184,9 +182,6 @@ ngl::Vec3 Boid::alignBoid()
         alignmentVector[0] /= numberOfNeighbours;
         alignmentVector[2] /= numberOfNeighbours;
 
-
-
-
         alignmentVector.normalize();
     }
 
@@ -198,7 +193,7 @@ ngl::Vec3 Boid::seperateBoid()
 {
     int numberOfNeighbours = 0;
     ngl::Vec3 seperationVector {0,0,0};
-    std::vector <Boid> boidsVector = m_Flock->getBoidsVector();
+    std::vector <Boid*> boidsVector = m_Flock->getBoidsVector();
 
     ngl::Vec3 diff {0,0,0};
 
@@ -206,16 +201,16 @@ ngl::Vec3 Boid::seperateBoid()
 
     for(int i = 0; i <m_Flock->getNoBoids(); i++)
     {
-        if(boidsVector[i].getID() != getID())
+        if(boidsVector[i]->getID() != getID())
         {
-            if(boidsVector[i].m_flockFlag == true)
+            if(boidsVector[i]->m_flockFlag == true)
             {
                 if(distanceToBoid(boidsVector[i]) <0.4)
                 {
 
                     //vector from current boid to neighbor
-                    diff[0] = boidsVector[i].m_pos[0]-m_pos[0];
-                    diff[2] = boidsVector[i].m_pos[2]-m_pos[2];
+                    diff[0] = boidsVector[i]->m_pos[0]-m_pos[0];
+                    diff[2] = boidsVector[i]->m_pos[2]-m_pos[2];
 
                     diff.normalize();
 
@@ -243,8 +238,6 @@ ngl::Vec3 Boid::seperateBoid()
         seperationVector.normalize();
     }
 
-
-
     return seperationVector;
 
 }
@@ -254,22 +247,19 @@ ngl::Vec3 Boid::cohesionBoid()
     int numberOfNeighbours = 0;
     ngl::Vec3 cohesionVector {0,0,0};
 
-    std::vector <Boid> boidsVector = m_Flock->getBoidsVector();
+    std::vector <Boid*> boidsVector = m_Flock->getBoidsVector();
 
     for(int i = 0; i < m_Flock->getNoBoids(); i++)
     {
-        if(boidsVector[i].getID() != getID())
+        if(boidsVector[i]->getID() != getID())
         {
-            if( boidsVector[i].m_flockFlag = true)
+            if( boidsVector[i]->m_flockFlag = true)
             {
                 if(distanceToBoid(boidsVector[i]) < 1.5)
                 {
 
-
-
-
-                    cohesionVector[0] += boidsVector[i].m_pos[0];
-                    cohesionVector[2] += boidsVector[i].m_pos[2];
+                    cohesionVector[0] += boidsVector[i]->m_pos[0];
+                    cohesionVector[2] += boidsVector[i]->m_pos[2];
 
 
                     numberOfNeighbours += 1;
@@ -314,9 +304,9 @@ ngl::Vec3 Boid::steerBoid(ngl::Vec3 _target)
 
 }
 
-float Boid::distanceToBoid(const Boid _boid)
+float Boid::distanceToBoid(const Boid * _boid)
 {
-    float distance = std::sqrt((m_pos[0]-_boid.m_pos[0])*(m_pos[0]-_boid.m_pos[0]) + (m_pos[2]-_boid.m_pos[2])*(m_pos[2]-_boid.m_pos[2]));
+    float distance = std::sqrt((m_pos[0]-_boid->m_pos[0])*(m_pos[0]-_boid->m_pos[0]) + (m_pos[2]-_boid->m_pos[2])*(m_pos[2]-_boid->m_pos[2]));
 
     return distance;
 
@@ -336,8 +326,6 @@ void Boid::limitVel(float _limit)
 /// @brief a method to update the Boid position
 void Boid::update()
 {
-
-
 
     flock();
 
