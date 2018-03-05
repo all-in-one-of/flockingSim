@@ -1,4 +1,6 @@
-#include "include/boidfactory.h"
+#include "include/boidFactory.h"
+
+#include "include/prey.h"
 
 
 Boid* BoidFactory::createBoid(bool _Prey, int _id, Flock *_parent)
@@ -7,10 +9,10 @@ Boid* BoidFactory::createBoid(bool _Prey, int _id, Flock *_parent)
 
     if(_Prey== true)
      {
-       return new Boid(_parent,_id);
+       return new Prey(_parent,_id);
      }
      else
      {
-       return new Boid(_parent,_id);
+       return new Prey(_parent,_id);
      }
 }

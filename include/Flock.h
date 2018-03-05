@@ -5,7 +5,7 @@
 #include <ngl/Camera.h>
 #include "iostream"
 
-#include "Boid.h"
+#include "boidFactory.h"
 
 
 class Flock

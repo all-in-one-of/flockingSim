@@ -14,43 +14,42 @@ public :
 	/// @brief ctor
     Boid(Flock *_Flock, int _ID);
 
+    virtual ~Boid();
+
     /// @brief a method to update the Boid position
-  void update();
+  virtual void update() = 0;
     /// @brief a method to draw the Boid
-  void draw() const;
+  virtual void draw() = 0;
 
-  float distanceToBoid(const Boid *_boid);
+  virtual int getID()=0;
 
-  int getID(){return m_ID;}
+  virtual ngl::Vec3 getVel()=0;
 
-  ngl::Vec3 getVel(){return m_vel;}
+  virtual void setVel(ngl::Vec3 _vel) = 0;
 
-  void setVel(ngl::Vec3 _vel){m_vel = _vel;}
+  virtual void limitVel(float _limit) = 0;
 
-  void limitVel(float _limit);
+  virtual void updateRotation() = 0;
 
-private :
+
+protected :
     /// @brief the curent Boid' position's ID number, used to make avoid comparing with current boid in nearest neighbour
     int m_ID;
     /// @brief the curent Boid position
-	ngl::Vec3 m_pos;
+    ngl::Vec3 m_pos;
     /// @brief the velocity vector of the Boid
     ngl::Vec3 m_vel;
 
     ngl::Vec3 m_accel;
     /// @brief the rotation vector of the Boid
     ngl::Vec3 m_rotation;
-    /// @brief bool to determine whether the boid should flock
-    bool m_flockFlag = true;
+
 
     Flock *m_Flock;
 
-    void updateRotation();
-    void flock();
 
-    ngl::Vec3 alignBoid();
-    ngl::Vec3 seperateBoid();
-    ngl::Vec3 cohesionBoid();
+
+
 
     ngl::Vec3 steerBoid(ngl::Vec3 _target);
 };

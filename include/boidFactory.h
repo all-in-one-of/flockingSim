@@ -1,7 +1,9 @@
 #ifndef BOIDFACTORY
 #define BOIDFACTORY
 
-#include "include/Boid.h"
+#include "Boid.h"
+
+class Flock;
 
 class BoidFactory
 {

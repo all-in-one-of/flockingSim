@@ -84,13 +84,11 @@
 #define __GXX_RTTI 1
 #define __MMX__ 1
 #define __cpp_delegating_constructors 200604
-#define __XSAVES__ 1
 #define __FLT_HAS_DENORM__ 1
 #define __SIZEOF_LONG_DOUBLE__ 16
 #define __XSAVEOPT__ 1
 #define __BIGGEST_ALIGNMENT__ 32
 #define __STDC_UTF_16__ 1
-#define __PRFCHW__ 1
 #define __DBL_MAX__ double(1.79769313486231570815e+308L)
 #define __cpp_raw_strings 200710
 #define __INT_FAST32_MAX__ 0x7fffffffffffffffL
@@ -127,7 +125,6 @@
 #define __cpp_hex_float 201603
 #define __GCC_HAVE_DWARF2_CFI_ASM 1
 #define __GXX_ABI_VERSION 1010
-#define __RTM__ 1
 #define __FLT_MIN_EXP__ (-125)
 #define __cpp_lambdas 200907
 #define __INT_FAST64_TYPE__ long int
@@ -136,7 +133,6 @@
 #define __PCLMUL__ 1
 #define __LP64__ 1
 #define __DECIMAL_BID_FORMAT__ 1
-#define __CLFLUSHOPT__ 1
 #define __DEC128_MIN__ 1E-6143DL
 #define __REGISTER_PREFIX__ 
 #define __UINT16_MAX__ 0xffff
@@ -271,13 +267,11 @@
 #define __FP_FAST_FMA 1
 #define __cpp_constexpr 200704
 #define __INT32_TYPE__ int
-#define __XSAVEC__ 1
 #define __SIZEOF_DOUBLE__ 8
 #define __cpp_exceptions 199711
 #define __INTMAX_TYPE__ long int
 #define __DEC128_MAX_EXP__ 6145
 #define __FSGSBASE__ 1
-#define __RDSEED__ 1
 #define __ATOMIC_CONSUME 1
 #define __GNUC_MINOR__ 4
 #define __GLIBCXX_TYPE_INT_N_0 __int128
@@ -293,7 +287,6 @@
 #define __haswell__ 1
 #define __ATOMIC_SEQ_CST 5
 #define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_16 1
-#define __ADX__ 1
 #define __UINT32_TYPE__ unsigned int
 #define __UINTPTR_TYPE__ long unsigned int
 #define __DEC64_SUBNORMAL_MIN__ 0.000000000000001E-383DD

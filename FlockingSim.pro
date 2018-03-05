@@ -20,13 +20,15 @@ SOURCES+= $$PWD/src/Flock.cpp \
           $$PWD/src/NGLSceneMouseControls.cpp \
           $$PWD/src/Boid.cpp \
           $$PWD/src/main.cpp \
-    src/boidfactory.cpp
+    src/prey.cpp \
+    src/boidFactory.cpp
 # same for the .h files
 HEADERS+= $$PWD/include/Flock.h  \
           $$PWD/include/NGLScene.h \
           $$PWD/include/Boid.h \
           $$PWD/include/WindowParams.h \
-    include/boidfactory.h
+    include/prey.h \
+    include/boidFactory.h
 # and add the include dir into the search path for Qt and make
 INCLUDEPATH +=./include
 # where our exe is going to live (root of project)
