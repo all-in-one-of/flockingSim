@@ -5,7 +5,7 @@
 #include <ngl/Camera.h>
 #include "iostream"
 
-#include "boidFactory.h"
+#include "include/prey.h"
 
 
 class Flock
@@ -21,7 +21,7 @@ public :
     /// @brief a method to draw all the Boids contained in the system
   void draw();
   int getNoBoids(){return m_numBoids;}
-  std::vector <Boid *> getBoidsVector(){return m_Boids;}
+  std::vector <Prey> getBoidsVector(){return m_Boids;}
 
   inline void setCam(ngl::Camera *_cam){m_cam=_cam;}
   inline ngl::Camera * getCam()const {return m_cam;}
@@ -33,7 +33,7 @@ private :
     /// @brief the number of Boids
     int m_numBoids;
     /// @brief the container for the Boids
-    std::vector <Boid *> m_Boids;
+    std::vector <Prey> m_Boids;
   /// @brief the name of the shader to use
   std::string m_shaderName;
   /// @brief a pointer to the camera used for drawing

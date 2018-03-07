@@ -31,6 +31,8 @@ public :
 
   virtual void updateRotation() = 0;
 
+  virtual ngl::Vec3 steerBoid(ngl::Vec3 _target) = 0;
+
 
 protected :
     /// @brief the curent Boid' position's ID number, used to make avoid comparing with current boid in nearest neighbour
@@ -46,12 +48,6 @@ protected :
 
 
     Flock *m_Flock;
-
-
-
-
-
-    ngl::Vec3 steerBoid(ngl::Vec3 _target);
 };
 
 

@@ -23,6 +23,8 @@ public:
 
     virtual void updateRotation();
 
+    virtual ngl::Vec3 steerBoid(ngl::Vec3 _target);
+
 
 
     virtual int getID(){return m_ID;}
