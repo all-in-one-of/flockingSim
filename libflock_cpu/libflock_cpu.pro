@@ -22,6 +22,17 @@ SOURCES += src/*.cpp
 # Set up the include path
 INCLUDEPATH += include
 
+NGLPATH=$$(NGLDIR)
+isEmpty(NGLPATH){ # note brace must be here
+        message("including $HOME/NGL")
+        include($(HOME)/NGL/UseNGL.pri)
+}
+else{ # note brace must be here
+        message("Using custom NGL location")
+        include($(NGLDIR)/UseNGL.pri)
+}
+
+
 # Set up the post install script to copy the headers into the appropriate directory
 includeinstall.commands = mkdir -p $$INC_INSTALL_DIR && cp include/*.h $$INC_INSTALL_DIR
 QMAKE_EXTRA_TARGETS += includeinstall

@@ -21,3 +21,10 @@ int Rand_CPU::randFloats(std::vector<float>& tgt) {
     // Exit without problems (presumably)
     return EXIT_SUCCESS;
 }
+
+
+ngl::Vec3 NearestNeighbour::neighbourhood(ngl::Vec3 _pos)
+{
+
+}
+

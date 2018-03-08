@@ -1,6 +1,11 @@
 #ifndef RAND_CPU_H
 #define RAND_CPU_H
 
+#include <ngl/Random.h>
+#include <ngl/ShaderLib.h>
+#include <ngl/VAOPrimitives.h>
+#include <ngl/Transformation.h>
+
 #include <vector>
 
 namespace Rand_CPU {
@@ -8,7 +13,7 @@ namespace Rand_CPU {
     int randFloats(std::vector<float>&);
 }
 
-class NearestNeighbour
+namespace NearestNeighbour
 {
     // flock function taking array of each voids velocity, edits velocities using flocking and returns new velocities
 
@@ -16,6 +21,14 @@ class NearestNeighbour
 
     // will consist of nearest neighbour in parallel to detect boids in neighbourhood
 
-};
+
+    // returns array of distance to each boid
+    ngl::Vec3 neighbourhood(ngl::Vec3 _pos);
+
+
+
+
+
+}
 
 #endif //RAND_CPU_H
