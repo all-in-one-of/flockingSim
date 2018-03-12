@@ -26,5 +26,13 @@ int Rand_CPU::randFloats(std::vector<float>& tgt) {
 ngl::Vec3 NearestNeighbour::neighbourhood(ngl::Vec3 _pos)
 {
 
+    // for each value in array return distance to that position
+
+    // for GPU order array based on grid, find distance to closest boid
+    // If distance is less then neighbourhood distance go to next closest boid and test
+    // If more return closer neighbours
+
+
+
 }
 
