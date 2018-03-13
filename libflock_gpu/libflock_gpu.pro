@@ -36,6 +36,9 @@ isEmpty(CUDA_DIR) {
     message(CUDA_DIR not set - set this to the base directory of your local CUDA install (on the labs this should be /usr))
 }
  
+# Include headers
+HEADERS += include/*.h
+
 ## CUDA_SOURCES - the source (generally .cu) files for nvcc. No spaces in path names
 CUDA_SOURCES += cudasrc/*.cu
 
