@@ -1,8 +1,6 @@
 #include "prey.h"
 #include "Flock.h"
 
-#include "flock_cpu.h"
-
 #include <ngl/Random.h>
 #include <ngl/ShaderLib.h>
 #include <ngl/VAOPrimitives.h>
@@ -27,11 +25,6 @@ void Prey::update()
     avoidBoundaries();
 
     flock();
-
-
-
-
-
 
     m_pos+=m_vel;
 
@@ -80,7 +73,7 @@ void Prey::avoidBoundaries()
 
         m_vel.operator +=(steerBoid(desiredVel));
 
-        std::cout<<" out of z bounds\n";
+        //std::cout<<" out of z bounds\n";
     }
     else if(m_pos.m_z < -5)
     {
@@ -90,7 +83,7 @@ void Prey::avoidBoundaries()
 
         m_vel.operator +=(steerBoid(desiredVel));
 
-        std::cout<<" out of z bounds\n";
+        //std::cout<<" out of z bounds\n";
     }
     else if(m_pos.m_x > 3)
     {

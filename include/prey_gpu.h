@@ -1,53 +1,53 @@
 #ifndef PREY_GPU_H
 #define PREY_GPU_H
 
-#include "boid_gpu.h"
+//#include "boid_gpu.h"
 
-class Prey: public Boid
-{
-public:
-    Prey(Flock *_Flock, int _ID);
+//class Prey: public Boid
+//{
+//public:
+//    Prey(Flock *_Flock, int _ID);
 
-    virtual ~Prey();
+//    virtual ~Prey();
 
-    /// @brief a method to update the Boid position
-    virtual void update();
+//    /// @brief a method to update the Boid position
+//    virtual void update();
 
-    virtual void draw();
+//    virtual void draw();
 
-    virtual ngl::Vec3 getVel(){return m_vel;}
+//    virtual ngl::Vec3 getVel(){return m_vel;}
 
-    virtual void setVel(ngl::Vec3 _vel){m_vel = _vel;}
+//    virtual void setVel(ngl::Vec3 _vel){m_vel = _vel;}
 
-    virtual void limitVel(float _limit);
+//    virtual void limitVel(float _limit);
 
-    virtual void updateRotation();
+//    virtual void updateRotation();
 
-    virtual ngl::Vec3 steerBoid(ngl::Vec3 _target);
+//    virtual ngl::Vec3 steerBoid(ngl::Vec3 _target);
 
-    virtual void avoidBoundaries();
-
-
-
-    virtual int getID(){return m_ID;}
-
-     ngl::Vec3 alignBoid();
-     ngl::Vec3 seperateBoid();
-     ngl::Vec3 cohesionBoid();
-
-     void flock();
-
-     bool getFlockFLag(){return m_flockFlag;}
-
-     float distanceToBoid(const Prey _boid);
-
-private:
-
-    /// @brief bool to determine whether the boid should flock
-    bool m_flockFlag = true;
+//    virtual void avoidBoundaries();
 
 
 
-};
+//    virtual int getID(){return m_ID;}
+
+//     ngl::Vec3 alignBoid();
+//     ngl::Vec3 seperateBoid();
+//     ngl::Vec3 cohesionBoid();
+
+//     void flock();
+
+//     bool getFlockFLag(){return m_flockFlag;}
+
+//     float distanceToBoid(const Prey _boid);
+
+//private:
+
+//    /// @brief bool to determine whether the boid should flock
+//    bool m_flockFlag = true;
+
+
+
+//};
 
 #endif // PREY_GPU_H

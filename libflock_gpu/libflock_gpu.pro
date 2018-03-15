@@ -1,3 +1,4 @@
+
 # Read shared environment settings from the common include file
 include(../common.pri)
 
@@ -38,9 +39,7 @@ isEmpty(CUDA_DIR) {
  
 # Include headers
 HEADERS += include/*.h \
-    include/boid_gpu.h \
-    include/prey_gpu.h \
-    include/flock_gpu.h
+
 
 ## CUDA_SOURCES - the source (generally .cu) files for nvcc. No spaces in path names
 CUDA_SOURCES += cudasrc/*.cu

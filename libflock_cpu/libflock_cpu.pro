@@ -1,5 +1,9 @@
 # Read shared environment settings from the common include file
-include(../common.pri)
+#include(../common.pri)
+
+LIB_INSTALL_DIR=../lib
+BIN_INSTALL_DIR=../bin
+INC_INSTALL_DIR=../include
 
 # Use this setting to build a shared lib (add staticlib to CONFIG if you want one)
 TEMPLATE = lib
