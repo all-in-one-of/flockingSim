@@ -39,6 +39,7 @@ isEmpty(CUDA_DIR) {
  
 # Include headers
 HEADERS += include/*.h \
+    include/flock_gpu.h
 
 
 ## CUDA_SOURCES - the source (generally .cu) files for nvcc. No spaces in path names

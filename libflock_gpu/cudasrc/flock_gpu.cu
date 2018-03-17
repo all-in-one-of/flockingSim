@@ -1,4 +1,3 @@
-
 #include <iostream>
 
 // For the CUDA runtime routines (prefixed with "cuda_")
@@ -6,6 +5,7 @@
 #include <cuda.h>
 #include <cuda_runtime_api.h>
 #include <device_functions.h>
+
 
 // Needed for output functions within the kernel
 #include <stdio.h>
@@ -21,10 +21,13 @@
 #include <thrust/device_vector.h>
 #include <thrust/sort.h>
 
+
 #include<sys/time.h>
 
 // My own include function to generate some randomness
 #include "random.cuh"
+
+#include "flock_gpu.h"
 
 
 /// The number of points to generate within 0,1
@@ -32,6 +35,7 @@
 
 /// The resolution of our grid (dependent on the radius of influence of each point)
 #define GRID_RESOLUTION 4
+
 
 /// The null hash indicates the point isn't in the grid (this shouldn't happen if your extents are correctly chosen)
 #define NULL_HASH UINT_MAX
@@ -107,14 +111,21 @@ __global__ void countCellOccupancy(unsigned int *cellOcc,
     }
 }
 
-/**
- * Host main routine
- */
-int main(void) {
+
+void FlockGPU::nearestNeighbour()
+{
+    std::cout<<"flocking\n";
+
+
+
+
+
     // First thing is we'll generate a big old vector of random numbers for the purposes of
     // fleshing out our point data. This is much faster to do in one step than 3 seperate
     // steps.
     thrust::device_vector<float> d_Rand(NUM_POINTS*3);
+
+
     float * d_Rand_ptr = thrust::raw_pointer_cast(&d_Rand[0]);
     randFloats(d_Rand_ptr, NUM_POINTS*3);
 
@@ -166,9 +177,9 @@ int main(void) {
     cudaThreadSynchronize();
 
     // Now we can sort our points to ensure that points in the same grid cells occupy contiguous memory
-//    thrust::sort_by_key(d_hash.begin(), d_hash.end(),
-//                        thrust::make_zip_iterator(
-//                            thrust::make_tuple( d_Px.begin(), d_Py.begin(), d_Pz.begin())));
+    thrust::sort_by_key(d_hash.begin(), d_hash.end(),
+                        thrust::make_zip_iterator(
+                            thrust::make_tuple( d_Px.begin(), d_Py.begin(), d_Pz.begin())));
 
     // Make sure all threads have wrapped up before completing the timings
     cudaThreadSynchronize();
@@ -189,7 +200,8 @@ int main(void) {
         std::cout << "\n";
         thrust::copy(d_cellOcc.begin(), d_cellOcc.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
     }
-    return 0;
+    //return 0;
 }
+
 
 
