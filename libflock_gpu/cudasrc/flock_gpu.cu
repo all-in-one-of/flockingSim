@@ -111,14 +111,68 @@ __global__ void countCellOccupancy(unsigned int *cellOcc,
     }
 }
 
+// Fix to work with inner cells that are within bucketRadius of an edge
+// find cells surrounding current particles cells
+__global__ void neighbouringCells(unsigned int *neighbourhood,
+                                 float neighbourhoodDist,
+                                const unsigned int N,
+                                const unsigned int res,
+                                unsigned int cell
+                                )
+{
+
+
+    // the number of cells in each direction to check
+    int bucketRadius = ceil(neighbourhoodDist/(1.0/float(res)));;
+
+    //neighbourhood[0] = bucketRadius;
+    int y = floor(float(cell/res));
+    int x = cell -(y*res);
+
+    int count = 0;
+
+    // finds neighbours of non corner cell (2d for now)
+    if(x>0 &&y>0&& x<res-1&&y<res-1)
+    {
+        //not a border element.
+
+        for( int i = x - bucketRadius; i <= x + bucketRadius; ++i ){
+            for( int j = y - bucketRadius; j <= y + bucketRadius; ++j ){
+                if(i>=0 && j>=0 && i<=res-1 && j<= res-1)
+                {
+                    if((j*res + i) != cell)
+                    {
+                        neighbourhood[count] = (j*res) + i;
+                        count ++;
+
+                    }
+                }
+
+            }
+        }
+
+    }
+
+
+
+    /*else
+    {
+        if(x+y == 0|| x+y == res-1 || x+y == 2(res-1))
+        {
+            //four corner points ie #neighbour = 3
+        }
+        else
+        {
+            //boundary points with #neighbour = 5
+        }
+    }*/
+
+
+}
+
 
 void FlockGPU::nearestNeighbour()
 {
-    std::cout<<"flocking\n";
-
-
-
-
 
     // First thing is we'll generate a big old vector of random numbers for the purposes of
     // fleshing out our point data. This is much faster to do in one step than 3 seperate
@@ -149,9 +203,13 @@ void FlockGPU::nearestNeighbour()
     thrust::device_vector<unsigned int> d_hash(NUM_POINTS);
     //thrust::copy(d_hash.begin(), d_hash.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
 
+    // Vector storing neighbours
+    thrust::device_vector<unsigned int> d_neighbours(NUM_POINTS);
+
     // Typecast some raw pointers to the data so we can access them with CUDA functions
     unsigned int * d_hash_ptr = thrust::raw_pointer_cast(&d_hash[0]);
     unsigned int * d_cellOcc_ptr = thrust::raw_pointer_cast(&d_cellOcc[0]);
+    unsigned int * d_neighbours_ptr = thrust::raw_pointer_cast(&d_neighbours[0]);
     float * d_Px_ptr = thrust::raw_pointer_cast(&d_Px[0]);
     float * d_Py_ptr = thrust::raw_pointer_cast(&d_Py[0]);
     float * d_Pz_ptr = thrust::raw_pointer_cast(&d_Pz[0]);
@@ -190,12 +248,20 @@ void FlockGPU::nearestNeighbour()
     // Make sure all threads have wrapped up before completing the timings
     cudaThreadSynchronize();
 
+    // Testing nearest neighbourhood
+    neighbouringCells<<<nBlocks, nThreads>>>(d_neighbours_ptr,0.26,NUM_POINTS,GRID_RESOLUTION,5);
+
+    // Make sure all threads have wrapped up before completing the timings
+    cudaThreadSynchronize();
+
     gettimeofday(&tim, NULL);
     t2=tim.tv_sec+(tim.tv_usec/1000000.0);
     std::cout << "Grid sorted "<<NUM_POINTS<<" points into grid of "<<GRID_RESOLUTION*GRID_RESOLUTION*GRID_RESOLUTION<<" cells in " << t2-t1 << "s\n";
 
     // Only dump the debugging information if we have a manageable number of points.
     if (NUM_POINTS <= 100) {
+        thrust::copy(d_neighbours.begin(), d_neighbours.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
+        std::cout << "\n";
         thrust::copy(d_hash.begin(), d_hash.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
         std::cout << "\n";
         thrust::copy(d_cellOcc.begin(), d_cellOcc.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
