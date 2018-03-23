@@ -27,6 +27,10 @@ Flock::Flock(int _numBoids )
 /// @brief a method to update each of the Boids contained in the system
 void Flock::update()
 {
+
+    hash();
+    cellOcc();
+
     for(int i=0; i<m_numBoids; ++i)
     {
         m_Boids[i].update();
@@ -34,8 +38,7 @@ void Flock::update()
 
     }
 
-    getHash();
-    getCellOcc();
+
 }
 /// @brief a method to draw all the Boids contained in the system
 void Flock::draw()
@@ -48,9 +51,12 @@ void Flock::draw()
 
 }
 
-void Flock::getHash()
+void Flock::hash()
 {
-    int res = 4;
+    // reset and recaulculate each turn
+    m_hashVec.clear();
+
+    int res = m_gridRes;
     for(int i = 0; i< m_numBoids; i++)
     {
         ngl::Vec3 pos = m_Boids[i].getPos();
@@ -79,7 +85,7 @@ void Flock::getHash()
         bool isInside = true;
         unsigned int j;
         for (j=0; j<2; ++j)
-            if ((gridPos[j] < 0) || (gridPos[j] > res)) {
+            if ((gridPos[j] < 0) || (gridPos[j] >= res)) {
                 isInside = false;
             }
 
@@ -90,26 +96,42 @@ void Flock::getHash()
             m_hashVec.push_back( -1);
         }
 
-        //std::cout<<m_hashVec[i]<<" hash \n";
+        std::cout<<m_hashVec[i]<<" hash \n";
 
 
     }
 
 }
 
-void Flock::getCellOcc()
+void Flock::cellOcc()
 {
+    //reset cellOcc array
+    for(int i = 0; i<m_gridRes*m_gridRes; i++)
+    {
+        m_cellOcc[i] = 0;
+    }
+
     for(int i = 0; i<m_numBoids; i++)
     {
+
         //std::cout<<m_hashVec[i]<<" hash \n";
         //std::cout<<m_cellOcc[m_hashVec[i]]<<" Cells \n";
         m_cellOcc[m_hashVec[i]] +=1;
 
 
-       //std::cout<<m_cellOcc[m_hashVec[i]]<<" Cells now \n";
+        //std::cout<<m_cellOcc[m_hashVec[i]]<<" Cells now \n";
 
 
 
     }
+
+//    for(int i = 0; i<m_gridRes*m_gridRes; i++)
+//    {
+//        //std::cout<<m_cellOcc[i]<<" Cells \n";
+
+
+//    }
+
+    std::cout<<"done \n";
 
 }

@@ -22,13 +22,16 @@ public :
   void draw();
   int getNoBoids(){return m_numBoids;}
   std::vector <Prey> getBoidsVector(){return m_Boids;}
-  void getHash();
-  void getCellOcc();
+  void hash();
+  void cellOcc();
+
+  int* getCellOcc(){return m_cellOcc;}
+  std::vector <int> getHashVec(){return m_hashVec;}
 
   int m_gridRes = 4;
 
 
-  void hash();
+
 
   inline void setCam(ngl::Camera *_cam){m_cam=_cam;}
   inline ngl::Camera * getCam()const {return m_cam;}

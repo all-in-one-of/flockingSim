@@ -303,7 +303,7 @@ ngl::Vec3 Prey::cohesionBoid()
 
     std::vector <Prey> boidsVector = m_Flock->getBoidsVector();
 
-    nearestNeighbours(1.0f,1);
+    nearestNeighbours(1.0f,6);
 
     for(int i = 0; i < m_Flock->getNoBoids(); i++)
     {
@@ -385,7 +385,6 @@ void Prey::limitVel(float _limit)
 void Prey::nearestNeighbours(float _neighbourhoodDist, int cell)
 {
 
-    //std::cout<<"nearest neighbour \n";
 
     // divide by grid resolution as grid 0-1 and boids plane -3 - 3
     _neighbourhoodDist /= (2 * m_Flock->m_gridRes);
@@ -406,89 +405,96 @@ void Prey::nearestNeighbours(float _neighbourhoodDist, int cell)
     int neighbourCells[m_Flock->m_gridRes*m_Flock->m_gridRes];
 
 
-    std::cout<<x<<z<<"\n";
-    // finds neighbours of non corner cell (2d for now)
-    //if(x>0 &&z>0&& x<m_Flock->m_gridRes-1&&z<m_Flock->m_gridRes-1)
-    //{
+    //std::cout<<x<<z<<"\n";
 
-
-        //not a border element.
-
-        for( int i = x - bucketRadius; i <= x + bucketRadius; ++i ){
-            for( int j = z - bucketRadius; j <= z + bucketRadius; ++j ){
-                if(i>=0 && j>=0 && i<=m_Flock->m_gridRes-1 && j<= m_Flock->m_gridRes-1)
+    for( int i = x - bucketRadius; i <= x + bucketRadius; ++i ){
+        for( int j = z - bucketRadius; j <= z + bucketRadius; ++j ){
+            if(i>=0 && j>=0 && i<=m_Flock->m_gridRes-1 && j<= m_Flock->m_gridRes-1)
+            {
+                if((j*m_Flock->m_gridRes + i) != cell  )
                 {
-                    if((j*m_Flock->m_gridRes + i) != cell  )
-                    {
-                        neighbourCells[count] = (j*m_Flock->m_gridRes) + i;
-                        //neighbourhood[count]  = neighbourCells[count];
+                    neighbourCells[count] = (j*m_Flock->m_gridRes) + i;
+                    //neighbourhood[count]  = neighbourCells[count];
 
-                        //neighbourhood[idx] = idy;
+                    //neighbourhood[idx] = idy;
 
-                        std::cout<<neighbourCells[count]<<" neighbour cells \n";
+                    //std::cout<<neighbourCells[count]<<" neighbour cells \n";
 
-                        count ++;
+                    count ++;
 
-                    }
                 }
-
             }
+
         }
-    //}
+    }
 
-
-
-
+    for(int i= 0 ; i <16; i++)
+    {
+        //std::cout<<m_Flock->getCellOcc()[i]<<" occ \n";
+    }
 
 
 //    int count2;
 
-//    // Remove empty cells
-//    // go through cells
-//    for(int i = 0; i < count; i++)
-//    {
-//        // if cell not empty
-//        if(cellOcc[neighbourCells[i]] == 0)
-//        {
-//            //add points to neighbourhood
+    // Remove empty cells
+    // go through cells
+    for(int i = 0; i < count; i++)
+    {
+        //std::cout<< neighbourCells[i]<<"\n";
+        // if cell not empty
+        if(m_Flock->getCellOcc()[neighbourCells[i]] == 0)
+        {
+            //add points to neighbourhood
 
-//            printf("deleting cell %d \n", neighbourCells[i]);
-//            neighbourCells[i] = -1;
+            //std::cout<< neighbourCells[i]<< " deleting cell \n";
+            neighbourCells[i] = -1;
 
 //            count2++;
 
 
-//        }
+        }
 
 
-//    }
+    }
 
-//    float neighbourCellPntsX[NUM_POINTS];
-//    float neighbourCellPntsY[NUM_POINTS];
+    float neighbourCellPnts[m_Flock->getNoBoids()];
+    //float neighbourCellPntsY[NUM_POINTS];
 
-
-//    // order neighbours cells and iterate with while loop
-
-//    // find points in cells
-//    for(int i = 0; i < N; i++)
-//    {
-//        for(int j = 0; j<=count; j++)
-//        {
-
-//            if(hash[i] == neighbourCells[j])
-//            {
+    // set to -1 to avoid confusion with 0 cell
+    for(int i = 0; i<m_Flock->getNoBoids();i++)
+    {
+        neighbourCellPnts[i]=-1;
+    }
 
 
+    int count2 = 0;
+    // order neighbours cells and iterate with while loop
 
-//                  neighbourhoodX[i]=Px[i];
-//                  neighbourhoodY[i]=Py[i];
-//                  //neighbourhood[(3*i)+2]=Pz[i];
+    // find points in cells
+    for(int i = 0; i < m_Flock->getNoBoids(); i++)
+    {
+        for(int j = 0; j<count; j++)
+        {
+            //std::cout<<m_Flock->getHashVec()[i]<< " hash \n";
+            //std::cout<<neighbourCells[j]<<"neighbour cell\n";
 
-//                  // exit for loop
+            if(m_Flock->getHashVec()[i] == neighbourCells[j])
+            {
+                // add point id to list of points
+                neighbourCellPnts[count2]=i;
 
-//            }
-//        }
-//    }
+                std::cout<<neighbourCellPnts[count2]<<" neighbour point id \n";
+
+                count2++;
+
+
+
+                  // exit for loop
+
+            }
+        }
+
+    }
 
 //    float d = 0;
 
