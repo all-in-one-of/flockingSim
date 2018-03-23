@@ -19,6 +19,10 @@ public:
 
     virtual void setVel(ngl::Vec3 _vel){m_vel = _vel;}
 
+    virtual ngl::Vec3 getPos(){return m_pos;}
+
+    virtual void setPos(ngl::Vec3 _pos){m_pos = _pos;}
+
     virtual void limitVel(float _limit);
 
     virtual void updateRotation();
@@ -40,6 +44,8 @@ public:
      bool getFlockFLag(){return m_flockFlag;}
 
      float distanceToBoid(const Prey _boid);
+
+     void nearestNeighbours(float _neighbourhoodDist, int cell);
 
 private:
 

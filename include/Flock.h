@@ -22,6 +22,13 @@ public :
   void draw();
   int getNoBoids(){return m_numBoids;}
   std::vector <Prey> getBoidsVector(){return m_Boids;}
+  void getHash();
+  void getCellOcc();
+
+  int m_gridRes = 4;
+
+
+  void hash();
 
   inline void setCam(ngl::Camera *_cam){m_cam=_cam;}
   inline ngl::Camera * getCam()const {return m_cam;}
@@ -38,6 +45,9 @@ private :
   std::string m_shaderName;
   /// @brief a pointer to the camera used for drawing
   ngl::Camera *m_cam;
+  std::vector <int> m_hashVec;
+  int m_cellOcc[16];
+
 
 };
 

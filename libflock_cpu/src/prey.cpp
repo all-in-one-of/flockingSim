@@ -65,7 +65,7 @@ void Prey::avoidBoundaries()
 
 
 
-    if(m_pos.m_z > 5)
+    if(m_pos.m_z > 3)
     {
         ngl::Vec3 desiredVel = {m_vel[0],0,-m_vel[2]};
 
@@ -75,7 +75,7 @@ void Prey::avoidBoundaries()
 
         //std::cout<<" out of z bounds\n";
     }
-    else if(m_pos.m_z < -5)
+    else if(m_pos.m_z < -3)
     {
         ngl::Vec3 desiredVel = {m_vel[0],0,-m_vel[2]};
 
@@ -303,6 +303,8 @@ ngl::Vec3 Prey::cohesionBoid()
 
     std::vector <Prey> boidsVector = m_Flock->getBoidsVector();
 
+    nearestNeighbours(1.0f,1);
+
     for(int i = 0; i < m_Flock->getNoBoids(); i++)
     {
         if(boidsVector[i].getID() != getID())
@@ -378,6 +380,136 @@ void Prey::limitVel(float _limit)
         m_vel[2] = (m_vel[2]/m_vel.length())*_limit;
 
     }
+}
+
+void Prey::nearestNeighbours(float _neighbourhoodDist, int cell)
+{
+
+    //std::cout<<"nearest neighbour \n";
+
+    // divide by grid resolution as grid 0-1 and boids plane -3 - 3
+    _neighbourhoodDist /= (2 * m_Flock->m_gridRes);
+
+    // the number of cells in each direction to check
+    int bucketRadius = ceil(_neighbourhoodDist/(1.0/float(m_Flock->m_gridRes)));
+
+    //printf("idx: %d, idy %d \n", idx, idy);
+
+
+
+    // Find surrounding cells
+    int z = floor(float(cell/m_Flock->m_gridRes));
+    int x = cell -(z*m_Flock->m_gridRes);
+
+    int count = 0;
+
+    int neighbourCells[m_Flock->m_gridRes*m_Flock->m_gridRes];
+
+
+    std::cout<<x<<z<<"\n";
+    // finds neighbours of non corner cell (2d for now)
+    //if(x>0 &&z>0&& x<m_Flock->m_gridRes-1&&z<m_Flock->m_gridRes-1)
+    //{
+
+
+        //not a border element.
+
+        for( int i = x - bucketRadius; i <= x + bucketRadius; ++i ){
+            for( int j = z - bucketRadius; j <= z + bucketRadius; ++j ){
+                if(i>=0 && j>=0 && i<=m_Flock->m_gridRes-1 && j<= m_Flock->m_gridRes-1)
+                {
+                    if((j*m_Flock->m_gridRes + i) != cell  )
+                    {
+                        neighbourCells[count] = (j*m_Flock->m_gridRes) + i;
+                        //neighbourhood[count]  = neighbourCells[count];
+
+                        //neighbourhood[idx] = idy;
+
+                        std::cout<<neighbourCells[count]<<" neighbour cells \n";
+
+                        count ++;
+
+                    }
+                }
+
+            }
+        }
+    //}
+
+
+
+
+
+
+//    int count2;
+
+//    // Remove empty cells
+//    // go through cells
+//    for(int i = 0; i < count; i++)
+//    {
+//        // if cell not empty
+//        if(cellOcc[neighbourCells[i]] == 0)
+//        {
+//            //add points to neighbourhood
+
+//            printf("deleting cell %d \n", neighbourCells[i]);
+//            neighbourCells[i] = -1;
+
+//            count2++;
+
+
+//        }
+
+
+//    }
+
+//    float neighbourCellPntsX[NUM_POINTS];
+//    float neighbourCellPntsY[NUM_POINTS];
+
+
+//    // order neighbours cells and iterate with while loop
+
+//    // find points in cells
+//    for(int i = 0; i < N; i++)
+//    {
+//        for(int j = 0; j<=count; j++)
+//        {
+
+//            if(hash[i] == neighbourCells[j])
+//            {
+
+
+
+//                  neighbourhoodX[i]=Px[i];
+//                  neighbourhoodY[i]=Py[i];
+//                  //neighbourhood[(3*i)+2]=Pz[i];
+
+//                  // exit for loop
+
+//            }
+//        }
+//    }
+
+//    float d = 0;
+
+//    d = distancePoints(neighbourhoodX[0],neighbourhoodY[0],N,0.0,0.1);
+
+//    // eliminate points not in neighbourhood by distance
+
+//    for(int i = 0; i<N; i++)
+//    {
+//        if(distancePoints(neighbourCellPntsX[i],neighbourCellPntsY[i],N,0.0,0.0) <= neighbourhoodDist)
+//        {
+//            // add point to neighbours
+//            //neighbourhoodX[i]=neighbourCellPntsX[i];
+//            //neighbourhoodY[i]=neighbourCellPntsY[i];
+
+
+//        }
+//    }
+
+
+
 }
 
 

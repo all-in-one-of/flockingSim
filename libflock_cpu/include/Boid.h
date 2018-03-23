@@ -27,6 +27,10 @@ public :
 
   virtual void setVel(ngl::Vec3 _vel) = 0;
 
+  virtual ngl::Vec3 getPos()=0;
+
+  virtual void setPos(ngl::Vec3 _pos) = 0;
+
   virtual void limitVel(float _limit) = 0;
 
   virtual void updateRotation() = 0;

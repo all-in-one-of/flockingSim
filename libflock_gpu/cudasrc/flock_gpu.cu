@@ -232,8 +232,8 @@ __global__ void neighbouringCells(float *neighbourhoodX,
 
 
 
-                  neighbourCellPntsX[i]=Px[i];
-                  neighbourCellPntsY[i]=Py[i];
+                  neighbourhoodX[i]=Px[i];
+                  neighbourhoodY[i]=Py[i];
                   //neighbourhood[(3*i)+2]=Pz[i];
 
                   // exit for loop
@@ -253,8 +253,8 @@ __global__ void neighbouringCells(float *neighbourhoodX,
         if(distancePoints(neighbourCellPntsX[i],neighbourCellPntsY[i],N,0.0,0.0) <= neighbourhoodDist)
         {
             // add point to neighbours
-            neighbourhoodX[i]=neighbourCellPntsX[i];
-            neighbourhoodY[i]=neighbourCellPntsY[i];
+            //neighbourhoodX[i]=neighbourCellPntsX[i];
+            //neighbourhoodY[i]=neighbourCellPntsY[i];
 
 
         }
