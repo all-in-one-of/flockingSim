@@ -28,7 +28,7 @@ public :
   int* getCellOcc(){return m_cellOcc;}
   std::vector <int> getHashVec(){return m_hashVec;}
 
-  int m_gridRes = 4;
+  int m_gridRes = 7;
 
 
 
@@ -49,7 +49,7 @@ private :
   /// @brief a pointer to the camera used for drawing
   ngl::Camera *m_cam;
   std::vector <int> m_hashVec;
-  int m_cellOcc[16];
+  int m_cellOcc[49];
 
 
 };

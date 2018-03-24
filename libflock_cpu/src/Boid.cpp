@@ -25,7 +25,7 @@ Boid::Boid(Flock *_Flock, int _ID)
 
   m_vel = rand->getRandomNormalizedVec3();
   m_vel.m_y = 0;
-  m_vel.operator /=(10000);
+  m_vel.operator /=(1000);
 
 
   m_Flock = _Flock;

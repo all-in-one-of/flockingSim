@@ -2,7 +2,7 @@
 #define PREY_H
 
 #include "Boid.h"
-
+#include <vector>
 class Prey: public Boid
 {
 public:
@@ -47,10 +47,15 @@ public:
 
      void nearestNeighbours(float _neighbourhoodDist, int cell);
 
+     std::vector <float> getNeighbourPnts(){return m_neighbourhoodPnts;}
+
 private:
 
     /// @brief bool to determine whether the boid should flock
     bool m_flockFlag = true;
+
+    std::vector<float> m_neighbourhoodPnts;
+
 
 
 

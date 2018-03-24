@@ -28,11 +28,13 @@ Flock::Flock(int _numBoids )
 void Flock::update()
 {
 
-    hash();
-    cellOcc();
+
 
     for(int i=0; i<m_numBoids; ++i)
     {
+        hash();
+        cellOcc();
+
         m_Boids[i].update();
 
 
@@ -93,10 +95,10 @@ void Flock::hash()
         if (isInside) {
             m_hashVec.push_back( gridPos[0] + (res * gridPos[1]));
         } else {
-            m_hashVec.push_back( -1);
+            m_hashVec.push_back( NULL);
         }
 
-        std::cout<<m_hashVec[i]<<" hash \n";
+        //std::cout<<m_hashVec[i]<<" hash \n";
 
 
     }
