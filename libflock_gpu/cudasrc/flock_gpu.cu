@@ -40,6 +40,9 @@
 /// The null hash indicates the point isn't in the grid (this shouldn't happen if your extents are correctly chosen)
 #define NULL_HASH UINT_MAX
 
+/// Used to define a point not in the neighbourhood
+#define NULL_PNT UINT_MAX
+
 /**
   * Find the cell hash of each point. The hash is returned as the mapping of a point index to a cell.
   * If the point isn't inside any cell, it is set to NULL_HASH. This may have repercussions later in
@@ -54,7 +57,6 @@
 __global__ void pointHash(unsigned int *hash,
                           const float *Px,
                           const float *Py,
-                          const float *Pz,
                           const unsigned int N,
                           const unsigned int res) {
     // Compute the index of this thread: i.e. the point we are testing
@@ -63,22 +65,22 @@ __global__ void pointHash(unsigned int *hash,
     if (idx < N) {
         // Note that finding the grid coordinates are much simpler if the grid is over the range [0,1] in
         // each dimension and the points are also in the same space.
-        int gridPos[3];
+        int gridPos[2];
         gridPos[0] = floor(Px[idx] * res);
         gridPos[1] = floor(Py[idx] * res);
-        gridPos[2] = floor(Pz[idx] * res);
+        //gridPos[2] = floor(Pz[idx] * res);
 
         // Test to see if all of the points are inside the grid
         bool isInside = true;
         unsigned int i;
-        for (i=0; i<3; ++i)
+        for (i=0; i<2; ++i)
             if ((gridPos[i] < 0) || (gridPos[i] > res)) {
                 isInside = false;
             }
 
         // Write out the hash value if the point is within range [0,1], else write NULL_HASH
         if (isInside) {
-            hash[idx] = gridPos[0] * res * res + gridPos[1] * res + gridPos[2];
+            hash[idx] = gridPos[0] + (gridPos[1] * res);
         } else {
             hash[idx] = NULL_HASH;
         }
@@ -129,15 +131,16 @@ __device__ float distancePoints(float pntX,
 
 
 
-// EXTEND TO 3D
+
+
+// EXTEND TO 3Dzz
 // find cells surrounding current particles cells
-__global__ void neighbouringCells(float *neighbourhoodX,
+__global__ void nearestNeighbourPnts(float *neighbourhoodX,
                                   float *neighbourhoodY,
                                   unsigned int *cellOcc,
                                   unsigned int *hash,
                                   const float *Px,
                                   const float *Py,
-                                  const float *Pz,
                                  float neighbourhoodDist,
                                 const unsigned int N,
                                 const unsigned int res,
@@ -151,11 +154,11 @@ __global__ void neighbouringCells(float *neighbourhoodX,
     // Compute the index of this thread: i.e. the point we are testing
     uint idy = blockIdx.y * blockDim.y + threadIdx.y;
 
+    printf("idx: %d, idy %d \n", idx, idy);
+
 
     // the number of cells in each direction to check
     int bucketRadius = ceil(neighbourhoodDist/(1.0/float(res)));;
-
-    //printf("idx: %d, idy %d \n", idx, idy);
 
     // Find surrounding cells
     int y = floor(float(cell/res));
@@ -166,34 +169,26 @@ __global__ void neighbouringCells(float *neighbourhoodX,
     int neighbourCells[GRID_RESOLUTION*GRID_RESOLUTION];
 
 
-    // finds neighbours of non corner cell (2d for now)
-    if(x>0 &&y>0&& x<res-1&&y<res-1)
-    {
-        //not a border element.
+    for( int i = x - bucketRadius; i <= x + bucketRadius; ++i ){
+        for( int j = y - bucketRadius; j <= y + bucketRadius; ++j ){
+            if(i>=0 && j>=0 && i<=res-1 && j<= res-1)
+            {
+                //if((j*m_Flock->m_gridRes + i) != cell  )
+                //{
+                    neighbourCells[count] = (j*res) + i;
 
-        for( int i = x - bucketRadius; i <= x + bucketRadius; ++i ){
-            for( int j = y - bucketRadius; j <= y + bucketRadius; ++j ){
-                if(i>=0 && j>=0 && i<=res-1 && j<= res-1)
-                {
-                    if((j*res + i) != cell || (j*res + i) ==0 )
-                    {
-                        neighbourCells[count] = (j*res) + i;
-                        //neighbourhood[count]  = neighbourCells[count];
+                    //std::cout<<neighbourCells[count]<<" neighbour cells \n";
 
-                        //neighbourhood[idx] = idy;
+                    count ++;
 
-                        count ++;
-
-                    }
-                }
-
+                //}
             }
+
         }
     }
 
 
 
-    int count2;
 
     // Remove empty cells
     // go through cells
@@ -204,22 +199,15 @@ __global__ void neighbouringCells(float *neighbourhoodX,
         {
             //add points to neighbourhood
 
-            printf("deleting cell %d \n", neighbourCells[i]);
+            //printf("deleting cell %d \n", neighbourCells[i]);
             neighbourCells[i] = -1;
 
-            count2++;
-
-
         }
-
-
     }
 
-    float neighbourCellPntsX[NUM_POINTS];
-    float neighbourCellPntsY[NUM_POINTS];
-
-
     // order neighbours cells and iterate with while loop
+
+    int count2 = 0;
 
     // find points in cells
     for(int i = 0; i < N; i++)
@@ -231,35 +219,16 @@ __global__ void neighbouringCells(float *neighbourhoodX,
             {
 
 
+                  neighbourhoodX[count2]=i;
+                  neighbourhoodY[count2]=i;
 
-                  neighbourhoodX[i]=Px[i];
-                  neighbourhoodY[i]=Py[i];
-                  //neighbourhood[(3*i)+2]=Pz[i];
+                  //neighbourhoodX[count2]=Px[i];
+                  //neighbourhoodY[count2]=Py[i];
 
-                  // exit for loop
-
+                  count2 ++;
             }
         }
     }
-
-    float d = 0;
-
-    d = distancePoints(neighbourhoodX[0],neighbourhoodY[0],N,0.0,0.1);
-
-    // eliminate points not in neighbourhood by distance
-
-    for(int i = 0; i<N; i++)
-    {
-        if(distancePoints(neighbourCellPntsX[i],neighbourCellPntsY[i],N,0.0,0.0) <= neighbourhoodDist)
-        {
-            // add point to neighbours
-            //neighbourhoodX[i]=neighbourCellPntsX[i];
-            //neighbourhoodY[i]=neighbourCellPntsY[i];
-
-
-        }
-    }
-
 
 
 
@@ -278,8 +247,6 @@ __global__ void neighbouringCells(float *neighbourhoodX,
 
 
 }
-
-
 
 
 
@@ -306,18 +273,18 @@ void FlockGPU::nearestNeighbour()
     // we can chose which elements of the structure we wish to read.
     thrust::device_vector<float> d_Px(d_Rand.begin(), d_Rand.begin()+NUM_POINTS);
     thrust::device_vector<float> d_Py(d_Rand.begin()+NUM_POINTS, d_Rand.begin()+2*NUM_POINTS);
-    thrust::device_vector<float> d_Pz(d_Rand.begin()+2*NUM_POINTS, d_Rand.end());
+//    thrust::device_vector<float> d_Pz(d_Rand.begin()+2*NUM_POINTS, d_Rand.end());
 
     // This vector will hold the grid cell occupancy (set to zero)
-    thrust::device_vector<unsigned int> d_cellOcc(GRID_RESOLUTION*GRID_RESOLUTION*GRID_RESOLUTION, 0);
+    thrust::device_vector<unsigned int> d_cellOcc(GRID_RESOLUTION*GRID_RESOLUTION, 0);
 
     // This vector will hold our hash values, one for each point
     thrust::device_vector<unsigned int> d_hash(NUM_POINTS);
     //thrust::copy(d_hash.begin(), d_hash.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
 
     // Vector storing neighbours
-    thrust::device_vector<float> d_neighbours_x(NUM_POINTS);
-    thrust::device_vector<float> d_neighbours_y(NUM_POINTS);
+    thrust::device_vector<float> d_neighbours_x(NUM_POINTS,-1);
+    thrust::device_vector<float> d_neighbours_y(NUM_POINTS,-1);
 
     // Typecast some raw pointers to the data so we can access them with CUDA functions
     unsigned int * d_hash_ptr = thrust::raw_pointer_cast(&d_hash[0]);
@@ -326,7 +293,7 @@ void FlockGPU::nearestNeighbour()
     float * d_neighboursY_ptr = thrust::raw_pointer_cast(&d_neighbours_y[0]);
     float * d_Px_ptr = thrust::raw_pointer_cast(&d_Px[0]);
     float * d_Py_ptr = thrust::raw_pointer_cast(&d_Py[0]);
-    float * d_Pz_ptr = thrust::raw_pointer_cast(&d_Pz[0]);
+//   float * d_Pz_ptr = thrust::raw_pointer_cast(&d_Pz[0]);
 
     // The number of threads per blockshould normally be determined from your hardware, but 1024
     // is pretty standard. Remember that each block will be assigned to a single SM, with it's
@@ -350,7 +317,7 @@ void FlockGPU::nearestNeighbour()
 
     // The special CUDA syntax below executes our parallel function with the specified parameters
     // using the number of blocks and threads provided.
-    pointHash<<<nBlocks, nThreads>>>(d_hash_ptr, d_Px_ptr, d_Py_ptr, d_Pz_ptr,
+    pointHash<<<nBlocks, nThreads>>>(d_hash_ptr, d_Px_ptr, d_Py_ptr,
                                      NUM_POINTS,
                                      GRID_RESOLUTION);
 
@@ -360,7 +327,7 @@ void FlockGPU::nearestNeighbour()
     // Now we can sort our points to ensure that points in the same grid cells occupy contiguous memory
     thrust::sort_by_key(d_hash.begin(), d_hash.end(),
                         thrust::make_zip_iterator(
-                            thrust::make_tuple( d_Px.begin(), d_Py.begin(), d_Pz.begin())));
+                            thrust::make_tuple( d_Px.begin(), d_Py.begin())));
 
     // Make sure all threads have wrapped up before completing the timings
     cudaThreadSynchronize();
@@ -372,7 +339,7 @@ void FlockGPU::nearestNeighbour()
     cudaThreadSynchronize();
 
     // Testing nearest neighbourhood
-    neighbouringCells<<<grid, block>>>(d_neighboursX_ptr,d_neighboursY_ptr,d_cellOcc_ptr, d_hash_ptr, d_Px_ptr, d_Py_ptr, d_Pz_ptr,0.24,NUM_POINTS,GRID_RESOLUTION,6);
+    nearestNeighbourPnts<<<grid, block>>>(d_neighboursX_ptr,d_neighboursY_ptr,d_cellOcc_ptr, d_hash_ptr, d_Px_ptr, d_Py_ptr,0.24,NUM_POINTS,GRID_RESOLUTION,6);
 
     // Make sure all threads have wrapped up before completing the timings
     cudaThreadSynchronize();
@@ -384,7 +351,7 @@ void FlockGPU::nearestNeighbour()
     // Only dump the debugging information if we have a manageable number of points.
     if (NUM_POINTS <= 100) {
         thrust::copy(d_neighbours_x.begin(), d_neighbours_x.end(), std::ostream_iterator<float>(std::cout, " "));
-        std::cout << "\n";
+        std::cout << "\n \n";
         thrust::copy(d_Px.begin(), d_Px.end(), std::ostream_iterator<float>(std::cout, " "));
         std::cout << "\n";
         thrust::copy(d_hash.begin(), d_hash.end(), std::ostream_iterator<unsigned int>(std::cout, " "));

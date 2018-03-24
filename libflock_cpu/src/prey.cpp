@@ -278,9 +278,9 @@ ngl::Vec3 Prey::seperateBoid()
     float neighbourhoodRadius = 0.6;
 
 
-    std::cout<<getID()<<" point id \n";
+    //std::cout<<getID()<<" point id \n";
 
-    std::cout<<m_Flock->getHashVec()[getID()]<<" cell id \n";
+    //std::cout<<m_Flock->getHashVec()[getID()]<<" cell id \n";
 
 //    // find neighbour points of current boid
     nearestNeighbours(neighbourhoodRadius,m_Flock->getHashVec()[getID()]);
@@ -289,7 +289,7 @@ ngl::Vec3 Prey::seperateBoid()
     for(int i = 0; i<getNeighbourPnts().size(); i++)
     {
 
-        std::cout<<m_Flock->getHashVec()[getNeighbourPnts()[i]]<< " neighbour point cell \n";
+        //std::cout<<m_Flock->getHashVec()[getNeighbourPnts()[i]]<< " neighbour point cell \n";
 
         if(boidsVector[getNeighbourPnts()[i]].getID() != getID())
         {
@@ -297,7 +297,7 @@ ngl::Vec3 Prey::seperateBoid()
             if(distanceToBoid(boidsVector[getNeighbourPnts()[i]]) < neighbourhoodRadius)
             {
 
-                std::cout<<"seperate \n";
+                //std::cout<<"seperate \n";
 
 
                 //vector from current boid to neighbor
@@ -491,7 +491,7 @@ void Prey::limitVel(float _limit)
 void Prey::nearestNeighbours(float _neighbourhoodDist, int cell)
 {
 
-    std::cout<<"nearest neighbour called on cell "<<cell<<" \n";
+    //std::cout<<"nearest neighbour called on cell "<<cell<<" \n";
 
     // divide by grid resolution as grid 0-1 and boids plane -3 - 3
     _neighbourhoodDist /= (2 * m_Flock->m_gridRes);
@@ -531,7 +531,6 @@ void Prey::nearestNeighbours(float _neighbourhoodDist, int cell)
 //    int count2;
 
     // Remove empty cells
-    // go through cells
     for(int i = 0; i < count; i++)
     {
         //std::cout<< neighbourCells[i]<<"\n";
@@ -545,24 +544,13 @@ void Prey::nearestNeighbours(float _neighbourhoodDist, int cell)
 
 //            count2++;
 
-
         }
-
 
     }
 
-    //float neighbourCellPnts[m_Flock->getNoBoids()];
-    //float neighbourCellPntsY[NUM_POINTS];
-
-//     set to -1 to avoid confusion with 0 cell
-//    for(int i = 0; i<m_Flock->getNoBoids();i++)
-//    {
-//        neighbourCellPnts[i]=-1;
-//    }
 
     // clear neighbour points before recalculating
     m_neighbourhoodPnts.clear();
-
 
     int count2 = 0;
     // order neighbours cells and iterate with while loop
@@ -572,47 +560,17 @@ void Prey::nearestNeighbours(float _neighbourhoodDist, int cell)
     {
         for(int j = 0; j<count; j++)
         {
-            //std::cout<<m_Flock->getHashVec()[i]<< " hash \n";
-            //std::cout<<neighbourCells[j]<<"neighbour cell\n";
-
             if(m_Flock->getHashVec()[i] == neighbourCells[j])
             {
                 // add point id to list of points
-                //neighbourCellPnts[count2]=i;
                 m_neighbourhoodPnts.push_back(i);
 
-                //std::cout<<m_neighbourhoodPnts[count2]<<" neighbour point id \n";
-
                 count2++;
-
-
-
-                  // exit for loop
 
             }
         }
 
     }
-
-//    float d = 0;
-
-//    d = distancePoints(neighbourhoodX[0],neighbourhoodY[0],N,0.0,0.1);
-
-//    // eliminate points not in neighbourhood by distance
-
-//    for(int i = 0; i<N; i++)
-//    {
-//        if(distancePoints(neighbourCellPntsX[i],neighbourCellPntsY[i],N,0.0,0.0) <= neighbourhoodDist)
-//        {
-//            // add point to neighbours
-//            //neighbourhoodX[i]=neighbourCellPntsX[i];
-//            //neighbourhoodY[i]=neighbourCellPntsY[i];
-
-
-//        }
-//    }
-
-
 
 }
 
