@@ -74,7 +74,7 @@ void Prey::avoidBoundaries()
 
         m_vel.operator +=(steerBoid(desiredVel));
 
-        std::cout<<" out of z bounds\n";
+        //std::cout<<" out of z bounds\n";
     }
     else if(m_pos.m_z < -3)
     {
@@ -84,7 +84,7 @@ void Prey::avoidBoundaries()
 
         m_vel.operator +=(steerBoid(desiredVel));
 
-        std::cout<<" out of -z bounds\n";
+        //std::cout<<" out of -z bounds\n";
     }
     else if(m_pos.m_x > 3)
     {
@@ -94,7 +94,7 @@ void Prey::avoidBoundaries()
 
         m_vel.operator +=(steerBoid(desiredVel));
 
-        std::cout<<" out of x bounds\n";
+        //std::cout<<" out of x bounds\n";
     }
     else if(m_pos.m_x < -3)
     {
@@ -104,7 +104,7 @@ void Prey::avoidBoundaries()
 
         m_vel.operator +=(steerBoid(desiredVel));
 
-        std::cout<<" out of -x bounds\n";
+        //std::cout<<" out of -x bounds\n";
     }
 
 }

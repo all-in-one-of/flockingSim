@@ -134,6 +134,6 @@ void Flock::cellOcc()
 
 //    }
 
-    std::cout<<"done \n";
+    //std::cout<<"done \n";
 
 }
