@@ -31,7 +31,7 @@
 
 
 /// The number of points to generate within 0,1
-#define NUM_POINTS 50
+#define NUM_POINTS 10
 
 /// The resolution of our grid (dependent on the radius of influence of each point)
 #define GRID_RESOLUTION 4
@@ -134,7 +134,6 @@ __device__ float distancePoints(float pntX,
 
 
 __global__ void neighbourhoodCells(unsigned int *neighbourCells,
-                                   unsigned int *cellOcc,
                                    float neighbourhoodDist,
                                   const unsigned int res,
                                   unsigned int cell)
@@ -161,19 +160,19 @@ __global__ void neighbourhoodCells(unsigned int *neighbourCells,
     // add neighbour cells and current cell to array
     if(idx <= 2 * bucketRadius && idy <= 2 * bucketRadius)
     {
-        printf("idx: %d, idy %d \n", idx, idy);
+        //printf("idx: %d, idy %d \n", idx, idy);
 
         int i = x - bucketRadius + idx;
         int j = y - bucketRadius + idy;
 
-        printf("%d i, %d j \n", i , j);
+        //printf("%d i, %d j \n", i , j);
 
-        printf("%d idx, %d idy \n", idx , idy);
+        //printf("%d idx, %d idy \n", idx , idy);
 
         if(i>=0 && j>=0 && i<=res-1 && j<= res-1)
         {
             neighbourCells[(j*res) + i] = (j*res) + i;
-            printf(" %d neighbour cell added \n",neighbourCells[(j*res) + i]);
+            //printf(" %d neighbour cell added \n",neighbourCells[(j*res) + i]);
 
             //count ++;
         }
@@ -182,21 +181,44 @@ __global__ void neighbourhoodCells(unsigned int *neighbourCells,
 
 
 
+//    // Remove empty cells
+//    // go through cells
+//    if(idx < (1 + (2*bucketRadius))*(1 + (2*bucketRadius)))
+//    {
+//        if(neighbourCells[idx]<res*res)
+//        {
+//            printf("%d neighbour cell", neighbourCells[idx]);
+//            // if cell empty
+//            if(cellOcc[neighbourCells[idx]] == 0)
+//            {
+//                //add points to neighbourhood
 
-    // Remove empty cells
-    // go through cells
-    for(int i = 0; i < count; i++)
-    {
-        // if cell empty
-        if(cellOcc[neighbourCells[i]] == 0)
-        {
-            //add points to neighbourhood
+//                printf("deleting cell %d \n", neighbourCells[idx]);
+//                neighbourCells[idx] = NULL_CELL;
 
-            printf("deleting cell %d \n", neighbourCells[i]);
-            neighbourCells[i] = NULL_CELL;
+//            }
+//        }
 
-        }
-    }
+
+
+
+//    }
+
+
+
+
+//    for(int i = 0; i < count; i++)
+//    {
+//        // if cell empty
+//        if(cellOcc[neighbourCells[i]] == 0)
+//        {
+//            //add points to neighbourhood
+
+//            printf("deleting cell %d \n", neighbourCells[i]);
+//            neighbourCells[i] = NULL_CELL;
+
+//        }
+//    }
 
 
 
@@ -219,87 +241,76 @@ __global__ void neighbourhoodCells(unsigned int *neighbourCells,
 
 }
 
+__global__ void emptyCellCheck(unsigned int *neighbourCells,
+                               unsigned int *cellOcc,
+                              const unsigned int res)
+{
+    uint idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    // Remove empty cells
+    if(idx < res*res)
+    {
+//        printf("%d index \n", idx);
+
+        if(neighbourCells[idx]<res*res)
+        {
+
+            //printf("%d neighbour cell \n", neighbourCells[idx]);
+            // if cell empty
+            if(cellOcc[neighbourCells[idx]] == 0)
+            {
+                //add points to neighbourhood
+
+                //printf("deleting cell %d \n", neighbourCells[idx]);
+                neighbourCells[idx] = NULL_CELL;
+
+            }
+        }
+    }
+
+}
+
 
 
 
 
 // EXTEND TO 3Dzz
 // find cells surrounding current particles cells
-__global__ void nearestNeighbourPnts(float *neighbourhoodX,
-                                  float *neighbourhoodY,
-                                  unsigned int *cellOcc,
-                                  unsigned int *hash,
-                                  const float *Px,
-                                  const float *Py,
-                                 float neighbourhoodDist,
-                                const unsigned int N,
-                                const unsigned int res,
-                                unsigned int cell
+__global__ void nearestNeighbourPnts(float *neighbourhood,
+                                     unsigned int *neighbourCells,
+                                     unsigned int *hash,
+                                     const unsigned int N,
+                                     const unsigned int res
                                 )
 {
 
-//    // Compute the index of this thread: i.e. the point we are testing
-//    uint idx = blockIdx.x * blockDim.x + threadIdx.x;
+    // Compute the index of this thread: i.e. the point we are testing
+    uint idx = blockIdx.x * blockDim.x + threadIdx.x;
+    uint idy = blockIdx.y * blockDim.y + threadIdx.y;
 
-//    // Compute the index of this thread: i.e. the point we are testing
-//    uint idy = blockIdx.y * blockDim.y + threadIdx.y;
+    printf("%d x, %d y \n", idx, idy);
 
-//    printf("idx: %d, idy %d \n", idx, idy);
-
-
-//    // the number of cells in each direction to check
-//    int bucketRadius = ceil(neighbourhoodDist/(1.0/float(res)));;
-
-//    // Find surrounding cells
-//    int y = floor(float(cell/res));
-//    int x = cell -(y*res);
-
-//    int count = 0;
-
-//    int neighbourCells[GRID_RESOLUTION*GRID_RESOLUTION];
+    if(idx<res*res)
+    {
+        // only check occupied cells
+        if(neighbourCells[idx] < res*res)
+        {
+            if(idy < N)
+            {
+                if(neighbourCells[idx] == hash[idy] )
+                {
 
 
-//    for( int i = x - bucketRadius; i <= x + bucketRadius; ++i ){
-//        for( int j = y - bucketRadius; j <= y + bucketRadius; ++j ){
-//            if(i>=0 && j>=0 && i<=res-1 && j<= res-1)
-//            {
-//                //if((j*m_Flock->m_gridRes + i) != cell  )
-//                //{
-//                    neighbourCells[count] = (j*res) + i;
+                      neighbourhood[idy]=idy;
 
-//                    //std::cout<<neighbourCells[count]<<" neighbour cells \n";
-
-//                    count ++;
-
-//                //}
-//            }
-
-//        }
-//    }
+                }
+            }
 
 
+        }
+    }
 
-
-//    // Remove empty cells
-//    // go through cells
-//    for(int i = 0; i < count; i++)
-//    {
-//        // if cell not empty
-//        if(cellOcc[neighbourCells[i]] == 0)
-//        {
-//            //add points to neighbourhood
-
-//            //printf("deleting cell %d \n", neighbourCells[i]);
-//            neighbourCells[i] = -1;
-
-//        }
-//    }
-
-    // order neighbours cells and iterate with while loop
-
-//    int count2 = 0;
-
-//    // find points in cells
+    // find points in cells
 //    for(int i = 0; i < N; i++)
 //    {
 //        for(int j = 0; j<=count; j++)
@@ -372,9 +383,8 @@ void FlockGPU::nearestNeighbour()
     thrust::device_vector<unsigned int> d_hash(NUM_POINTS);
     //thrust::copy(d_hash.begin(), d_hash.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
 
-    // Vector storing neighbour pnts
-    thrust::device_vector<float> d_neighbours_x(NUM_POINTS,-1);
-    thrust::device_vector<float> d_neighbours_y(NUM_POINTS,-1);
+    // Vector storing neighbour pnts idx
+    thrust::device_vector<float> d_neighbours(NUM_POINTS,-1);
 
     // Holds neighbour cells
     thrust::device_vector<unsigned int> d_neighbourCells(GRID_RESOLUTION*GRID_RESOLUTION, NULL_CELL);
@@ -382,8 +392,7 @@ void FlockGPU::nearestNeighbour()
     // Typecast some raw pointers to the data so we can access them with CUDA functions
     unsigned int * d_hash_ptr = thrust::raw_pointer_cast(&d_hash[0]);
     unsigned int * d_cellOcc_ptr = thrust::raw_pointer_cast(&d_cellOcc[0]);
-    float * d_neighboursX_ptr = thrust::raw_pointer_cast(&d_neighbours_x[0]);
-    float * d_neighboursY_ptr = thrust::raw_pointer_cast(&d_neighbours_y[0]);
+    float * d_neighbours_ptr = thrust::raw_pointer_cast(&d_neighbours[0]);
     unsigned int * d_neighbourCells_ptr = thrust::raw_pointer_cast(&d_neighbourCells[0]);
     float * d_Px_ptr = thrust::raw_pointer_cast(&d_Px[0]);
     float * d_Py_ptr = thrust::raw_pointer_cast(&d_Py[0]);
@@ -402,6 +411,11 @@ void FlockGPU::nearestNeighbour()
      int blockDim = 1024 / GRID_RESOLUTION + 1; // 9 threads per block
      dim3 block(GRID_RESOLUTION, GRID_RESOLUTION); // block of (X,Y) threads
      dim3 grid(1, 1); // grid 2x2 blocks
+
+     // for nearest neighbour
+     unsigned int blockN = NUM_POINTS/ (GRID_RESOLUTION*GRID_RESOLUTION*NUM_POINTS) + 1;
+     dim3 block2(GRID_RESOLUTION*GRID_RESOLUTION, NUM_POINTS); // block of (X,Y) threads
+     dim3 grid2(blockN, blockN); // grid 2x2 blocks
 
 
     struct timeval tim;
@@ -432,18 +446,26 @@ void FlockGPU::nearestNeighbour()
     // Make sure all threads have wrapped up before completing the timings
     cudaThreadSynchronize();
 
-    neighbourhoodCells<<<grid, block>>>(d_neighbourCells_ptr, d_cellOcc_ptr,0.24,GRID_RESOLUTION, 0);
+    neighbourhoodCells<<<grid, block>>>(d_neighbourCells_ptr,0.24,GRID_RESOLUTION, 6);
 
     cudaThreadSynchronize();
 
     // sort into order
     thrust::sort(d_neighbourCells.begin(), d_neighbourCells.end());
 
-    // Testing nearest neighbourhood
-    //nearestNeighbourPnts<<<grid, block>>>(d_neighboursX_ptr,d_neighboursY_ptr,d_cellOcc_ptr, d_hash_ptr, d_Px_ptr, d_Py_ptr,0.24,NUM_POINTS,GRID_RESOLUTION,6);
+    emptyCellCheck<<<nBlocks,nThreads>>>(d_neighbourCells_ptr, d_cellOcc_ptr,GRID_RESOLUTION);
 
-    // Make sure all threads have wrapped up before completing the timings
     cudaThreadSynchronize();
+
+    // sort into order again
+    thrust::sort(d_neighbourCells.begin(), d_neighbourCells.end());
+
+    // Finds pnt index in neighbourhood cells
+    nearestNeighbourPnts<<<grid2, block2>>>(d_neighbours_ptr, d_neighbourCells_ptr, d_hash_ptr,NUM_POINTS,GRID_RESOLUTION);
+
+    cudaThreadSynchronize();
+
+
 
     gettimeofday(&tim, NULL);
     t2=tim.tv_sec+(tim.tv_usec/1000000.0);
@@ -451,9 +473,9 @@ void FlockGPU::nearestNeighbour()
 
     // Only dump the debugging information if we have a manageable number of points.
     if (NUM_POINTS <= 100) {
-        //thrust::copy(d_neighbours_x.begin(), d_neighbours_x.end(), std::ostream_iterator<float>(std::cout, " "));
-        //std::cout << "\n \n";
         thrust::copy(d_neighbourCells.begin(), d_neighbourCells.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
+        std::cout << "\n";
+        thrust::copy(d_neighbours.begin(), d_neighbours.end(), std::ostream_iterator<float>(std::cout, " "));
         std::cout << "\n";
         thrust::copy(d_hash.begin(), d_hash.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
         std::cout << "\n";
