@@ -39,7 +39,8 @@ isEmpty(CUDA_DIR) {
  
 # Include headers
 HEADERS += include/*.h \
-    include/flock_gpu.h
+    include/flock_gpu.h \
+    include/nearestneighbour.h
 
 
 ## CUDA_SOURCES - the source (generally .cu) files for nvcc. No spaces in path names
@@ -83,15 +84,6 @@ cudalink.depend_command = $$NVCCBIN $$NVCCFLAGS -M $$CUDA_INC ${QMAKE_FILE_NAME}
 # Tell Qt that we want add more stuff to the Makefile
 QMAKE_EXTRA_COMPILERS += cudalink
 
-NGLPATH=$$(NGLDIR)
-isEmpty(NGLPATH){ # note brace must be here
-        message("including $HOME/NGL")
-        include($(HOME)/NGL/UseNGL.pri)
-}
-else{ # note brace must be here
-        message("Using custom NGL location")
-        include($(NGLDIR)/UseNGL.pri)
-}
 
 # Set up the post install script to copy the headers into the appropriate directory
 includeinstall.commands = mkdir -p $$INC_INSTALL_DIR && cp include/*.h $$INC_INSTALL_DIR
