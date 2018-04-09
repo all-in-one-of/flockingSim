@@ -2,6 +2,7 @@
 #define _RAND_GPU_H
 
 #include <vector>
+#include "stdio.h"
 
 namespace Rand_GPU {
     /// Fill up a vector on the device with n floats. Memory is arrumed to have been preallocated.
