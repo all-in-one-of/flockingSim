@@ -1,8 +1,6 @@
 #include "Boid.h"
-#include <ngl/Random.h>
-#include <ngl/ShaderLib.h>
-#include <ngl/VAOPrimitives.h>
-#include <ngl/Transformation.h>
+#include <iostream>
+
 
 
 
@@ -14,22 +12,31 @@ Boid::Boid(Flock *_Flock, int _ID)
 {
   m_ID = _ID;
 
-  m_rotation.operator =(ngl::Vec3 {0,0,0});
 
 
-  ngl::Random *rand=ngl::Random::instance();
 
-  m_pos=rand->getRandomVec3()*3;
-  m_pos.m_y = 0;
 
-  //m_vel.operator =(ngl::Vec3{0,0,0});
+  m_rotation.operator =(glm::vec3{0,0,0});
 
-  m_vel = rand->getRandomNormalizedVec3();
-  m_vel.m_y = 0;
-  m_vel.operator /=(1000);
+
+  m_pos={((float(rand())/RAND_MAX)-0.5)*5, 0, ((float(rand())/RAND_MAX)-0.5)*5};
+
+
+  m_vel = {(float(rand())/RAND_MAX), 0, (float(rand())/RAND_MAX)};
+
+
+
+
+  //m_vel = glm::normalize(m_vel);
+
+  m_vel /= 100;
+
+  //std::cout<<"vel "<<m_vel[0]<<" \n";
+
 
 
   m_Flock = _Flock;
+
 }
 
 Boid::~Boid()

@@ -40,7 +40,7 @@ void GLWindow::initializeGL()
   glViewport( 0, 0, devicePixelRatio(), devicePixelRatio() );
 
   // mesh for boids, can have differen for prey and predator
-  m_meshes[0] = Mesh( "../Project/models/cone.obj", "cone" );
+  m_meshes[0] = Mesh( "../libflock_cpu/models/cone.obj", "cone" );
   //m_meshes[1] = Mesh( "models/cube.obj", "cube" );
 
   m_mesh = & m_meshes[0];
@@ -99,7 +99,7 @@ void GLWindow::mouseClick(QMouseEvent * _event)
 
 void GLWindow::init()
 {
-  std::string shadersAddress = "../Project/shaders/";
+  std::string shadersAddress = "../libflock_cpu/shaders/";
   m_shader = Shader( "m_shader", shadersAddress + "phong_vert.glsl", shadersAddress + "simplefrag.glsl" );
 
 

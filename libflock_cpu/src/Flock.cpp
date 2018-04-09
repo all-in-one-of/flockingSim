@@ -3,11 +3,15 @@
 
 
 
+
+
 /// @brief ctor
 /// @param _pos the position of the Flock
 /// @param _numBoids the number of Boids to create
-Flock::Flock(int _numBoids )
+Flock::Flock(GLWindow *_scene, int _numBoids )
 {
+    m_scene = _scene;
+
     m_numBoids=_numBoids;
 
     //m_Boids.resize(m_numBoids);
@@ -21,9 +25,25 @@ Flock::Flock(int _numBoids )
 
 	}
 
+    ///Predator(this,_numBoids+1);
+
     //delete b;
 
 }
+
+Flock::~Flock()
+{
+
+}
+
+void Flock::createBoidsMesh()
+{
+//    for(int i = 0; i< m_numBoids; i++)
+//    {
+
+//    }
+}
+
 /// @brief a method to update each of the Boids contained in the system
 void Flock::update()
 {
@@ -61,7 +81,7 @@ void Flock::hash()
     int res = m_gridRes;
     for(int i = 0; i< m_numBoids; i++)
     {
-        ngl::Vec3 pos = m_Boids[i].getPos();
+        glm::vec3 pos = m_Boids[i].getPos();
 
         //std::cout<<pos.m_x<<" "<<pos.m_z<<" original \n";
 

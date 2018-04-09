@@ -1,14 +1,10 @@
 #include "prey.h"
 #include "Flock.h"
 
-#include <ngl/Random.h>
-#include <ngl/ShaderLib.h>
-#include <ngl/VAOPrimitives.h>
-#include <ngl/Transformation.h>
 
 
 
-Prey::Prey(Flock *_Flock, int _ID) : Boid(_Flock, _ID)
+Prey::Prey(Flock *_Flock, const int _ID) : Boid(_Flock, _ID)
 {
 
 }
@@ -21,42 +17,49 @@ Prey::~Prey()
 
 void Prey::update()
 {
+    //std::cout<<m_pos.x<<" \n";
 
-    avoidBoundaries();
+
 
 
     flock();
 
+    avoidBoundaries();
+
     m_pos+=m_vel;
+
+
+
 
     updateRotation();
 }
 
 void Prey::draw()
 {
-    // get the VBO instance and draw the built in teapot
-    ngl::VAOPrimitives *prim=ngl::VAOPrimitives::instance();
-    ngl::Transformation trans;
-    ngl::ShaderLib *shader=ngl::ShaderLib::instance();
-    shader->use(m_Flock->getShaderName());
-      trans.setPosition(m_pos);
-      trans.setRotation(m_rotation);
 
-    ngl::Mat4 MV;
-    ngl::Mat4 MVP;
-    ngl::Mat3 normalMatrix;
-    ngl::Mat4 M;
-    M=trans.getMatrix();
-    MV=m_Flock->getCam()->getViewMatrix()*M;
-    MVP=m_Flock->getCam()->getProjectionMatrix()*MV;
-    normalMatrix=MV;
-    normalMatrix.inverse().transpose();
-    shader->setUniform("MV",MV);
-    shader->setUniform("MVP",MVP);
-    shader->setUniform("normalMatrix",normalMatrix);
-    shader->setUniform("M",M);
 
-    prim->draw("cone");
+        glm::mat4 MV;
+        glm::mat4 MVP;
+        glm::mat3 N;
+
+        // translate to new position
+        MV = glm::translate(MV, m_pos);
+        MV = glm::rotate( MV, m_rotateAngle, glm::vec3( 0.0f, 1.0f, 0.0f ) );
+
+
+
+        MVP = m_Flock->getScene()->getProjection() * m_Flock->getScene()->getCamera().viewMatrix() * MV;
+
+        N = glm::mat3( glm::inverse( glm::transpose( MV ) ) );
+        // link matrices with shader locations
+        glUniformMatrix4fv( m_Flock->getScene()->getMVPAddress(), 1, GL_FALSE, glm::value_ptr( MVP ) );
+        glUniformMatrix4fv( m_Flock->getScene()->getMVAddress(), 1, GL_FALSE, glm::value_ptr( MV ) );
+
+        glUniformMatrix3fv( m_Flock->getScene()->getNAddress(), 1, GL_FALSE, glm::value_ptr( N ) );
+
+
+        // draw
+        glDrawArrays( GL_TRIANGLES, 0 , ( m_Flock->getScene()->getAmountVertexData() / 3 ) );
 
 
 }
@@ -66,46 +69,54 @@ void Prey::avoidBoundaries()
 
 
 
-    if(m_pos.m_z > 3)
+    glm::vec3 desiredVel;
+
+    if(m_pos.z >= 3 && m_vel.z >0)
     {
-        ngl::Vec3 desiredVel = {m_vel[0],0,-m_vel[2]};
+        desiredVel = {m_vel[0],0,-m_vel[2]};
+        //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
+        m_vel += steerBoid(desiredVel);
 
-        desiredVel.normalize();
-
-        m_vel.operator +=(steerBoid(desiredVel));
-
+        //limitVel(0.02);
         //std::cout<<" out of z bounds\n";
     }
-    else if(m_pos.m_z < -3)
+    else if(m_pos.z <= -3 && m_vel.z <0)
     {
-        ngl::Vec3 desiredVel = {m_vel[0],0,-m_vel[2]};
+        desiredVel = {m_vel[0],0,-m_vel[2]};
 
-        desiredVel.normalize();
+        //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
+        m_vel += steerBoid(desiredVel);
 
-        m_vel.operator +=(steerBoid(desiredVel));
-
+        //limitVel(0.02);
         //std::cout<<" out of -z bounds\n";
     }
-    else if(m_pos.m_x > 3)
+    else if(m_pos.x >= 3 && m_vel.x >0)
     {
-        ngl::Vec3 desiredVel = {-m_vel[0],0,m_vel[2]};
+        desiredVel = {-m_vel[0],0,m_vel[2]};
+        //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
+        m_vel += steerBoid(desiredVel);
 
-        desiredVel.normalize();
-
-        m_vel.operator +=(steerBoid(desiredVel));
-
+        //imitVel(0.02);
         //std::cout<<" out of x bounds\n";
     }
-    else if(m_pos.m_x < -3)
+    else if(m_pos.x <= -3 && m_vel.x <0)
     {
-        ngl::Vec3 desiredVel = {-m_vel[0],0,m_vel[2]};
+        desiredVel = {-m_vel[0],0,m_vel[2]};
+        //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
+        m_vel += steerBoid(desiredVel);
 
-        desiredVel.normalize();
-
-        m_vel.operator +=(steerBoid(desiredVel));
-
+        //limitVel(0.02);
         //std::cout<<" out of -x bounds\n";
     }
+
+
+    //desiredVel /=
+
+//    std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
+//    m_vel += steerBoid(desiredVel);
+    //m_vel = glm::normalize(m_vel);
+
+    //limitVel(0.02);
 
 }
 
@@ -114,30 +125,36 @@ void Prey::updateRotation()
 {
 
     //rotation 0 when facing in z axis
-        ngl::Vec3 facing = {0,0,1};
+        glm::vec3 facing = {0,0,1};
 
              //only update if moving
-             if(m_vel.operator !=({0,0,0}))
+             if(m_vel != glm::vec3{0,0,0})
              {
 
 
-                 float mag1 = facing.length();
-                 float mag2 = m_vel.length() ;
+                 float mag1 = glm::length(facing);
+                 float mag2 = glm::length(m_vel);
 
                  //find angle between z axis and boids velocity vector
-                 float steer = std::acos(facing.dot(m_vel)/(mag1*mag2));
-                 //math.acos(dotProduct(facing, self.velocity)/(mag1*mag2));
+                 float steer = std::acos(glm::dot(facing, m_vel)/(mag1*mag2));
 
                  //convert from radians to degrees
-                 steer = steer*(180/M_PI);
+                 //steer = steer*(180/M_PI);
+
+
+                 //std::cout<<"vel "<<m_vel[0]<<"\n";
+                 //std::cout<<"angle "<<steer<<" \n";
+
 
                  //if rotation past 180 degrees must take away from 360, then update boid rotation
                  if(m_vel[0]>0)
                  {
+                     m_rotateAngle = steer;
                      m_rotation[1] = steer;
                  }
                  else
                  {
+                     m_rotateAngle = 2*M_PI -steer;
                      m_rotation[1]= 360-steer;
                  }
              }
@@ -146,58 +163,56 @@ void Prey::updateRotation()
 
 void Prey::flock()
 {
-        ngl::Vec3 steer = {0,0,0};
+        glm::vec3 steer = {0,0,0};
 
         //compute the flocking component vectors
-        ngl::Vec3 alignment = {0,0,0};
-        ngl::Vec3 cohesion = {0,0,0};
-        ngl::Vec3 separation = {0,0,0};
+        glm::vec3 alignment = {0,0,0};
+        glm::vec3 cohesion = {0,0,0};
+        glm::vec3 separation = {0,0,0};
 
-        alignment.operator =(alignBoid());
-        cohesion.operator =(cohesionBoid());
-        separation.operator =(seperateBoid());
+        alignment = alignBoid();
+        cohesion =cohesionBoid();
+        separation =seperateBoid();
 
 
         //flocking component weights
         float alignmentWeight = 1;
         float cohesionWeight = 1;
-        float separationWeight = 1.2;
+        float separationWeight = 1.3;
 
         //find resulting flocking vector
         steer[0] += (cohesion[0] * cohesionWeight) + (alignment[0] * alignmentWeight) + (separation[0] * separationWeight);
         steer[2] += (cohesion[2] * cohesionWeight) + (alignment[2] * alignmentWeight) + (separation[2] * separationWeight);
 
-        //steer[0] += alignment[0];
-        //steer[2] += alignment[2];
+        //steer[0] += separation[0];
+        //steer[2] += separation[2];
 
-        if(steer.operator !=(ngl::Vec3{0,0,0}))
+        if(steer != glm::vec3{0,0,0})
         {
 
-            steer.normalize();
+            //steer =glm::normalize(steer);
+
+            //steer towards flocking vector if required
+            m_vel[0] += steerBoid(steer)[0];
+            m_vel[2] += steerBoid(steer)[2];
 
         }
 
 
-
-
-        //steer towards flocking vector
-        m_vel[0] += steer[0];//steerBoid(steer)[0];
-        m_vel[2] += steer[2];//steerBoid(steer)[2];
-
-        if(m_vel.operator !=(ngl::Vec3{0,0,0}))
+        if(m_vel != glm::vec3{0,0,0})
         {
-            m_vel.normalize();
+            //m_vel = glm::normalize(m_vel);
 
             // limit velocity
-            limitVel(0.004);
+            limitVel(0.02);
         }
 
 }
 
-ngl::Vec3 Prey::alignBoid()
+glm::vec3 Prey::alignBoid()
 {
     int numberOfNeighbours = 0;
-    ngl::Vec3 alignmentVector {0,0,0};
+    glm::vec3 alignmentVector {0,0,0};
 
     std::vector <Prey> boidsVector = m_Flock->getBoidsVector();
 
@@ -248,7 +263,7 @@ ngl::Vec3 Prey::alignBoid()
 //    }
 
     // avoid dividing by zero
-    if(numberOfNeighbours != 0 && alignmentVector.operator !=(ngl::Vec3{0,0,0}))
+    if(numberOfNeighbours != 0 && alignmentVector != glm::vec3{0,0,0})
     {
 
 
@@ -260,20 +275,20 @@ ngl::Vec3 Prey::alignBoid()
 
 
 
-        alignmentVector.normalize();
+        alignmentVector = glm::normalize(alignmentVector);
     }
 
     return alignmentVector;
 
 }
 
-ngl::Vec3 Prey::seperateBoid()
+glm::vec3 Prey::seperateBoid()
 {
     int numberOfNeighbours = 0;
-    ngl::Vec3 seperationVector {0,0,0};
+    glm::vec3 seperationVector {0,0,0};
     std::vector <Prey> boidsVector = m_Flock->getBoidsVector();
 
-    ngl::Vec3 diff {0,0,0};
+    glm::vec3 diff {0,0,0};
 
     float neighbourhoodRadius = 0.6;
 
@@ -282,7 +297,7 @@ ngl::Vec3 Prey::seperateBoid()
 
     //std::cout<<m_Flock->getHashVec()[getID()]<<" cell id \n";
 
-//    // find neighbour points of current boid
+    // find neighbour points of current boid
     nearestNeighbours(neighbourhoodRadius,m_Flock->getHashVec()[getID()]);
 
 
@@ -304,7 +319,7 @@ ngl::Vec3 Prey::seperateBoid()
                 diff[0] = boidsVector[getNeighbourPnts()[i]].m_pos[0]-m_pos[0];
                 diff[2] = boidsVector[getNeighbourPnts()[i]].m_pos[2]-m_pos[2];
 
-                diff.normalize();
+                diff = glm::normalize(diff);
 
                 //the closer to its neighbors the greater the seperation vector
                 seperationVector[0] += diff[0] / (distanceToBoid(boidsVector[getNeighbourPnts()[i]]));
@@ -336,7 +351,7 @@ ngl::Vec3 Prey::seperateBoid()
 //                    diff[0] = boidsVector[i].m_pos[0]-m_pos[0];
 //                    diff[2] = boidsVector[i].m_pos[2]-m_pos[2];
 
-//                    diff.normalize();
+//                    glm::normalize(diff);
 
 //                    //the closer to its neighbors the greater the seperation vector
 //                    seperationVector[0] += diff[0] / (distanceToBoid(boidsVector[i]));
@@ -360,7 +375,7 @@ ngl::Vec3 Prey::seperateBoid()
         seperationVector[0] *= -1;
         seperationVector[2] *= -1;
 
-        seperationVector.normalize();
+        seperationVector = glm::normalize(seperationVector);
     }
 
 
@@ -369,10 +384,10 @@ ngl::Vec3 Prey::seperateBoid()
 
 }
 
-ngl::Vec3 Prey::cohesionBoid()
+glm::vec3 Prey::cohesionBoid()
 {
     int numberOfNeighbours = 0;
-    ngl::Vec3 cohesionVector {0,0,0};
+    glm::vec3 cohesionVector {0,0,0};
 
     std::vector <Prey> boidsVector = m_Flock->getBoidsVector();
 
@@ -445,7 +460,8 @@ ngl::Vec3 Prey::cohesionBoid()
         cohesionVector[2] = (cohesionVector[2] - m_pos[2]);
 
         //std::cout<<cohesionVector[0]<<" "<<cohesionVector[2]<<" nomalise these\n";
-        cohesionVector.normalize();
+        cohesionVector = glm::normalize(cohesionVector);
+
     }
 
     return cohesionVector;
@@ -453,15 +469,18 @@ ngl::Vec3 Prey::cohesionBoid()
 
 }
 
-ngl::Vec3 Prey::steerBoid(ngl::Vec3 _target)
+glm::vec3 Prey::steerBoid(glm::vec3 _target)
 {
-    ngl::Vec3 steer = {0,0,0};
+
+
+
+    glm::vec3 steer = {0,0,0};
     steer[0] = _target[0] - m_vel[0];
     steer[2] = _target[2] - m_vel[2];
 
-    //std::cout<<"steer "<<steer[0]<<"\n";
+    //std::cout<<"steer "<<steer[0]<<steer[2]<<"\n";
 
-    //steer.operator =( (steer/steer.length())*0.001);
+    steer.operator =( (steer/glm::length(steer))*0.02);
 
     //std::cout<<steer[0]<<"\n";
 
@@ -480,10 +499,14 @@ float Prey::distanceToBoid(const Prey _boid)
 void Prey::limitVel(float _limit)
 {
 
-    if( m_vel.length() > _limit)
+
+    if( glm::length(m_vel) > _limit)
     {
-        m_vel[0] = (m_vel[0]/m_vel.length())*_limit;
-        m_vel[2] = (m_vel[2]/m_vel.length())*_limit;
+
+        m_vel[0] = (m_vel[0]/glm::length(m_vel))*_limit;
+        m_vel[2] = (m_vel[2]/glm::length(m_vel))*_limit;
+
+        //std::cout<<"new vel "<<m_vel[0]<<" \n";
 
     }
 }
