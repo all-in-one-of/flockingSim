@@ -197,7 +197,7 @@ __global__ void nearestNeighbourPnts(float *neighbourhood,
     uint idx = blockIdx.x * blockDim.x + threadIdx.x;
     uint idy = blockIdx.y * blockDim.y + threadIdx.y;
 
-    printf("%d x, %d y \n", idx, idy);
+    //printf("%d x, %d y \n", idx, idy);
 
     if(idx<res*res)
     {

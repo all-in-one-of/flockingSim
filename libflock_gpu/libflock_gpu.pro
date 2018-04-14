@@ -15,7 +15,8 @@ TARGET = $$LIB_INSTALL_DIR/flock_gpu
 QMAKE_CXXFLAGS += -std=c++11 -fPIC 
 
 # Directories
-INCLUDEPATH += include ${CUDA_PATH}/include ${CUDA_PATH}/include/cuda ${CUDA_PATH}/samples/common/inc
+INCLUDEPATH += include ${CUDA_PATH}/include ${CUDA_PATH}/include/cuda ${CUDA_PATH}/samples/common/inc $$PWD/../../glm \
+
 
 # Link with the following libraries
 LIBS += -L${CUDA_PATH}/lib64 -L${CUDA_PATH}/lib64/nvidia -lcuda -lcudart -lcudadevrt -lcurand
@@ -39,12 +40,16 @@ isEmpty(CUDA_DIR) {
  
 # Include headers
 HEADERS += include/*.h \
-    include/flock_gpu.h \
-    include/nearestneighbour.h
+           include/*.cuh \
+
+
 
 
 ## CUDA_SOURCES - the source (generally .cu) files for nvcc. No spaces in path names
 CUDA_SOURCES += cudasrc/*.cu
+
+SOURCES += src/*cpp \
+
 
 ## CUDA_INC - all incldues needed by the cuda files (such as CUDA\<version-number\include)
 CUDA_INC+= $$join(INCLUDEPATH,' -I','-I',' ')

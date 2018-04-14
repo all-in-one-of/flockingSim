@@ -6,7 +6,7 @@
 #include <cuda_runtime_api.h>
 #include <device_functions.h>
 
-#include "nearestneighbour.h"
+#include "nearestneighbour_gpu.cuh"
 
 
 // Needed for output functions within the kernel
@@ -29,6 +29,8 @@
 // My own include function to generate some randomness
 #include "random.cuh"
 
+#include "flockSim_gpu.h"
+
 #include "flock_gpu.h"
 
 
@@ -37,8 +39,11 @@
 
 
 
-void FlockGPU::nearestNeighbour()
+void FlockGPU::FlockingSim()
 {
+
+
+
 
     // First thing is we'll generate a big old vector of random numbers for the purposes of
     // fleshing out our point data. This is much faster to do in one step than 3 seperate
