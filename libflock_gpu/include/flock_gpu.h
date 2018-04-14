@@ -6,7 +6,10 @@
 #include <algorithm>
 #include <vector>
 
+#include "flockSim_gpu.h"
 #include "prey_gpu.h"
+
+
 
 class Flock_GPU
 {
@@ -34,19 +37,6 @@ public :
   int m_gridRes = 6;
 
 
-  //std::vector <float> m_testVec;
-
-  //void setFlockVerts(std::vector<float> _meshVerts);
-  //std::vector<float> getFlockVerts(){return m_flockVerts;}
-
-
-
-  //std::vector<Mesh> m_flockMeshes;
-
-
-
-//  inline void setShaderName(const std::string &_n){m_shaderName=_n;}
-//  inline const std::string getShaderName()const {return m_shaderName;}
 
 
 private :
@@ -57,6 +47,10 @@ private :
     std::vector <int> m_hashVec;
     int m_cellOcc[36];
 
+    // GPU
+    // stores neighbour points
+    //thrust::device_vector<unsigned int> m_dneighbourPnts;
+    //unsigned int * m_dneighbourPnts_ptr;
 
 
 

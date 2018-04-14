@@ -515,6 +515,7 @@ void Prey_GPU::limitVel(float _limit)
     }
 }
 
+
 void Prey_GPU::nearestNeighbours(float _neighbourhoodDist, int cell)
 {
 

@@ -185,7 +185,7 @@ __global__ void emptyCellCheck(unsigned int *neighbourCells,
 
 
 // find cells surrounding current particles cells
-__global__ void nearestNeighbourPnts(float *neighbourhood,
+__global__ void nearestNeighbourPnts(unsigned int *neighbourhood,
                                      unsigned int *neighbourCells,
                                      unsigned int *hash,
                                      const unsigned int N,

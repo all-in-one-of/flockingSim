@@ -2,6 +2,8 @@
 #define PREY_GPU_H
 
 #include "boids_gpu.h"
+
+
 #include <vector>
 class Prey_GPU: public Boid_GPU
 {

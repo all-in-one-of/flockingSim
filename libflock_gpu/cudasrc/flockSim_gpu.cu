@@ -1,10 +1,5 @@
 #include <iostream>
 
-// For the CUDA runtime routines (prefixed with "cuda_")
-#include <cuda_runtime.h>
-#include <cuda.h>
-#include <cuda_runtime_api.h>
-#include <device_functions.h>
 
 #include "nearestneighbour_gpu.cuh"
 
@@ -17,11 +12,6 @@
 #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ < 200)
    #define printf(f, ...) ((void)(f, __VA_ARGS__),0)
 #endif
-
-// For thrust routines (e.g. stl-like operators and algorithms on vectors)
-#include <thrust/host_vector.h>
-#include <thrust/device_vector.h>
-#include <thrust/sort.h>
 
 
 #include<sys/time.h>
@@ -39,10 +29,8 @@
 
 
 
-void FlockGPU::FlockingSim()
+void NearestNeighbour()
 {
-
-
 
 
     // First thing is we'll generate a big old vector of random numbers for the purposes of
@@ -75,7 +63,7 @@ void FlockGPU::FlockingSim()
     //thrust::copy(d_hash.begin(), d_hash.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
 
     // Vector storing neighbour pnts idx
-    thrust::device_vector<float> d_neighbours(NUM_POINTS,NULL_PNT);
+    thrust::device_vector<unsigned int> d_neighbours(NUM_POINTS,NULL_PNT);
 
     // Holds neighbour cells
     thrust::device_vector<unsigned int> d_neighbourCells(GRID_RESOLUTION*GRID_RESOLUTION, NULL_CELL);
@@ -83,7 +71,7 @@ void FlockGPU::FlockingSim()
     // Typecast some raw pointers to the data so we can access them with CUDA functions
     unsigned int * d_hash_ptr = thrust::raw_pointer_cast(&d_hash[0]);
     unsigned int * d_cellOcc_ptr = thrust::raw_pointer_cast(&d_cellOcc[0]);
-    float * d_neighbours_ptr = thrust::raw_pointer_cast(&d_neighbours[0]);
+    unsigned int * d_neighbours_ptr = thrust::raw_pointer_cast(&d_neighbours[0]);
     unsigned int * d_neighbourCells_ptr = thrust::raw_pointer_cast(&d_neighbourCells[0]);
     float * d_Px_ptr = thrust::raw_pointer_cast(&d_Px[0]);
     float * d_Py_ptr = thrust::raw_pointer_cast(&d_Py[0]);
@@ -170,7 +158,7 @@ void FlockGPU::FlockingSim()
     if (NUM_POINTS <= 100) {
         thrust::copy(d_neighbourCells.begin(), d_neighbourCells.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
         std::cout << "\n";
-        thrust::copy(d_neighbours.begin(), d_neighbours.end(), std::ostream_iterator<float>(std::cout, " "));
+        thrust::copy(d_neighbours.begin(), d_neighbours.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
         std::cout << "\n";
         thrust::copy(d_hash.begin(), d_hash.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
         std::cout << "\n";

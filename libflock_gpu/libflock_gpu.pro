@@ -15,7 +15,7 @@ TARGET = $$LIB_INSTALL_DIR/flock_gpu
 QMAKE_CXXFLAGS += -std=c++11 -fPIC 
 
 # Directories
-INCLUDEPATH += include ${CUDA_PATH}/include ${CUDA_PATH}/include/cuda ${CUDA_PATH}/samples/common/inc $$PWD/../../glm \
+INCLUDEPATH += include ${CUDA_PATH}/include ${CUDA_PATH}/include/cuda ${CUDA_PATH}/samples/common/inc $$PWD/../../glm \ $$PWD/include
 
 
 # Link with the following libraries

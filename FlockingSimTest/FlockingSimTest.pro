@@ -90,7 +90,8 @@ TARGET=$$BIN_INSTALL_DIR/flockingSimTest
 
 SOURCES += src/*.cpp
 
-INCLUDEPATH += $$INC_INSTALL_DIR
+INCLUDEPATH += $$INC_INSTALL_DIR \
+               $$PWD/../../glm \
 
 OBJECTS_DIR = obj
 

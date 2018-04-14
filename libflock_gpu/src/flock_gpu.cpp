@@ -3,8 +3,6 @@
 
 
 
-
-
 /// @brief ctor
 /// @param _pos the position of the Flock
 /// @param _numBoids the number of Boids to create
@@ -24,6 +22,8 @@ Flock_GPU::Flock_GPU(int _numBoids )
         m_Boids.push_back(Prey_GPU(this,i));
 
     }
+
+    //m_dneighbourPnts_ptr =  thrust::raw_pointer_cast(&m_dneighbourPnts[0]);
 
     ///Predator(this,_numBoids+1);
 
@@ -52,8 +52,16 @@ void Flock_GPU::update()
 
     for(int i=0; i<m_numBoids; ++i)
     {
+
+
+
+
+
+
         hash();
         cellOcc();
+
+
 
         m_Boids[i].update();
 
