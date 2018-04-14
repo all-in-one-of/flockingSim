@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS =  FlockingSim libflock_cpu #Project#libflock_gpu
+SUBDIRS =  FlockingSimTest libflock_cpu libflock_gpu #Project
