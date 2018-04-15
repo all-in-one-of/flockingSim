@@ -19,19 +19,16 @@
 // My own include function to generate some randomness
 #include "random.cuh"
 
-#include "flockSim_gpu.h"
+#include "flockSim_gpu.cuh"
 
-#include "flock_gpu.h"
+#include "flock_gpu.cuh"
 
-
-
-
+#include "prey_gpu.cuh"
 
 
 
 void NearestNeighbour()
 {
-
 
     // First thing is we'll generate a big old vector of random numbers for the purposes of
     // fleshing out our point data. This is much faster to do in one step than 3 seperate

@@ -39,8 +39,9 @@ isEmpty(CUDA_DIR) {
 }
  
 # Include headers
-HEADERS += include/*.h \
-           include/*.cuh \
+HEADERS += include/*.cuh \
+           include/*.h
+
 
 
 
@@ -48,7 +49,7 @@ HEADERS += include/*.h \
 ## CUDA_SOURCES - the source (generally .cu) files for nvcc. No spaces in path names
 CUDA_SOURCES += cudasrc/*.cu
 
-SOURCES += src/*cpp \
+
 
 
 ## CUDA_INC - all incldues needed by the cuda files (such as CUDA\<version-number\include)

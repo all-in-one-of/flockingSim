@@ -1,7 +1,7 @@
 #ifndef PREY_GPU_H
 #define PREY_GPU_H
 
-#include "boids_gpu.h"
+#include "boids_gpu.cuh"
 
 
 #include <vector>

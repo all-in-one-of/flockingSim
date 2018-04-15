@@ -1,4 +1,4 @@
-#include "prey_gpu.h"
+#include "prey_gpu.cuh"
 #include "flock_gpu.cuh"
 
 

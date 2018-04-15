@@ -12,6 +12,8 @@ Flock_GPU::Flock_GPU(int _numBoids )
 
     m_numBoids=_numBoids;
 
+    //m_dPos.resize(m_numBoids*3);
+
     //m_Boids.resize(m_numBoids);
 
     //BoidFactory *b = new BoidFactory;
@@ -20,6 +22,11 @@ Flock_GPU::Flock_GPU(int _numBoids )
     {
 
         m_Boids.push_back(Prey_GPU(this,i));
+
+
+//        m_dPos[(3*i)]=m_Boids[i].getPos().x;
+//        m_dPos[(3*i)+1]=m_Boids[i].getPos().y;
+//        m_dPos[(3*i)+2]=m_Boids[i].getPos().z;
 
     }
 

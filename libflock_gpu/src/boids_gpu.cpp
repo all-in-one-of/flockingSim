@@ -1,4 +1,4 @@
-#include "boids_gpu.h"
+#include "boids_gpu.cuh"
 #include <iostream>
 
 

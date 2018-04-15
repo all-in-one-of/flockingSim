@@ -4,6 +4,9 @@
 
 #include <glm.hpp>
 
+#include <thrust/host_vector.h>
+#include <thrust/device_vector.h>
+#include <thrust/sort.h>
 
 
 // pre-declare Flock class
@@ -45,6 +48,7 @@ protected :
     int m_ID;
     /// @brief the curent Boid position
     glm::vec3 m_pos;
+
     /// @brief the velocity vector of the Boid
     glm::vec3 m_vel;
 

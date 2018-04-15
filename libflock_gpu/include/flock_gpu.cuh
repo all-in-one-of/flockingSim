@@ -6,10 +6,8 @@
 #include <algorithm>
 #include <vector>
 
-#include "flockSim_gpu.h"
-#include "prey_gpu.h"
-
-
+#include "flockSim_gpu.cuh"
+#include "prey_gpu.cuh"
 
 class Flock_GPU
 {
@@ -38,6 +36,12 @@ public :
 
 
 
+//  float * getPos(){return m_dPos_ptr;}
+//  unsigned int * getNeighbours(){return m_dneighbourPnts_ptr;}
+
+  void NearestNeighbour();
+
+
 
 private :
     /// @brief the number of Boids
@@ -47,10 +51,13 @@ private :
     std::vector <int> m_hashVec;
     int m_cellOcc[36];
 
-    // GPU
+    // GPU -------------------------------------------------------------------------
+    // stores point pos
+    thrust::device_vector<float> m_dPos;
+    float * m_dPos_ptr = thrust::raw_pointer_cast(&m_dPos[0]);
     // stores neighbour points
-    //thrust::device_vector<unsigned int> m_dneighbourPnts;
-    //unsigned int * m_dneighbourPnts_ptr;
+    thrust::device_vector<unsigned int> m_dneighbourPnts;
+    unsigned int * m_dneighbourPnts_ptr = thrust::raw_pointer_cast(&m_dneighbourPnts[0]);
 
 
 

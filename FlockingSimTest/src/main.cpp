@@ -8,19 +8,28 @@ basic OpenGL demo modified from http://qt-project.org/doc/qt-5.0/qtgui/openglwin
 
 
 #include "flock_cpu.h"
-#include "flock_gpu.h"
 #include "flockSim_gpu.h"
+
 
 
 
 int main(int argc, char **argv)
 {
 
+    //Flock_GPU *flock = new Flock_GPU(20);
+
+
+
+    NearestNeighbour();
+    //NearestNeighbour();
+
+
 
     // GPU Flocking
     //NearestNeighbour();
 
-
+//    FLo
+//    NearestNeighbour();
 
 
 
