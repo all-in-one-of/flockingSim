@@ -10,6 +10,12 @@
 
 #include "random.cuh"
 
+//__global__ void setPositions(float * posVec, float _currentPos, int _id)
+//{
+//    posVec[_id] = _currentPos;
+
+//}
+
 /// @brief ctor
 /// @param _pos the position of the Flock
 /// @param _numBoids the number of Boids to create
@@ -19,26 +25,50 @@ Flock_GPU::Flock_GPU(int _numBoids )
 
     m_numBoids=_numBoids;
 
-    m_dPos.resize(m_numBoids*3);
+    //thrust::device_vector<float> d_Pos(m_numBoids*3);
 
-    m_dPos_ptr= thrust::raw_pointer_cast(&m_dPos[0]);
+    m_dPosX.resize(m_numBoids);
+    m_dPosY.resize(m_numBoids);
+
+
+    m_dPosX_ptr= thrust::raw_pointer_cast(&m_dPosX[0]);
+    m_dPosY_ptr= thrust::raw_pointer_cast(&m_dPosY[0]);
+
+
+
+
+
+
+
 
     //m_Boids.resize(m_numBoids);
 
     //BoidFactory *b = new BoidFactory;
+
+    unsigned int nThreads = 1024;
+    unsigned int nBlocks = NUM_POINTS / nThreads + 1;
+
 
     for (int i=0; i< _numBoids; ++i)
     {
 
         m_Boids.push_back(Prey_GPU(this,i));
 
+        //setPositions<<<nBlocks, nThreads>>>(m_dPos_ptr, m_Boids[i].getPos().x, i);
+
+
         //Prey_GPU * prey = new Prey_GPU(this,i);
 
 
 
-         m_dPos_ptr[0]= 3.0f;//m_Boids[i].getPos().x;
-//        m_dPos[(3*i)+1]=m_Boids[i].getPos().y;
-//        m_dPos[(3*i)+2]=m_Boids[i].getPos().z;
+
+
+         m_dPosX[i]=m_Boids[i].getPos().x;
+         m_dPosY[i]=m_Boids[i].getPos().y;
+
+         // make positions between 0-1 rather then -4 to 4
+         m_dPosX[i] = (1.0f/8.0f)*(m_dPosX[i] + 4);
+         m_dPosY[i] = (1.0f/8.0f)*(m_dPosY[i] + 4);
 
 //        std::cout<<m_dPos[(3*i)]<<" "<<m_dPos[(3*i)+1]<<" "<<m_dPos[(3*i)+2]<<" \n";
 
@@ -92,6 +122,7 @@ void Flock_GPU::update()
 
 }
 
+
 unsigned int * Flock_GPU::findNeighbours()
 {
 
@@ -107,8 +138,12 @@ unsigned int * Flock_GPU::findNeighbours()
         // steps.
         thrust::device_vector<float> d_Rand(NUM_POINTS*3);
 
+        d_Rand[0]=1.0f;
+
 
         float * d_Rand_ptr = thrust::raw_pointer_cast(&d_Rand[0]);
+
+
         //randFloats(d_Rand_ptr, NUM_POINTS*3);
 
         // We'll store the components of the 3d vectors in separate arrays.
@@ -173,7 +208,7 @@ unsigned int * Flock_GPU::findNeighbours()
 
         // The special CUDA syntax below executes our parallel function with the specified parameters
         // using the number of blocks and threads provided.
-        pointHash<<<nBlocks, nThreads>>>(d_hash_ptr, d_Px_ptr, d_Py_ptr,
+        pointHash<<<nBlocks, nThreads>>>(d_hash_ptr, m_dPosX_ptr, m_dPosY_ptr,
                                          NUM_POINTS,
                                          GRID_RESOLUTION);
 
@@ -183,7 +218,7 @@ unsigned int * Flock_GPU::findNeighbours()
         // Now we can sort our points to ensure that points in the same grid cells occupy contiguous memory
         thrust::sort_by_key(d_hash.begin(), d_hash.end(),
                             thrust::make_zip_iterator(
-                                thrust::make_tuple( d_Px.begin(), d_Py.begin())));
+                                thrust::make_tuple( m_dPosX.begin(), m_dPosX.begin())));
 
         // Make sure all threads have wrapped up before completing the timings
         cudaThreadSynchronize();
@@ -225,6 +260,11 @@ unsigned int * Flock_GPU::findNeighbours()
 
         // Only dump the debugging information if we have a manageable number of points.
         if (NUM_POINTS <= 100) {
+
+            thrust::copy(m_dPosX.begin(), m_dPosX.end(), std::ostream_iterator<float>(std::cout, " "));
+            std::cout << "\n";
+            thrust::copy(m_dPosY.begin(), m_dPosY.end(), std::ostream_iterator<float>(std::cout, " "));
+            std::cout << "\n";
             thrust::copy(d_neighbourCells.begin(), d_neighbourCells.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
             std::cout << "\n";
             thrust::copy(d_neighbours.begin(), d_neighbours.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
@@ -265,8 +305,8 @@ void Flock_GPU::hash()
         // make position between 0-1 rather then -3 - 3
         float posx = pos[0];
         float posz = pos[2];
-        posx = (1.0f/6.0f)*(posx + 3);
-        posz = (1.0f/6.0f)*(posz + 3);
+        posx = (1.0f/8.0f)*(posx + 4);
+        posz = (1.0f/8.0f)*(posz + 4);
 
         //std::cout<<posx<<" "<<posz<<" altered \n";
 

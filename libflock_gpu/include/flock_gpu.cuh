@@ -60,8 +60,12 @@ private :
 
     // GPU -------------------------------------------------------------------------
     // stores point pos
-    thrust::device_vector<float> m_dPos;
-    float * m_dPos_ptr;
+    thrust::device_vector<float> m_dPosX;
+    thrust::device_vector<float> m_dPosY;
+
+    float * m_dPosX_ptr;
+    float * m_dPosY_ptr;
+
     // stores neighbour points
     thrust::device_vector<unsigned int> m_dneighbourPnts;
     unsigned int * m_dneighbourPnts_ptr = thrust::raw_pointer_cast(&m_dneighbourPnts[0]);

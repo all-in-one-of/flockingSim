@@ -15,7 +15,7 @@
 
 
 /// The number of points to generate within 0,1
-#define NUM_POINTS 10
+#define NUM_POINTS 20
 
 /// The resolution of our grid (dependent on the radius of influence of each point)
 #define GRID_RESOLUTION 4
