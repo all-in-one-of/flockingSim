@@ -1,7 +1,7 @@
 #include <iostream>
 
 
-#include "nearestneighbour_gpu.cuh"
+
 
 
 // Needed for output functions within the kernel
@@ -18,17 +18,31 @@
 
 // My own include function to generate some randomness
 #include "random.cuh"
-
-#include "flockSim_gpu.cuh"
-
-#include "flock_gpu.cuh"
-
-#include "prey_gpu.cuh"
+#include "nearestneighbour_gpu.cuh"
+#include "flockSim_gpu.h"
 
 
 
-void NearestNeighbour()
+
+void initializeFlock()
 {
+
+
+
+    //Flock_GPU *flock23 = new Flock_GPU(20);
+
+    //NearestNeighbour();
+
+}
+
+unsigned int * NearestNeighbour(float * _pos)
+{
+
+    //Flock_GPU *flock = new Flock_GPU(20);
+
+    //Prey_GPU *prey = new Prey_GPU(flock,1);
+
+
 
     // First thing is we'll generate a big old vector of random numbers for the purposes of
     // fleshing out our point data. This is much faster to do in one step than 3 seperate

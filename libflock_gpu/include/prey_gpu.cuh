@@ -3,7 +3,6 @@
 
 #include "boids_gpu.cuh"
 
-
 #include <vector>
 class Prey_GPU: public Boid_GPU
 {

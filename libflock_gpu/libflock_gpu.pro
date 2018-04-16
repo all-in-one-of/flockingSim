@@ -39,15 +39,25 @@ isEmpty(CUDA_DIR) {
 }
  
 # Include headers
-HEADERS += include/*.cuh \
-           include/*.h
+HEADERS += include/boids_gpu.cuh \
+           include/flock_gpu.cuh \
+           include/prey_gpu.cuh \
+           include/random.cuh \
+           include/nearestneighbour_gpu.cuh \
+           include/libflock_gpu.h
 
 
 
 
 
 ## CUDA_SOURCES - the source (generally .cu) files for nvcc. No spaces in path names
-CUDA_SOURCES += cudasrc/*.cu
+CUDA_SOURCES += cudasrc/boids_gpu.cu \
+                cudasrc/flock_gpu.cu \
+                cudasrc/prey_gpu.cu \
+                cudasrc/random.cu \
+
+SOURCES += src/main.cpp \
+           src/libflock_gpu.cpp
 
 
 
@@ -56,9 +66,10 @@ CUDA_SOURCES += cudasrc/*.cu
 CUDA_INC+= $$join(INCLUDEPATH,' -I','-I',' ')
  
 # nvcc flags (ptxas option verbose is always useful)
-NVCCFLAGS = -ccbin $$HOST_COMPILER -m64 -g -G -gencode arch=compute_50,code=sm_50 \
+#NVCCFLAGS = -ccbin $$HOST_COMPILER -m64 -g -G -gencode arch=compute_50,code=sm_50 \
+NVCCFLAGS = -ccbin $$HOST_COMPILER -m64 -g -G -gencode arch=compute_50,code=sm_50 -gencode arch=compute_30,code=sm_30 -gencode arch=compute_35,code=sm_35 -gencode arch=compute_$$CUDA_COMPUTE_ARCH,code=sm_$$CUDA_COMPUTE_ARCH --compiler-options -fno-strict-aliasing --compiler-options -fPIC -use_fast_math --std=c++11 #--ptxas-options=-v
 #-gencode arch=compute_30,code=sm_30 -gencode arch=compute_35,code=sm_35 \
--gencode arch=compute_$$CUDA_COMPUTE_ARCH,code=sm_$$CUDA_COMPUTE_ARCH --compiler-options -fno-strict-aliasing --compiler-options -fPIC -use_fast_math --std=c++11 #--ptxas-options=-v
+#-gencode arch=compute_$$CUDA_COMPUTE_ARCH,code=sm_$$CUDA_COMPUTE_ARCH --compiler-options -fno-strict-aliasing --compiler-options -fPIC -use_fast_math --std=c++11 #--ptxas-options=-v
 
 # Define the path and binary for nvcc
 NVCCBIN = $$CUDA_DIR/bin/nvcc

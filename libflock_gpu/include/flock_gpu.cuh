@@ -6,9 +6,14 @@
 #include <algorithm>
 #include <vector>
 
-#include "flockSim_gpu.cuh"
-#include "prey_gpu.cuh"
+#include "flockSim_gpu.h"
 
+#include <thrust/host_vector.h>
+#include <thrust/device_vector.h>
+#include <thrust/sort.h>
+
+#include "prey_gpu.cuh"
+//class Prey_GPU;
 class Flock_GPU
 {
 public :
@@ -34,12 +39,14 @@ public :
 
   int m_gridRes = 6;
 
+  // takes all points and returns neighbour point indexes
+  unsigned int * findNeighbours();
+
 
 
 //  float * getPos(){return m_dPos_ptr;}
 //  unsigned int * getNeighbours(){return m_dneighbourPnts_ptr;}
 
-  void NearestNeighbour();
 
 
 
@@ -54,7 +61,7 @@ private :
     // GPU -------------------------------------------------------------------------
     // stores point pos
     thrust::device_vector<float> m_dPos;
-    float * m_dPos_ptr = thrust::raw_pointer_cast(&m_dPos[0]);
+    float * m_dPos_ptr;
     // stores neighbour points
     thrust::device_vector<unsigned int> m_dneighbourPnts;
     unsigned int * m_dneighbourPnts_ptr = thrust::raw_pointer_cast(&m_dneighbourPnts[0]);

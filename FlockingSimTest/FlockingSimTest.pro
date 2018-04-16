@@ -88,7 +88,7 @@ include(../common.pri)
 TEMPLATE=app
 TARGET=$$BIN_INSTALL_DIR/flockingSimTest
 
-SOURCES += src/*.cpp
+SOURCES += src/main.cpp
 
 INCLUDEPATH += $$INC_INSTALL_DIR \
                $$PWD/../../glm \

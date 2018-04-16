@@ -15,6 +15,7 @@
  * \param n The size of the chunk of data
  */
 int randFloats(float *&devData, const size_t n) {
+
     // The generator, used for random numbers
     curandGenerator_t gen;
 
