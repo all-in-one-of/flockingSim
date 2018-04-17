@@ -1,0 +1,160 @@
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+bucket radius : 2 cell: 0 
+Grid sorted 20 points into grid of 64 cells in 0.055974s
+0.37618 0.315573 0.567462 0.704034 0.5497 0.798168 1.08829 0.516751 0.24504 1.09097 1.03979 0.709655 0.771621 0.837392 0.367979 0.121939 0.147821 0.178608 1.06166 -0.0999712 
+
+0.925235 1.01456 0.222218 0.330981 0.66964 -0.104624 0.0708489 1.12366 0.6408 0.491979 0.533431 0.229143 -0.0378059 0.115267 -0.0447859 0.17285 0.208332 0.515669 0.422047 0.230367 
+
+0 1 2 4 5 6 8 9 10 4294967295 4294967295 4294967295 4294967295 4294967295 4294967295 4294967295 
+
+0 1 2 3 4 6 7 8 9 10 11 4294967295 4294967295 4294967295 4294967295 4294967295 4294967295 4294967295 4294967295 4294967295 
+
+1 1 2 2 2 3 4 6 8 8 8 10 11 11 13 16 16 4294967295 4294967295 4294967295 
+
+0 2 3 1 1 0 1 0 3 0 1 2 0 1 0 0 vertex shader compiled
+fragment shader compiled
+342
+0
+342

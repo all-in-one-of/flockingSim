@@ -11,8 +11,14 @@
 #include <thrust/device_vector.h>
 #include <thrust/sort.h>
 
+#include <iostream>
+#include <stdio.h>
 
-
+// printf() is only supported
+// for devices of compute capability 2.0 and higher
+#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ < 200)
+   #define printf(f, ...) ((void)(f, __VA_ARGS__),0)
+#endif
 
 /// The number of points to generate within 0,1
 #define NUM_POINTS 20
@@ -102,7 +108,7 @@ __global__ void countCellOccupancy(unsigned int *cellOcc,
 
 
 
-
+// DOESNT WORK WITH MORE THEN ONE CELL RADIUS, PROBLEM WITH THREADS
 
 __global__ void neighbourhoodCells(unsigned int *neighbourCells,
                                    float neighbourhoodDist,
@@ -111,10 +117,10 @@ __global__ void neighbourhoodCells(unsigned int *neighbourCells,
 {
 
     // Compute the index of this thread: i.e. the point we are testing
-    uint idx = blockIdx.x * blockDim.x + threadIdx.x;
+    //uint idx = blockIdx.x * blockDim.x + threadIdx.x;
 
     // Compute the index of this thread: i.e. the point we are testing
-    uint idy = blockIdx.y * blockDim.y + threadIdx.y;
+   // uint idy = blockIdx.y * blockDim.y + threadIdx.y;
 
 
 
@@ -126,28 +132,56 @@ __global__ void neighbourhoodCells(unsigned int *neighbourCells,
     int y = floor(float(cell/res));
     int x = cell -(y*res);
 
-    int count = 0;
+
+
+//    int count = 0;
 
     // add neighbour cells and current cell to array
-    if(idx <= 2 * bucketRadius && idy <= 2 * bucketRadius)
-    {
-        //printf("idx: %d, idy %d \n", idx, idy);
+//    if(idx <= 2 * bucketRadius && idy <= 2 * bucketRadius)
+//    {
+//        //printf("idx: %d, idy %d \n", idx, idy);
 
-        int i = x - bucketRadius + idx;
-        int j = y - bucketRadius + idy;
+//        int i = x - bucketRadius + idx;
+//        int j = y - bucketRadius + idy;
 
-        //printf("%d i, %d j \n", i , j);
+//        //printf("%d i, %d j \n", i , j);
 
-        //printf("%d idx, %d idy \n", idx , idy);
+//        //printf("%d idx, %d idy \n", idx , idy);
 
-        if(i>=0 && j>=0 && i<=res-1 && j<= res-1)
-        {
-            neighbourCells[(j*res) + i] = (j*res) + i;
-            //printf(" %d neighbour cell added \n",neighbourCells[(j*res) + i]);
+//        if(i>=0 && j>=0 && i<=res-1 && j<= res-1)
+//        {
+//            neighbourCells[(j*res) + i] = (j*res) + i;
+//            //printf(" %d neighbour cell added \n",neighbourCells[(j*res) + i]);
 
-            //count ++;
+//            //count ++;
+//        }
+
+//    }
+
+
+    int count = 0;
+
+    //int neighbourCells[m_Flock->m_gridRes*m_Flock->m_gridRes];
+
+
+    for( int i = x - bucketRadius; i <= x + bucketRadius; ++i ){
+        for( int j = y - bucketRadius; j <= y + bucketRadius; ++j ){
+            if(i>=0 && j>=0 && i<=res-1 && j<= res-1)
+            {
+
+                printf("bucket radius : %d cell: %d \n",bucketRadius, cell);
+                //if((j*m_Flock->m_gridRes + i) != cell  )
+                //{
+                    neighbourCells[count] = (j*res) + i;
+
+                    //std::cout<<neighbourCells[count]<<" neighbour cells \n";
+
+                    count ++;
+
+                //}
+            }
+
         }
-
     }
 
 

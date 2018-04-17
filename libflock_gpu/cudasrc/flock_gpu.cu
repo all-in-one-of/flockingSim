@@ -64,11 +64,11 @@ Flock_GPU::Flock_GPU(int _numBoids )
 
 
          m_dPosX[i]=m_Boids[i].getPos().x;
-         m_dPosY[i]=m_Boids[i].getPos().y;
+         m_dPosY[i]=m_Boids[i].getPos().z;
 
-         // make positions between 0-1 rather then -4 to 4
-         m_dPosX[i] = (1.0f/8.0f)*(m_dPosX[i] + 4);
-         m_dPosY[i] = (1.0f/8.0f)*(m_dPosY[i] + 4);
+         // make positions between 0-1 rather then -2 to 2
+         m_dPosX[i] = (1.0f/4.0f)*(m_dPosX[i] + 2);
+         m_dPosY[i] = (1.0f/4.0f)*(m_dPosY[i] + 2);
 
 //        std::cout<<m_dPos[(3*i)]<<" "<<m_dPos[(3*i)+1]<<" "<<m_dPos[(3*i)+2]<<" \n";
 
@@ -123,8 +123,10 @@ void Flock_GPU::update()
 }
 
 
-unsigned int * Flock_GPU::findNeighbours()
+unsigned int * Flock_GPU::findNeighbours(float _neighbourhoodDist, int _boidID)
 {
+
+
 
 
         //Flock_GPU *flock = new Flock_GPU(20);
@@ -138,13 +140,13 @@ unsigned int * Flock_GPU::findNeighbours()
         // steps.
         thrust::device_vector<float> d_Rand(NUM_POINTS*3);
 
-        d_Rand[0]=1.0f;
-
 
         float * d_Rand_ptr = thrust::raw_pointer_cast(&d_Rand[0]);
 
 
         //randFloats(d_Rand_ptr, NUM_POINTS*3);
+
+
 
         // We'll store the components of the 3d vectors in separate arrays.
         // This 'structure of arrays' (SoA) approach is usually more efficient than the
@@ -229,19 +231,19 @@ unsigned int * Flock_GPU::findNeighbours()
         // Make sure all threads have wrapped up before completing the timings
         cudaThreadSynchronize();
 
-        neighbourhoodCells<<<grid, block>>>(d_neighbourCells_ptr,0.24,GRID_RESOLUTION, 6);
+        neighbourhoodCells<<<grid, block>>>(d_neighbourCells_ptr,_neighbourhoodDist,GRID_RESOLUTION, 0);
 
         cudaThreadSynchronize();
 
         // sort into order
         thrust::sort(d_neighbourCells.begin(), d_neighbourCells.end());
 
-        emptyCellCheck<<<nBlocks,nThreads>>>(d_neighbourCells_ptr, d_cellOcc_ptr,GRID_RESOLUTION);
+        //emptyCellCheck<<<nBlocks,nThreads>>>(d_neighbourCells_ptr, d_cellOcc_ptr,GRID_RESOLUTION);
 
-        cudaThreadSynchronize();
+        //cudaThreadSynchronize();
 
         // sort into order again
-        thrust::sort(d_neighbourCells.begin(), d_neighbourCells.end());
+        //thrust::sort(d_neighbourCells.begin(), d_neighbourCells.end());
 
         // Finds pnt index in neighbourhood cells
         nearestNeighbourPnts<<<grid2, block2>>>(d_neighbours_ptr, d_neighbourCells_ptr, d_hash_ptr,NUM_POINTS,GRID_RESOLUTION);
@@ -262,15 +264,15 @@ unsigned int * Flock_GPU::findNeighbours()
         if (NUM_POINTS <= 100) {
 
             thrust::copy(m_dPosX.begin(), m_dPosX.end(), std::ostream_iterator<float>(std::cout, " "));
-            std::cout << "\n";
+            std::cout << "\n\n";
             thrust::copy(m_dPosY.begin(), m_dPosY.end(), std::ostream_iterator<float>(std::cout, " "));
-            std::cout << "\n";
+            std::cout << "\n\n";
             thrust::copy(d_neighbourCells.begin(), d_neighbourCells.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
-            std::cout << "\n";
+            std::cout << "\n\n";
             thrust::copy(d_neighbours.begin(), d_neighbours.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
-            std::cout << "\n";
+            std::cout << "\n\n";
             thrust::copy(d_hash.begin(), d_hash.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
-            std::cout << "\n";
+            std::cout << "\n\n";
             thrust::copy(d_cellOcc.begin(), d_cellOcc.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
         }
         //return 0;

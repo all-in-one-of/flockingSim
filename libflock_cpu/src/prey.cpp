@@ -71,7 +71,7 @@ void Prey::avoidBoundaries()
 
     glm::vec3 desiredVel;
 
-    if(m_pos.z >= 3 && m_vel.z >0)
+    if(m_pos.z >= 2 && m_vel.z >0)
     {
         desiredVel = {m_vel[0],0,-m_vel[2]};
         //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
@@ -80,7 +80,7 @@ void Prey::avoidBoundaries()
         //limitVel(0.02);
         //std::cout<<" out of z bounds\n";
     }
-    else if(m_pos.z <= -3 && m_vel.z <0)
+    else if(m_pos.z <= -2 && m_vel.z <0)
     {
         desiredVel = {m_vel[0],0,-m_vel[2]};
 
@@ -90,7 +90,7 @@ void Prey::avoidBoundaries()
         //limitVel(0.02);
         //std::cout<<" out of -z bounds\n";
     }
-    else if(m_pos.x >= 3 && m_vel.x >0)
+    else if(m_pos.x >= 2 && m_vel.x >0)
     {
         desiredVel = {-m_vel[0],0,m_vel[2]};
         //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
@@ -99,7 +99,7 @@ void Prey::avoidBoundaries()
         //imitVel(0.02);
         //std::cout<<" out of x bounds\n";
     }
-    else if(m_pos.x <= -3 && m_vel.x <0)
+    else if(m_pos.x <= -2 && m_vel.x <0)
     {
         desiredVel = {-m_vel[0],0,m_vel[2]};
         //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
@@ -228,7 +228,7 @@ glm::vec3 Prey::alignBoid()
         {
 
             //std::cout<<getNeighbourPnts()[i]<< "neighbour points of "<<getID()<<" \n";
-            if(distanceToBoid(boidsVector[getNeighbourPnts()[i]]) < 0.8)
+            if(distanceToBoid(boidsVector[getNeighbourPnts()[i]]) < 0.3)
             {
 
                 alignmentVector[0] += boidsVector[getNeighbourPnts()[i]].m_vel[0];
@@ -290,7 +290,7 @@ glm::vec3 Prey::seperateBoid()
 
     glm::vec3 diff {0,0,0};
 
-    float neighbourhoodRadius = 0.6;
+    float neighbourhoodRadius = 0.2;
 
 
     //std::cout<<getID()<<" point id \n";
@@ -408,7 +408,7 @@ glm::vec3 Prey::cohesionBoid()
         {
 
             //std::cout<<getNeighbourPnts()[i]<< "neighbour points of "<<getID()<<" \n";
-            if(distanceToBoid(boidsVector[getNeighbourPnts()[i]]) < 1.0)
+            if(distanceToBoid(boidsVector[getNeighbourPnts()[i]]) < 0.4)
             {
 
                 cohesionVector[0] += boidsVector[getNeighbourPnts()[i]].m_pos[0];
@@ -513,6 +513,10 @@ void Prey::limitVel(float _limit)
 
 void Prey::nearestNeighbours(float _neighbourhoodDist, int cell)
 {
+
+
+
+
 
     //std::cout<<"nearest neighbour called on cell "<<cell<<" \n";
 

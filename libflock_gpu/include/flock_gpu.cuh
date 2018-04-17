@@ -40,7 +40,7 @@ public :
   int m_gridRes = 6;
 
   // takes all points and returns neighbour point indexes
-  unsigned int * findNeighbours();
+  unsigned int * findNeighbours(float _neighbourhoodDist, int _boidID);
 
 
 
