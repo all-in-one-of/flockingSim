@@ -44,6 +44,9 @@ public :
 
   int getAmountVertexData(){return m_amountVertexData;}
 
+  void dumpGeo(uint _frameNumber,
+               std::vector<Prey> _boids);
+
 
 public slots:
   void rotating( const bool _rotating ) { m_rotating = _rotating; }
@@ -62,6 +65,8 @@ protected:
   /// @brief this is the main gl drawing routine which is called whenever the window needs to be re-drawn
   void paintGL();
   void renderScene();
+
+  int m_frame_count = 0;
 
 
 

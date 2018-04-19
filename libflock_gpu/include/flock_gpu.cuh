@@ -39,6 +39,9 @@ public :
 
   int m_gridRes = 6;
 
+  void dumpGeo(uint _frameNumber,
+               std::vector<Prey_GPU> _boids);
+
   // takes all points and returns neighbour point indexes
   unsigned int * findNeighbours(float _neighbourhoodDist, int _boidID);
 
@@ -70,7 +73,7 @@ private :
     thrust::device_vector<unsigned int> m_dneighbourPnts;
     unsigned int * m_dneighbourPnts_ptr = thrust::raw_pointer_cast(&m_dneighbourPnts[0]);
 
-
+    int m_frame_count = 0;
 
 
 

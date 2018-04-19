@@ -15,11 +15,11 @@ TARGET = $$LIB_INSTALL_DIR/flock_gpu
 QMAKE_CXXFLAGS += -std=c++11 -fPIC 
 
 # Directories
-INCLUDEPATH += include ${CUDA_PATH}/include ${CUDA_PATH}/include/cuda ${CUDA_PATH}/samples/common/inc $$PWD/../../glm \ $$PWD/include
+INCLUDEPATH += include ${CUDA_PATH}/include ${CUDA_PATH}/include/cuda ${CUDA_PATH}/samples/common/inc ${CUDA_SAMPLES}/common/inc $$PWD/../../glm \ $$PWD/include
 
 
 # Link with the following libraries
-LIBS += -L${CUDA_PATH}/lib64 -L${CUDA_PATH}/lib64/nvidia -lcuda -lcudart -lcudadevrt -lcurand
+LIBS += -L${CUDA_PATH}/lib64 -L${CUDA_PATH}/lib64/nvidia -lcuda -lcudart -lcudadevrt -lcurand #-lGL -lGLU -lGLEW -lglut
  
 # CUDA_COMPUTE_ARCH - This will enable nvcc to compiler appropriate architecture specific code for different compute versions
 # Set your local CUDA_ARCH environment variable to compile for your particular architecture.
@@ -44,7 +44,8 @@ HEADERS += include/boids_gpu.cuh \
            include/prey_gpu.cuh \
            include/random.cuh \
            include/nearestneighbour_gpu.cuh \
-           include/libflock_gpu.h
+           include/libflock_gpu.h \
+           #include/drawScene.cuh
 
 
 
@@ -55,6 +56,7 @@ CUDA_SOURCES += cudasrc/boids_gpu.cu \
                 cudasrc/flock_gpu.cu \
                 cudasrc/prey_gpu.cu \
                 cudasrc/random.cu \
+                #cudasrc/drawScene.cu
 
 SOURCES += src/main.cpp \
            src/libflock_gpu.cpp
