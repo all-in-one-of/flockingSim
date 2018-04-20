@@ -19,7 +19,7 @@ Boid_GPU::Boid_GPU(Flock_GPU *_Flock, int _ID)
   m_rotation.operator =(glm::vec3{0,0,0});
 
 
-  m_pos={((float(rand())/RAND_MAX)-0.5)*5, 0, ((float(rand())/RAND_MAX)-0.5)*5};
+  m_pos={((float(rand())/RAND_MAX)-0.5)*4, 0, ((float(rand())/RAND_MAX)-0.5)*4};
 
 
 

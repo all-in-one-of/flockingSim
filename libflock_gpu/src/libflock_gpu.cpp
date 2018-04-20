@@ -9,8 +9,7 @@ void flock_gpu()
     //drawScene(argc,argv);
 
 
-
-int count = 0;
+    int count = 0;
 
 
     Flock_GPU *flocknew = new Flock_GPU(20);
@@ -21,6 +20,10 @@ int count = 0;
         count ++;
     }
 
+
     //flocknew->findNeighbours(0.26,2);
+
+
+
 
 }

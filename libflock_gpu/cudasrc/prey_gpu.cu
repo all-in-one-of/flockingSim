@@ -26,6 +26,13 @@ void Prey_GPU::update()
 
     avoidBoundaries();
 
+    //printf("vel: %f,%f,%f \n",m_vel[0], m_vel[1], m_vel[2]);
+
+
+
+
+
+
     m_pos+=m_vel;
 
 
@@ -73,16 +80,21 @@ void Prey_GPU::avoidBoundaries()
 
     glm::vec3 desiredVel;
 
-    if(m_pos.z >= 3 && m_vel.z >0)
+    if(m_pos.z >= 2 && m_vel.z >0)
     {
         desiredVel = {m_vel[0],0,-m_vel[2]};
+
+        //printf("desired vel %f,%f,%f \n",desiredVel[0],desiredVel[1],desiredVel[2]);
         //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
+
+        //printf("vel: %f,%f,%f \n",m_vel[0],m_vel[1],m_vel[2]);
         m_vel += steerBoid(desiredVel);
+        //printf("new vel: %f,%f,%f \n",m_vel[0],m_vel[1],m_vel[2]);
 
         //limitVel(0.02);
         //std::cout<<" out of z bounds\n";
     }
-    else if(m_pos.z <= -3 && m_vel.z <0)
+    else if(m_pos.z <= -2 && m_vel.z <0)
     {
         desiredVel = {m_vel[0],0,-m_vel[2]};
 
@@ -92,7 +104,7 @@ void Prey_GPU::avoidBoundaries()
         //limitVel(0.02);
         //std::cout<<" out of -z bounds\n";
     }
-    else if(m_pos.x >= 3 && m_vel.x >0)
+    else if(m_pos.x >= 2 && m_vel.x >0)
     {
         desiredVel = {-m_vel[0],0,m_vel[2]};
         //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
@@ -101,7 +113,7 @@ void Prey_GPU::avoidBoundaries()
         //imitVel(0.02);
         //std::cout<<" out of x bounds\n";
     }
-    else if(m_pos.x <= -3 && m_vel.x <0)
+    else if(m_pos.x <= -2 && m_vel.x <0)
     {
         desiredVel = {-m_vel[0],0,m_vel[2]};
         //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
@@ -186,8 +198,8 @@ void Prey_GPU::flock()
         steer[0] += (cohesion[0] * cohesionWeight) + (alignment[0] * alignmentWeight) + (separation[0] * separationWeight);
         steer[2] += (cohesion[2] * cohesionWeight) + (alignment[2] * alignmentWeight) + (separation[2] * separationWeight);
 
-        //steer[0] += separation[0];
-        //steer[2] += separation[2];
+        //steer[0] += alignment[0]; //cohesion[0] + separation[0];
+        //steer[2] += alignment[2]; //cohesion[2] + separation[2];
 
         if(steer != glm::vec3{0,0,0})
         {
@@ -195,8 +207,8 @@ void Prey_GPU::flock()
             //steer =glm::normalize(steer);
 
             //steer towards flocking vector if required
-            m_vel[0] += steerBoid(steer)[0];
-            m_vel[2] += steerBoid(steer)[2];
+            m_vel[0] += steer[0]; // steerBoid(steer)[0];
+            m_vel[2] += steer[2]; //steerBoid(steer)[2];
 
         }
 
@@ -219,55 +231,69 @@ glm::vec3 Prey_GPU::alignBoid()
     std::vector <Prey_GPU> boidsVector = m_Flock->getBoidsVector();
 
 
+
+
     // find neighbour points of current boid in desired radius
-    nearestNeighbours(0.8f,m_Flock->getHashVec()[getID()]);
+//    nearestNeighbours(0.8f,m_Flock->getHashVec()[getID()]);
 
 
 
-    for(int i = 0; i<getNeighbourPnts().size(); i++)
-    {
-        if(boidsVector[getNeighbourPnts()[i]].getID() != getID())
-        {
-
-            //std::cout<<getNeighbourPnts()[i]<< "neighbour points of "<<getID()<<" \n";
-            if(distanceToBoid(boidsVector[getNeighbourPnts()[i]]) < 0.8)
-            {
-
-                alignmentVector[0] += boidsVector[getNeighbourPnts()[i]].m_vel[0];
-                alignmentVector[2] += boidsVector[getNeighbourPnts()[i]].m_vel[2];
-
-                numberOfNeighbours += 1;
-            }
-        }
-
-
-    }
-
-
-
-//    for(int i = 0; i< m_Flock->getNoBoids(); i++)
+//    for(int i = 0; i<getNeighbourPnts().size(); i++)
 //    {
-//        //only flock with other flocking boids
-//        if(boidsVector[i].getID() != getID())
+//        if(boidsVector[getNeighbourPnts()[i]].getID() != getID())
 //        {
-//            if(boidsVector[i].m_flockFlag == true)
+
+//            //std::cout<<getNeighbourPnts()[i]<< "neighbour points of "<<getID()<<" \n";
+//            if(distanceToBoid(boidsVector[getNeighbourPnts()[i]]) < 0.8)
 //            {
-//                if( distanceToBoid(boidsVector[i]) < 0.8)
-//                {
 
-//                    alignmentVector[0] += boidsVector[i].m_vel[0];
-//                    alignmentVector[2] += boidsVector[i].m_vel[2];
+//                alignmentVector[0] += boidsVector[getNeighbourPnts()[i]].m_vel[0];
+//                alignmentVector[2] += boidsVector[getNeighbourPnts()[i]].m_vel[2];
 
-//                    numberOfNeighbours += 1;
-//                }
+//                numberOfNeighbours += 1;
 //            }
 //        }
+
+
 //    }
+
+
+
+
+    for(int i = 0; i< m_Flock->getNoBoids(); i++)
+    {
+        //only flock with other flocking boids
+        if(boidsVector[i].getID() != getID())
+        {
+            if(boidsVector[i].m_flockFlag == true)
+            {
+                if( distanceToBoid(boidsVector[i]) < 0.3)
+                {
+
+                    printf("velocity: %f,%f,%f \n", m_Flock->getBoidsVector()[i].m_vel[0],m_Flock->getBoidsVector()[i].m_vel[1],m_Flock->getBoidsVector()[i].m_vel[2]);
+
+
+                    //printf("velocity: %f,%f,%f \n", boidsVector[i].m_vel[0],boidsVector[i].m_vel[1],boidsVector[i].m_vel[2]);
+
+                    //printf("alignment vector: %f,%f,%f \n", alignmentVector[0],alignmentVector[1],alignmentVector[2]);
+
+                    alignmentVector[0] += boidsVector[i].m_vel[0];
+                    alignmentVector[2] += boidsVector[i].m_vel[2];
+
+                    //printf(" updated alignment vector: %f,%f,%f \n", alignmentVector[0],alignmentVector[1],alignmentVector[2]);
+                    numberOfNeighbours += 1;
+                }
+            }
+        }
+    }
 
     // avoid dividing by zero
     if(numberOfNeighbours != 0 && alignmentVector != glm::vec3{0,0,0})
     {
 
+
+        //printf("neighbours: %d \n",numberOfNeighbours);
+        //printf("alignment: %f,%f,%f \n", alignmentVector[0],alignmentVector[1],alignmentVector[2]);
 
 
         //find average velocity of boids in the current boids neighborhood
@@ -276,9 +302,15 @@ glm::vec3 Prey_GPU::alignBoid()
 
 
 
+        //printf("new alignment: %f,%f,%f \n", alignmentVector[0],alignmentVector[1],alignmentVector[2]);
 
-        alignmentVector = glm::normalize(alignmentVector);
+        alignmentVector = normaliseVector(alignmentVector);// glm::normalize(alignmentVector);
+
+
     }
+
+
+
 
     return alignmentVector;
 
@@ -292,7 +324,7 @@ glm::vec3 Prey_GPU::seperateBoid()
 
     glm::vec3 diff {0,0,0};
 
-    float neighbourhoodRadius = 0.6;
+    float neighbourhoodRadius = 0.2;
 
 
     //std::cout<<getID()<<" point id \n";
@@ -300,71 +332,71 @@ glm::vec3 Prey_GPU::seperateBoid()
     //std::cout<<m_Flock->getHashVec()[getID()]<<" cell id \n";
 
     // find neighbour points of current boid
-    nearestNeighbours(neighbourhoodRadius,m_Flock->getHashVec()[getID()]);
+//    nearestNeighbours(neighbourhoodRadius,m_Flock->getHashVec()[getID()]);
 
 
-    for(int i = 0; i<getNeighbourPnts().size(); i++)
-    {
-
-        //std::cout<<m_Flock->getHashVec()[getNeighbourPnts()[i]]<< " neighbour point cell \n";
-
-        if(boidsVector[getNeighbourPnts()[i]].getID() != getID())
-        {
-            //std::cout<<getNeighbourPnts()[i]<< "neighbour points of "<<getID()<<" \n";
-            if(distanceToBoid(boidsVector[getNeighbourPnts()[i]]) < neighbourhoodRadius)
-            {
-
-                //std::cout<<"seperate \n";
-
-
-                //vector from current boid to neighbor
-                diff[0] = boidsVector[getNeighbourPnts()[i]].m_pos[0]-m_pos[0];
-                diff[2] = boidsVector[getNeighbourPnts()[i]].m_pos[2]-m_pos[2];
-
-                diff = glm::normalize(diff);
-
-                //the closer to its neighbors the greater the seperation vector
-                seperationVector[0] += diff[0] / (distanceToBoid(boidsVector[getNeighbourPnts()[i]]));
-                seperationVector[2] += diff[2] / (distanceToBoid(boidsVector[getNeighbourPnts()[i]]));
-
-
-                numberOfNeighbours += 1;
-            }
-        }
-
-
-    }
-
-
-
-
-
-
-//    for(int i = 0; i <m_Flock->getNoBoids(); i++)
+//    for(int i = 0; i<getNeighbourPnts().size(); i++)
 //    {
-//        if(boidsVector[i].getID() != getID())
+
+//        //std::cout<<m_Flock->getHashVec()[getNeighbourPnts()[i]]<< " neighbour point cell \n";
+
+//        if(boidsVector[getNeighbourPnts()[i]].getID() != getID())
 //        {
-//            if(boidsVector[i].m_flockFlag == true)
+//            //std::cout<<getNeighbourPnts()[i]<< "neighbour points of "<<getID()<<" \n";
+//            if(distanceToBoid(boidsVector[getNeighbourPnts()[i]]) < neighbourhoodRadius)
 //            {
-//                if(distanceToBoid(boidsVector[i]) <0.6)
-//                {
 
-//                    //vector from current boid to neighbor
-//                    diff[0] = boidsVector[i].m_pos[0]-m_pos[0];
-//                    diff[2] = boidsVector[i].m_pos[2]-m_pos[2];
-
-//                    glm::normalize(diff);
-
-//                    //the closer to its neighbors the greater the seperation vector
-//                    seperationVector[0] += diff[0] / (distanceToBoid(boidsVector[i]));
-//                    seperationVector[2] += diff[2] / (distanceToBoid(boidsVector[i]));
+//                //std::cout<<"seperate \n";
 
 
-//                    numberOfNeighbours += 1;
-//                }
+//                //vector from current boid to neighbor
+//                diff[0] = boidsVector[getNeighbourPnts()[i]].m_pos[0]-m_pos[0];
+//                diff[2] = boidsVector[getNeighbourPnts()[i]].m_pos[2]-m_pos[2];
+
+//                diff = glm::normalize(diff);
+
+//                //the closer to its neighbors the greater the seperation vector
+//                seperationVector[0] += diff[0] / (distanceToBoid(boidsVector[getNeighbourPnts()[i]]));
+//                seperationVector[2] += diff[2] / (distanceToBoid(boidsVector[getNeighbourPnts()[i]]));
+
+
+//                numberOfNeighbours += 1;
 //            }
 //        }
+
+
 //    }
+
+
+
+
+
+
+    for(int i = 0; i <m_Flock->getNoBoids(); i++)
+    {
+        if(boidsVector[i].getID() != getID())
+        {
+            if(boidsVector[i].m_flockFlag == true)
+            {
+                if(distanceToBoid(boidsVector[i]) <0.2)
+                {
+
+                    //vector from current boid to neighbor
+                    diff[0] = boidsVector[i].m_pos[0]-m_pos[0];
+                    diff[2] = boidsVector[i].m_pos[2]-m_pos[2];
+
+                    glm::normalize(diff);
+
+                    //the closer to its neighbors the greater the seperation vector
+                    seperationVector[0] += diff[0] / (distanceToBoid(boidsVector[i]));
+                    seperationVector[2] += diff[2] / (distanceToBoid(boidsVector[i]));
+
+
+                    numberOfNeighbours += 1;
+                }
+            }
+        }
+    }
 
     //avoid dividing by zero
     if(numberOfNeighbours != 0)
@@ -376,8 +408,12 @@ glm::vec3 Prey_GPU::seperateBoid()
         //run in opposite direction to average neighbor position
         seperationVector[0] *= -1;
         seperationVector[2] *= -1;
+        //printf("neighbours: %d \n", numberOfNeighbours);
+        //printf("seperation %f,%f,%f \n",seperationVector[0], seperationVector[1], seperationVector[2]);
 
-        seperationVector = glm::normalize(seperationVector);
+        seperationVector = normaliseVector(seperationVector); //glm::normalize(seperationVector);
+
+
     }
 
 
@@ -400,52 +436,52 @@ glm::vec3 Prey_GPU::cohesionBoid()
 // spatial partitioning ---------------------------------------------------------------------
 
     // find neighbour points of current boid in desired radius
-    nearestNeighbours(1.0f,m_Flock->getHashVec()[getID()]);
+//    nearestNeighbours(1.0f,m_Flock->getHashVec()[getID()]);
 
 
 
-    for(int i = 0; i<getNeighbourPnts().size(); i++)
-    {
-        if(boidsVector[getNeighbourPnts()[i]].getID() != getID())
-        {
-
-            //std::cout<<getNeighbourPnts()[i]<< "neighbour points of "<<getID()<<" \n";
-            if(distanceToBoid(boidsVector[getNeighbourPnts()[i]]) < 1.0)
-            {
-
-                cohesionVector[0] += boidsVector[getNeighbourPnts()[i]].m_pos[0];
-                cohesionVector[2] += boidsVector[getNeighbourPnts()[i]].m_pos[2];
-
-
-                numberOfNeighbours += 1;
-            }
-        }
-
-
-    }
-
-    // slow code ----------------------------------------------------------------
-//    for(int i = 0; i < m_Flock->getNoBoids(); i++)
+//    for(int i = 0; i<getNeighbourPnts().size(); i++)
 //    {
-//        if(boidsVector[i].getID() != getID())
+//        if(boidsVector[getNeighbourPnts()[i]].getID() != getID())
 //        {
-//            if( boidsVector[i].m_flockFlag = true)
+
+//            //std::cout<<getNeighbourPnts()[i]<< "neighbour points of "<<getID()<<" \n";
+//            if(distanceToBoid(boidsVector[getNeighbourPnts()[i]]) < 1.0)
 //            {
-//                if(distanceToBoid(boidsVector[i]) < 1.0)
-//                {
+
+//                cohesionVector[0] += boidsVector[getNeighbourPnts()[i]].m_pos[0];
+//                cohesionVector[2] += boidsVector[getNeighbourPnts()[i]].m_pos[2];
 
 
-
-
-//                    cohesionVector[0] += boidsVector[i].m_pos[0];
-//                    cohesionVector[2] += boidsVector[i].m_pos[2];
-
-
-//                    numberOfNeighbours += 1;
-//                }
+//                numberOfNeighbours += 1;
 //            }
 //        }
+
+
 //    }
+
+    // slow code ----------------------------------------------------------------
+    for(int i = 0; i < m_Flock->getNoBoids(); i++)
+    {
+        if(boidsVector[i].getID() != getID())
+        {
+            if( boidsVector[i].m_flockFlag == true)
+            {
+                if(distanceToBoid(boidsVector[i]) < 0.4)
+                {
+
+
+
+
+                    cohesionVector[0] += boidsVector[i].m_pos[0];
+                    cohesionVector[2] += boidsVector[i].m_pos[2];
+
+
+                    numberOfNeighbours += 1;
+                }
+            }
+        }
+    }
 
     //avoid dividing by zero
     if(numberOfNeighbours != 0)
@@ -462,7 +498,7 @@ glm::vec3 Prey_GPU::cohesionBoid()
         cohesionVector[2] = (cohesionVector[2] - m_pos[2]);
 
         //std::cout<<cohesionVector[0]<<" "<<cohesionVector[2]<<" nomalise these\n";
-        cohesionVector = glm::normalize(cohesionVector);
+        cohesionVector = normaliseVector(cohesionVector);// glm::normalize(cohesionVector);
 
     }
 
@@ -476,15 +512,22 @@ glm::vec3 Prey_GPU::steerBoid(glm::vec3 _target)
 
 
 
-    glm::vec3 steer = {0,0,0};
+    glm::vec3 steer = {0.0f,0.0f,0.0f};
     steer[0] = _target[0] - m_vel[0];
     steer[2] = _target[2] - m_vel[2];
 
     //std::cout<<"steer "<<steer[0]<<steer[2]<<"\n";
 
+    //printf("steer: %f,%f,%f \n",steer[0], steer[1], steer[2]);
+
+    //printf("length: %f \n", glm::length(steer));
+
+    steer[0] =( (steer[0]/glm::length(steer))*0.02f);
+    steer[2] =( (steer[2]/glm::length(steer))*0.02f);
 
 
-    steer.operator =( (steer/glm::length(steer))*0.02f);
+
+    //printf("new steer: %f,%f,%f \n",steer[0], steer[1], steer[2]);
 
     //std::cout<<steer[0]<<"\n";
 
@@ -599,6 +642,20 @@ void Prey_GPU::nearestNeighbours(float _neighbourhoodDist, int cell)
         }
 
     }
+
+}
+
+glm::vec3 Prey_GPU::normaliseVector(glm::vec3 _vector)
+{
+    glm::vec3 normalisedVector {0,0,0};
+
+
+    normalisedVector[0] = _vector[0] / _vector.length();
+    normalisedVector[2] = _vector[2] / _vector.length();
+
+    return normalisedVector;
+
+
 
 }
 

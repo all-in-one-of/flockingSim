@@ -26,6 +26,7 @@ void Prey::update()
 
     avoidBoundaries();
 
+
     m_pos+=m_vel;
 
 
@@ -193,8 +194,8 @@ void Prey::flock()
             //steer =glm::normalize(steer);
 
             //steer towards flocking vector if required
-            m_vel[0] += steerBoid(steer)[0];
-            m_vel[2] += steerBoid(steer)[2];
+            m_vel[0] +=  steerBoid(steer)[0];
+            m_vel[2] +=  steerBoid(steer)[2];
 
         }
 

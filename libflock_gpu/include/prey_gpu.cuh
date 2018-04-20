@@ -50,6 +50,8 @@ public:
 
      std::vector <float> getNeighbourPnts(){return m_neighbourhoodPnts;}
 
+     glm::vec3 normaliseVector(glm::vec3 _vector);
+
 private:
 
     /// @brief bool to determine whether the boid should flock

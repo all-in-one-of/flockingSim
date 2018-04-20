@@ -111,14 +111,6 @@ void Flock_GPU::update()
     for(int i=0; i<m_numBoids; ++i)
     {
 
-
-
-
-
-
-
-
-
         hash();
         cellOcc();
 
@@ -387,7 +379,7 @@ void Flock_GPU::dumpGeo(uint _frameNumber, std::vector<Prey_GPU> _boids)
 
         ss<<_boids[i].getPos().x<<" "<<_boids[i].getPos().y<<" "<<_boids[i].getPos().z << " 1 ";
         //ss<<"("<<_boids[i].cellCol.x<<" "<<_boids[i].cellCol.y<<" "<< _boids[i].cellCol.z<<")\n";
-        ss<<"("<<std::abs(_boids[i].getVel().x)<<" "<<std::abs(_boids[i].getVel().y)<<" "<<std::abs(_boids[i].getVel().z)<<")\n";
+        ss<<"("<<std::abs(1)<<" "<<std::abs(1)<<" "<<std::abs(1)<<")\n";
     }
 
     // now write out the index values
