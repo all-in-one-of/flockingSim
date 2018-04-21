@@ -52,6 +52,8 @@ public:
 
      glm::vec3 normaliseVector(glm::vec3 _vector);
 
+     float vectorMagnitude(glm::vec3 _vector);
+
 private:
 
     /// @brief bool to determine whether the boid should flock

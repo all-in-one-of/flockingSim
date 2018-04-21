@@ -11,7 +11,7 @@
 Boid_GPU::Boid_GPU(Flock_GPU *_Flock, int _ID)
 {
   m_ID = _ID;
-  m_Flock = _Flock;
+
 
 
 
@@ -35,7 +35,7 @@ Boid_GPU::Boid_GPU(Flock_GPU *_Flock, int _ID)
   //std::cout<<"vel "<<m_vel[0]<<" \n";
 
 
-
+m_Flock = _Flock;
 
 
 }

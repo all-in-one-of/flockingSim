@@ -43,7 +43,7 @@ public :
                std::vector<Prey_GPU> _boids);
 
   // takes all points and returns neighbour point indexes
-  unsigned int * findNeighbours(float _neighbourhoodDist, int _boidID);
+  void findNeighbours(float _neighbourhoodDist, int _boidID);
 
 
 
@@ -63,11 +63,11 @@ private :
 
     // GPU -------------------------------------------------------------------------
     // stores point pos
-    thrust::device_vector<float> m_dPosX;
-    thrust::device_vector<float> m_dPosY;
+    thrust::device_vector<float> m_dBoidsPosX;
+    thrust::device_vector<float> m_dBoidsPosZ;
 
-    float * m_dPosX_ptr;
-    float * m_dPosY_ptr;
+    float * m_dBoidsPosX_ptr;
+    float * m_dBoidsPosZ_ptr;
 
     // stores neighbour points
     thrust::device_vector<unsigned int> m_dneighbourPnts;

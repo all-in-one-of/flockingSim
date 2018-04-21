@@ -185,8 +185,8 @@ void Prey_GPU::flock()
         glm::vec3 separation = {0,0,0};
 
         alignment = alignBoid();
-        cohesion =cohesionBoid();
-        separation =seperateBoid();
+        //cohesion =cohesionBoid();
+        //separation =seperateBoid();
 
 
         //flocking component weights
@@ -201,14 +201,17 @@ void Prey_GPU::flock()
         //steer[0] += alignment[0]; //cohesion[0] + separation[0];
         //steer[2] += alignment[2]; //cohesion[2] + separation[2];
 
-        if(steer != glm::vec3{0,0,0})
+        if(steer[0] != 0 && steer[2] != 0)
         {
 
             //steer =glm::normalize(steer);
 
+
+
             //steer towards flocking vector if required
-            m_vel[0] += steer[0]; // steerBoid(steer)[0];
-            m_vel[2] += steer[2]; //steerBoid(steer)[2];
+            m_vel += steer;// steerBoid(steer);
+
+
 
         }
 
@@ -216,6 +219,7 @@ void Prey_GPU::flock()
         if(m_vel != glm::vec3{0,0,0})
         {
             //m_vel = glm::normalize(m_vel);
+
 
             // limit velocity
             limitVel(0.02);
@@ -273,9 +277,7 @@ glm::vec3 Prey_GPU::alignBoid()
                     printf("velocity: %f,%f,%f \n", m_Flock->getBoidsVector()[i].m_vel[0],m_Flock->getBoidsVector()[i].m_vel[1],m_Flock->getBoidsVector()[i].m_vel[2]);
 
 
-                    //printf("velocity: %f,%f,%f \n", boidsVector[i].m_vel[0],boidsVector[i].m_vel[1],boidsVector[i].m_vel[2]);
 
-                    //printf("alignment vector: %f,%f,%f \n", alignmentVector[0],alignmentVector[1],alignmentVector[2]);
 
                     alignmentVector[0] += boidsVector[i].m_vel[0];
                     alignmentVector[2] += boidsVector[i].m_vel[2];
@@ -288,12 +290,12 @@ glm::vec3 Prey_GPU::alignBoid()
     }
 
     // avoid dividing by zero
-    if(numberOfNeighbours != 0 && alignmentVector != glm::vec3{0,0,0})
+    if(numberOfNeighbours != 0)
     {
 
 
         //printf("neighbours: %d \n",numberOfNeighbours);
-        //printf("alignment: %f,%f,%f \n", alignmentVector[0],alignmentVector[1],alignmentVector[2]);
+        printf("alignment: %f,%f,%f \n", alignmentVector[0],alignmentVector[1],alignmentVector[2]);
 
 
         //find average velocity of boids in the current boids neighborhood
@@ -304,7 +306,7 @@ glm::vec3 Prey_GPU::alignBoid()
 
         //printf("new alignment: %f,%f,%f \n", alignmentVector[0],alignmentVector[1],alignmentVector[2]);
 
-        alignmentVector = normaliseVector(alignmentVector);// glm::normalize(alignmentVector);
+        //alignmentVector =  normaliseVector(alignmentVector); // glm::normalize(alignmentVector);
 
 
     }
@@ -324,7 +326,7 @@ glm::vec3 Prey_GPU::seperateBoid()
 
     glm::vec3 diff {0,0,0};
 
-    float neighbourhoodRadius = 0.2;
+    //float neighbourhoodRadius = 0.2;
 
 
     //std::cout<<getID()<<" point id \n";
@@ -512,18 +514,22 @@ glm::vec3 Prey_GPU::steerBoid(glm::vec3 _target)
 
 
 
-    glm::vec3 steer = {0.0f,0.0f,0.0f};
-    steer[0] = _target[0] - m_vel[0];
-    steer[2] = _target[2] - m_vel[2];
+    glm::vec3 steerVec = {0.0f,0.0f,0.0f};
+
+    glm::vec3 diff = {0.0f,0.0f,0.0f};
+
+
+    diff[0] = _target[0] - m_vel[0];
+    diff[2] = _target[2] - m_vel[2];
 
     //std::cout<<"steer "<<steer[0]<<steer[2]<<"\n";
 
-    //printf("steer: %f,%f,%f \n",steer[0], steer[1], steer[2]);
+    //printf("steer: %f,%f,%f \n",diff[0], diff[1], diff[2]);
 
-    //printf("length: %f \n", glm::length(steer));
+    //printf("length: %f \n", vectorMagnitude(diff));
 
-    steer[0] =( (steer[0]/glm::length(steer))*0.02f);
-    steer[2] =( (steer[2]/glm::length(steer))*0.02f);
+    steerVec[0] =( (diff[0]/vectorMagnitude(diff))*0.02f);
+    steerVec[2] =( (diff[2]/vectorMagnitude(diff))*0.02f);
 
 
 
@@ -531,7 +537,7 @@ glm::vec3 Prey_GPU::steerBoid(glm::vec3 _target)
 
     //std::cout<<steer[0]<<"\n";
 
-    return steer;
+    return steerVec;
 
 }
 
@@ -657,6 +663,15 @@ glm::vec3 Prey_GPU::normaliseVector(glm::vec3 _vector)
 
 
 
+}
+
+float Prey_GPU::vectorMagnitude(glm::vec3 _vector)
+{
+    float mag;
+
+    mag = std::sqrt((_vector[0]*_vector[0]) + (_vector[2]*_vector[2]));
+
+    return mag;
 }
 
 

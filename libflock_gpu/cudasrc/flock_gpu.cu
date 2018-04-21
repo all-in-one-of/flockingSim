@@ -30,12 +30,12 @@ Flock_GPU::Flock_GPU(int _numBoids )
 
     //thrust::device_vector<float> d_Pos(m_numBoids*3);
 
-    m_dPosX.resize(m_numBoids);
-    m_dPosY.resize(m_numBoids);
+    m_dBoidsPosX.resize(m_numBoids);
+    m_dBoidsPosZ.resize(m_numBoids);
 
 
-    m_dPosX_ptr= thrust::raw_pointer_cast(&m_dPosX[0]);
-    m_dPosY_ptr= thrust::raw_pointer_cast(&m_dPosY[0]);
+    m_dBoidsPosX_ptr= thrust::raw_pointer_cast(&m_dBoidsPosX[0]);
+    m_dBoidsPosZ_ptr= thrust::raw_pointer_cast(&m_dBoidsPosZ[0]);
 
 
 
@@ -48,8 +48,8 @@ Flock_GPU::Flock_GPU(int _numBoids )
 
     //BoidFactory *b = new BoidFactory;
 
-    unsigned int nThreads = 1024;
-    unsigned int nBlocks = NUM_POINTS / nThreads + 1;
+    //unsigned int nThreads = 1024;
+    //unsigned int nBlocks = NUM_POINTS / nThreads + 1;
 
 
     for (int i=0; i< _numBoids; ++i)
@@ -66,12 +66,12 @@ Flock_GPU::Flock_GPU(int _numBoids )
 
 
 
-         m_dPosX[i]=m_Boids[i].getPos().x;
-         m_dPosY[i]=m_Boids[i].getPos().z;
+         m_dBoidsPosX[i]=m_Boids[i].getPos().x;
+         m_dBoidsPosZ[i]=m_Boids[i].getPos().z;
 
          // make positions between 0-1 rather then -2 to 2
-         m_dPosX[i] = (1.0f/4.0f)*(m_dPosX[i] + 2);
-         m_dPosY[i] = (1.0f/4.0f)*(m_dPosY[i] + 2);
+         //m_dPosX[i] = (1.0f/4.0f)*(m_dPosX[i] + 2);
+         //m_dPosY[i] = (1.0f/4.0f)*(m_dPosY[i] + 2);
 
 //        std::cout<<m_dPos[(3*i)]<<" "<<m_dPos[(3*i)+1]<<" "<<m_dPos[(3*i)+2]<<" \n";
 
@@ -102,7 +102,7 @@ void Flock_GPU::createBoidsMesh()
 void Flock_GPU::update()
 {
 
-    if(m_frame_count < 150)
+    if(m_frame_count < 300)
     {
         dumpGeo(m_frame_count,getBoidsVector());
         m_frame_count ++;
@@ -125,7 +125,7 @@ void Flock_GPU::update()
 }
 
 
-unsigned int * Flock_GPU::findNeighbours(float _neighbourhoodDist, int _boidID)
+void Flock_GPU::findNeighbours(float _neighbourhoodDist, int _boidID)
 {
 
 
@@ -195,7 +195,7 @@ unsigned int * Flock_GPU::findNeighbours(float _neighbourhoodDist, int _boidID)
         //dim3 threadsPerBlock(8, 8);
         //dim3 numBlocks(GRID_RESOLUTION/threadsPerBlock.x, GRID_RESOLUTION/threadsPerBlock.y);
 
-         int blockDim = 1024 / GRID_RESOLUTION + 1; // 9 threads per block
+         //int blockDim = 1024 / GRID_RESOLUTION + 1; // 9 threads per block
          dim3 block(GRID_RESOLUTION, GRID_RESOLUTION); // block of (X,Y) threads
          dim3 grid(1, 1); // grid 2x2 blocks
 
@@ -212,7 +212,7 @@ unsigned int * Flock_GPU::findNeighbours(float _neighbourhoodDist, int _boidID)
 
         // The special CUDA syntax below executes our parallel function with the specified parameters
         // using the number of blocks and threads provided.
-        pointHash<<<nBlocks, nThreads>>>(d_hash_ptr, m_dPosX_ptr, m_dPosY_ptr,
+        pointHash<<<nBlocks, nThreads>>>(d_hash_ptr, m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr,
                                          NUM_POINTS,
                                          GRID_RESOLUTION);
 
@@ -222,7 +222,7 @@ unsigned int * Flock_GPU::findNeighbours(float _neighbourhoodDist, int _boidID)
         // Now we can sort our points to ensure that points in the same grid cells occupy contiguous memory
         thrust::sort_by_key(d_hash.begin(), d_hash.end(),
                             thrust::make_zip_iterator(
-                                thrust::make_tuple( m_dPosX.begin(), m_dPosX.begin())));
+                                thrust::make_tuple( m_dBoidsPosX.begin(), m_dBoidsPosZ.begin())));
 
         // Make sure all threads have wrapped up before completing the timings
         cudaThreadSynchronize();
@@ -265,9 +265,9 @@ unsigned int * Flock_GPU::findNeighbours(float _neighbourhoodDist, int _boidID)
         // Only dump the debugging information if we have a manageable number of points.
         if (NUM_POINTS <= 100) {
 
-            thrust::copy(m_dPosX.begin(), m_dPosX.end(), std::ostream_iterator<float>(std::cout, " "));
+            thrust::copy(m_dBoidsPosX.begin(), m_dBoidsPosX.end(), std::ostream_iterator<float>(std::cout, " "));
             std::cout << "\n\n";
-            thrust::copy(m_dPosY.begin(), m_dPosY.end(), std::ostream_iterator<float>(std::cout, " "));
+            thrust::copy(m_dBoidsPosZ.begin(), m_dBoidsPosZ.end(), std::ostream_iterator<float>(std::cout, " "));
             std::cout << "\n\n";
             thrust::copy(d_neighbourCells.begin(), d_neighbourCells.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
             std::cout << "\n\n";
@@ -349,7 +349,7 @@ void Flock_GPU::hash()
 
 void Flock_GPU::dumpGeo(uint _frameNumber, std::vector<Prey_GPU> _boids)
 {
-    char fname[150];
+    char fname[300];
 
     std::sprintf(fname,"geo/flock_gpu.%03d.geo",++_frameNumber);
     // we will use a stringstream as it may be more efficient

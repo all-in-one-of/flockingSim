@@ -185,8 +185,8 @@ void Prey::flock()
         steer[0] += (cohesion[0] * cohesionWeight) + (alignment[0] * alignmentWeight) + (separation[0] * separationWeight);
         steer[2] += (cohesion[2] * cohesionWeight) + (alignment[2] * alignmentWeight) + (separation[2] * separationWeight);
 
-        //steer[0] += separation[0];
-        //steer[2] += separation[2];
+        //steer[0] += alignment[0];
+        //steer[2] += alignment[2];
 
         if(steer != glm::vec3{0,0,0})
         {
@@ -218,50 +218,50 @@ glm::vec3 Prey::alignBoid()
     std::vector <Prey> boidsVector = m_Flock->getBoidsVector();
 
 
-    // find neighbour points of current boid in desired radius
-    nearestNeighbours(0.8f,m_Flock->getHashVec()[getID()]);
+//    // find neighbour points of current boid in desired radius
+//    nearestNeighbours(0.8f,m_Flock->getHashVec()[getID()]);
 
 
 
-    for(int i = 0; i<getNeighbourPnts().size(); i++)
-    {
-        if(boidsVector[getNeighbourPnts()[i]].getID() != getID())
-        {
-
-            //std::cout<<getNeighbourPnts()[i]<< "neighbour points of "<<getID()<<" \n";
-            if(distanceToBoid(boidsVector[getNeighbourPnts()[i]]) < 0.3)
-            {
-
-                alignmentVector[0] += boidsVector[getNeighbourPnts()[i]].m_vel[0];
-                alignmentVector[2] += boidsVector[getNeighbourPnts()[i]].m_vel[2];
-
-                numberOfNeighbours += 1;
-            }
-        }
-
-
-    }
-
-
-
-//    for(int i = 0; i< m_Flock->getNoBoids(); i++)
+//    for(int i = 0; i<getNeighbourPnts().size(); i++)
 //    {
-//        //only flock with other flocking boids
-//        if(boidsVector[i].getID() != getID())
+//        if(boidsVector[getNeighbourPnts()[i]].getID() != getID())
 //        {
-//            if(boidsVector[i].m_flockFlag == true)
+
+//            //std::cout<<getNeighbourPnts()[i]<< "neighbour points of "<<getID()<<" \n";
+//            if(distanceToBoid(boidsVector[getNeighbourPnts()[i]]) < 0.3)
 //            {
-//                if( distanceToBoid(boidsVector[i]) < 0.8)
-//                {
 
-//                    alignmentVector[0] += boidsVector[i].m_vel[0];
-//                    alignmentVector[2] += boidsVector[i].m_vel[2];
+//                alignmentVector[0] += boidsVector[getNeighbourPnts()[i]].m_vel[0];
+//                alignmentVector[2] += boidsVector[getNeighbourPnts()[i]].m_vel[2];
 
-//                    numberOfNeighbours += 1;
-//                }
+//                numberOfNeighbours += 1;
 //            }
 //        }
+
+
 //    }
+
+
+
+    for(int i = 0; i< m_Flock->getNoBoids(); i++)
+    {
+        //only flock with other flocking boids
+        if(boidsVector[i].getID() != getID())
+        {
+            if(boidsVector[i].m_flockFlag == true)
+            {
+                if( distanceToBoid(boidsVector[i]) < 0.3)
+                {
+
+                    alignmentVector[0] += boidsVector[i].m_vel[0];
+                    alignmentVector[2] += boidsVector[i].m_vel[2];
+
+                    numberOfNeighbours += 1;
+                }
+            }
+        }
+    }
 
     // avoid dividing by zero
     if(numberOfNeighbours != 0 && alignmentVector != glm::vec3{0,0,0})

@@ -14,7 +14,7 @@ void flock_gpu()
 
     Flock_GPU *flocknew = new Flock_GPU(20);
 
-    while(count < 150)
+    while(count < 300)
     {
         flocknew->update();
         count ++;
