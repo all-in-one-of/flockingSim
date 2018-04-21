@@ -240,21 +240,28 @@ glm::vec3 Prey_GPU::alignBoid()
     // find neighbour points of current boid in desired radius
 //    nearestNeighbours(0.8f,m_Flock->getHashVec()[getID()]);
 
+    m_Flock->findNeighbours(0.8,getID());
 
 
-//    for(int i = 0; i<getNeighbourPnts().size(); i++)
+    //std::cout<<m_Flock->getNeighbours()[0];
+
+//    for(int i = 0; i<m_Flock->getNoBoids(); i++)
 //    {
-//        if(boidsVector[getNeighbourPnts()[i]].getID() != getID())
+//        // ignore pnt_max values
+//        if(m_Flock->getNeighbours()[i] <= m_Flock->getNoBoids())
 //        {
-
-//            //std::cout<<getNeighbourPnts()[i]<< "neighbour points of "<<getID()<<" \n";
-//            if(distanceToBoid(boidsVector[getNeighbourPnts()[i]]) < 0.8)
+//            if(boidsVector[m_Flock->getNeighbours()[i]].getID() != getID())
 //            {
 
-//                alignmentVector[0] += boidsVector[getNeighbourPnts()[i]].m_vel[0];
-//                alignmentVector[2] += boidsVector[getNeighbourPnts()[i]].m_vel[2];
+//                //std::cout<<getNeighbourPnts()[i]<< "neighbour points of "<<getID()<<" \n";
+//                if(distanceToBoid(boidsVector[m_Flock->getNeighbours()[i]]) < 0.8)
+//                {
 
-//                numberOfNeighbours += 1;
+//                    alignmentVector[0] += boidsVector[m_Flock->getNeighbours()[i]].m_vel[0];
+//                    alignmentVector[2] += boidsVector[m_Flock->getNeighbours()[i]].m_vel[2];
+
+//                    numberOfNeighbours += 1;
+//                }
 //            }
 //        }
 
@@ -264,38 +271,36 @@ glm::vec3 Prey_GPU::alignBoid()
 
 
 
-    for(int i = 0; i< m_Flock->getNoBoids(); i++)
-    {
-        //only flock with other flocking boids
-        if(boidsVector[i].getID() != getID())
-        {
-            if(boidsVector[i].m_flockFlag == true)
-            {
-                if( distanceToBoid(boidsVector[i]) < 0.3)
-                {
-
-                    printf("velocity: %f,%f,%f \n", m_Flock->getBoidsVector()[i].m_vel[0],m_Flock->getBoidsVector()[i].m_vel[1],m_Flock->getBoidsVector()[i].m_vel[2]);
+//    for(int i = 0; i< m_Flock->getNoBoids(); i++)
+//    {
+//        //only flock with other flocking boids
+//        if(boidsVector[i].getID() != getID())
+//        {
+//            if(boidsVector[i].m_flockFlag == true)
+//            {
+//                if( distanceToBoid(boidsVector[i]) < 0.3)
+//                {
 
 
 
 
-                    alignmentVector[0] += boidsVector[i].m_vel[0];
-                    alignmentVector[2] += boidsVector[i].m_vel[2];
 
-                    //printf(" updated alignment vector: %f,%f,%f \n", alignmentVector[0],alignmentVector[1],alignmentVector[2]);
-                    numberOfNeighbours += 1;
-                }
-            }
-        }
-    }
+
+//                    alignmentVector[0] += boidsVector[i].m_vel[0];
+//                    alignmentVector[2] += boidsVector[i].m_vel[2];
+
+//                    //printf(" updated alignment vector: %f,%f,%f \n", alignmentVector[0],alignmentVector[1],alignmentVector[2]);
+//                    numberOfNeighbours += 1;
+//                }
+//            }
+//        }
+//    }
 
     // avoid dividing by zero
     if(numberOfNeighbours != 0)
     {
 
 
-        //printf("neighbours: %d \n",numberOfNeighbours);
-        printf("alignment: %f,%f,%f \n", alignmentVector[0],alignmentVector[1],alignmentVector[2]);
 
 
         //find average velocity of boids in the current boids neighborhood
@@ -304,7 +309,7 @@ glm::vec3 Prey_GPU::alignBoid()
 
 
 
-        //printf("new alignment: %f,%f,%f \n", alignmentVector[0],alignmentVector[1],alignmentVector[2]);
+
 
         //alignmentVector =  normaliseVector(alignmentVector); // glm::normalize(alignmentVector);
 
@@ -410,8 +415,6 @@ glm::vec3 Prey_GPU::seperateBoid()
         //run in opposite direction to average neighbor position
         seperationVector[0] *= -1;
         seperationVector[2] *= -1;
-        //printf("neighbours: %d \n", numberOfNeighbours);
-        //printf("seperation %f,%f,%f \n",seperationVector[0], seperationVector[1], seperationVector[2]);
 
         seperationVector = normaliseVector(seperationVector); //glm::normalize(seperationVector);
 

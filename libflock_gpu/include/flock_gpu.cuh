@@ -37,18 +37,18 @@ public :
   int* getCellOcc(){return m_cellOcc;}
   std::vector <int> getHashVec(){return m_hashVec;}
 
-  int m_gridRes = 6;
+  int m_gridRes = 4;
 
   void dumpGeo(uint _frameNumber,
                std::vector<Prey_GPU> _boids);
 
   // takes all points and returns neighbour point indexes
-  void findNeighbours(float _neighbourhoodDist, int _boidID);
+  void findNeighbours(float _neighbourhoodDist, int _currentCell);
 
 
 
 //  float * getPos(){return m_dPos_ptr;}
-//  unsigned int * getNeighbours(){return m_dneighbourPnts_ptr;}
+    thrust::device_vector<unsigned int> getNeighbours(){return m_dneighbourPnts;}
 
 
 
@@ -68,6 +68,14 @@ private :
 
     float * m_dBoidsPosX_ptr;
     float * m_dBoidsPosZ_ptr;
+
+    // stores cellOcc
+    thrust::device_vector<unsigned int> m_dCellOcc;
+    unsigned int * m_dCellOcc_ptr = thrust::raw_pointer_cast(&m_dCellOcc[0]);
+
+    // stores cellOcc
+    thrust::device_vector<unsigned int> m_dHash;
+    unsigned int * m_dHash_ptr = thrust::raw_pointer_cast(&m_dHash[0]);
 
     // stores neighbour points
     thrust::device_vector<unsigned int> m_dneighbourPnts;

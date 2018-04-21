@@ -20,8 +20,13 @@ void flock_gpu()
         count ++;
     }
 
+//    flocknew->hash();
 
-    //flocknew->findNeighbours(0.26,2);
+//    flocknew->cellOcc();
+
+    //flocknew->findNeighbours(0.24,2);
+
+
 
 
 
