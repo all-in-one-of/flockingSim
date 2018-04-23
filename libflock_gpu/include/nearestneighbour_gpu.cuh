@@ -169,7 +169,7 @@ __global__ void neighbourhoodCells(unsigned int *neighbourCells,
             if(i>=0 && j>=0 && i<=res-1 && j<= res-1)
             {
 
-                printf("bucket radius : %d cell: %d \n",bucketRadius, cell);
+                //printf("bucket radius : %d cell: %d \n",bucketRadius, cell);
                 //if((j*m_Flock->m_gridRes + i) != cell  )
                 //{
                     neighbourCells[count] = (j*res) + i;

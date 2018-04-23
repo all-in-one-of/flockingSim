@@ -195,11 +195,11 @@ void Prey_GPU::flock()
         float separationWeight = 1.3;
 
         //find resulting flocking vector
-        steer[0] += (cohesion[0] * cohesionWeight) + (alignment[0] * alignmentWeight) + (separation[0] * separationWeight);
-        steer[2] += (cohesion[2] * cohesionWeight) + (alignment[2] * alignmentWeight) + (separation[2] * separationWeight);
+        //steer[0] += (cohesion[0] * cohesionWeight) + (alignment[0] * alignmentWeight) + (separation[0] * separationWeight);
+        //steer[2] += (cohesion[2] * cohesionWeight) + (alignment[2] * alignmentWeight) + (separation[2] * separationWeight);
 
-        //steer[0] += alignment[0]; //cohesion[0] + separation[0];
-        //steer[2] += alignment[2]; //cohesion[2] + separation[2];
+        steer[0] += cohesion[0] + separation[0];
+        steer[2] += cohesion[2] + separation[2];
 
         if(steer[0] != 0 && steer[2] != 0)
         {
@@ -234,39 +234,41 @@ glm::vec3 Prey_GPU::alignBoid()
 
     std::vector <Prey_GPU> boidsVector = m_Flock->getBoidsVector();
 
-
+    float neighbourhoodRadius = 0.3;
 
 
     // find neighbour points of current boid in desired radius
 //    nearestNeighbours(0.8f,m_Flock->getHashVec()[getID()]);
 
-    m_Flock->findNeighbours(0.8,getID());
+    m_Flock->findNeighbours(neighbourhoodRadius,getID());
 
 
-    //std::cout<<m_Flock->getNeighbours()[0];
 
-//    for(int i = 0; i<m_Flock->getNoBoids(); i++)
-//    {
-//        // ignore pnt_max values
-//        if(m_Flock->getNeighbours()[i] <= m_Flock->getNoBoids())
-//        {
-//            if(boidsVector[m_Flock->getNeighbours()[i]].getID() != getID())
-//            {
-
-//                //std::cout<<getNeighbourPnts()[i]<< "neighbour points of "<<getID()<<" \n";
-//                if(distanceToBoid(boidsVector[m_Flock->getNeighbours()[i]]) < 0.8)
-//                {
-
-//                    alignmentVector[0] += boidsVector[m_Flock->getNeighbours()[i]].m_vel[0];
-//                    alignmentVector[2] += boidsVector[m_Flock->getNeighbours()[i]].m_vel[2];
-
-//                    numberOfNeighbours += 1;
-//                }
-//            }
-//        }
+    for(int i = 0; i<m_Flock->getNoBoids(); i++)
+    {
+        //std::cout<<m_Flock->getNeighbours()[i]<<"\n";
 
 
-//    }
+        // ignore pnt_max values
+        if(m_Flock->getNeighbours()[i] <= m_Flock->getNoBoids())
+        {
+            if(boidsVector[m_Flock->getNeighbours()[i]].getID() != getID())
+            {
+
+                //std::cout<<getNeighbourPnts()[i]<< "neighbour points of "<<getID()<<" \n";
+                if(distanceToBoid(boidsVector[m_Flock->getNeighbours()[i]]) < neighbourhoodRadius)
+                {
+
+                    alignmentVector[0] += boidsVector[m_Flock->getNeighbours()[i]].m_vel[0];
+                    alignmentVector[2] += boidsVector[m_Flock->getNeighbours()[i]].m_vel[2];
+
+                    numberOfNeighbours += 1;
+                }
+            }
+        }
+
+
+    }
 
 
 
@@ -331,7 +333,7 @@ glm::vec3 Prey_GPU::seperateBoid()
 
     glm::vec3 diff {0,0,0};
 
-    //float neighbourhoodRadius = 0.2;
+    float neighbourhoodRadius = 0.2;
 
 
     //std::cout<<getID()<<" point id \n";
@@ -342,68 +344,75 @@ glm::vec3 Prey_GPU::seperateBoid()
 //    nearestNeighbours(neighbourhoodRadius,m_Flock->getHashVec()[getID()]);
 
 
-//    for(int i = 0; i<getNeighbourPnts().size(); i++)
-//    {
+    m_Flock->findNeighbours(neighbourhoodRadius,getID());
 
-//        //std::cout<<m_Flock->getHashVec()[getNeighbourPnts()[i]]<< " neighbour point cell \n";
-
-//        if(boidsVector[getNeighbourPnts()[i]].getID() != getID())
-//        {
-//            //std::cout<<getNeighbourPnts()[i]<< "neighbour points of "<<getID()<<" \n";
-//            if(distanceToBoid(boidsVector[getNeighbourPnts()[i]]) < neighbourhoodRadius)
-//            {
-
-//                //std::cout<<"seperate \n";
-
-
-//                //vector from current boid to neighbor
-//                diff[0] = boidsVector[getNeighbourPnts()[i]].m_pos[0]-m_pos[0];
-//                diff[2] = boidsVector[getNeighbourPnts()[i]].m_pos[2]-m_pos[2];
-
-//                diff = glm::normalize(diff);
-
-//                //the closer to its neighbors the greater the seperation vector
-//                seperationVector[0] += diff[0] / (distanceToBoid(boidsVector[getNeighbourPnts()[i]]));
-//                seperationVector[2] += diff[2] / (distanceToBoid(boidsVector[getNeighbourPnts()[i]]));
-
-
-//                numberOfNeighbours += 1;
-//            }
-//        }
-
-
-//    }
-
-
-
-
-
-
-    for(int i = 0; i <m_Flock->getNoBoids(); i++)
+    for(int i = 0; i<m_Flock->getNoBoids(); i++)
     {
-        if(boidsVector[i].getID() != getID())
+
+        //std::cout<<m_Flock->getHashVec()[getNeighbourPnts()[i]]<< " neighbour point cell \n";
+
+        // ignore pnt_max values
+        if(m_Flock->getNeighbours()[i] <= m_Flock->getNoBoids())
         {
-            if(boidsVector[i].m_flockFlag == true)
+            if(boidsVector[m_Flock->getNeighbours()[i]].getID() != getID())
             {
-                if(distanceToBoid(boidsVector[i]) <0.2)
+
+                //std::cout<<getNeighbourPnts()[i]<< "neighbour points of "<<getID()<<" \n";
+                if(distanceToBoid(boidsVector[m_Flock->getNeighbours()[i]]) < neighbourhoodRadius)
                 {
 
-                    //vector from current boid to neighbor
-                    diff[0] = boidsVector[i].m_pos[0]-m_pos[0];
-                    diff[2] = boidsVector[i].m_pos[2]-m_pos[2];
-
-                    glm::normalize(diff);
-
-                    //the closer to its neighbors the greater the seperation vector
-                    seperationVector[0] += diff[0] / (distanceToBoid(boidsVector[i]));
-                    seperationVector[2] += diff[2] / (distanceToBoid(boidsVector[i]));
+                //std::cout<<"seperate \n";
 
 
-                    numberOfNeighbours += 1;
+                //vector from current boid to neighbor
+                diff[0] = boidsVector[getNeighbourPnts()[i]].m_pos[0]-m_pos[0];
+                diff[2] = boidsVector[getNeighbourPnts()[i]].m_pos[2]-m_pos[2];
+
+                diff = glm::normalize(diff);
+
+                //the closer to its neighbors the greater the seperation vector
+                seperationVector[0] += diff[0] / (distanceToBoid(boidsVector[getNeighbourPnts()[i]]));
+                seperationVector[2] += diff[2] / (distanceToBoid(boidsVector[getNeighbourPnts()[i]]));
+
+
+                numberOfNeighbours += 1;
                 }
             }
         }
+
+
     }
+
+
+
+
+
+
+//    for(int i = 0; i <m_Flock->getNoBoids(); i++)
+//    {
+//        if(boidsVector[i].getID() != getID())
+//        {
+//            if(boidsVector[i].m_flockFlag == true)
+//            {
+//                if(distanceToBoid(boidsVector[i]) <0.2)
+//                {
+
+//                    //vector from current boid to neighbor
+//                    diff[0] = boidsVector[i].m_pos[0]-m_pos[0];
+//                    diff[2] = boidsVector[i].m_pos[2]-m_pos[2];
+
+//                    glm::normalize(diff);
+
+//                    //the closer to its neighbors the greater the seperation vector
+//                    seperationVector[0] += diff[0] / (distanceToBoid(boidsVector[i]));
+//                    seperationVector[2] += diff[2] / (distanceToBoid(boidsVector[i]));
+
+
+//                    numberOfNeighbours += 1;
+//                }
+//            }
+//        }
+//    }
 
     //avoid dividing by zero
     if(numberOfNeighbours != 0)
@@ -441,52 +450,62 @@ glm::vec3 Prey_GPU::cohesionBoid()
 // spatial partitioning ---------------------------------------------------------------------
 
     // find neighbour points of current boid in desired radius
-//    nearestNeighbours(1.0f,m_Flock->getHashVec()[getID()]);
+    //nearestNeighbours(1.0f,m_Flock->getHashVec()[getID()]);
 
+    float neighbourhoodRadius = 0.4;
 
+    m_Flock->findNeighbours(neighbourhoodRadius,getID());
 
-//    for(int i = 0; i<getNeighbourPnts().size(); i++)
-//    {
-//        if(boidsVector[getNeighbourPnts()[i]].getID() != getID())
-//        {
-
-//            //std::cout<<getNeighbourPnts()[i]<< "neighbour points of "<<getID()<<" \n";
-//            if(distanceToBoid(boidsVector[getNeighbourPnts()[i]]) < 1.0)
-//            {
-
-//                cohesionVector[0] += boidsVector[getNeighbourPnts()[i]].m_pos[0];
-//                cohesionVector[2] += boidsVector[getNeighbourPnts()[i]].m_pos[2];
-
-
-//                numberOfNeighbours += 1;
-//            }
-//        }
-
-
-//    }
-
-    // slow code ----------------------------------------------------------------
-    for(int i = 0; i < m_Flock->getNoBoids(); i++)
+    for(int i = 0; i<m_Flock->getNoBoids(); i++)
     {
-        if(boidsVector[i].getID() != getID())
+
+        //std::cout<<m_Flock->getHashVec()[getNeighbourPnts()[i]]<< " neighbour point cell \n";
+
+        // ignore pnt_max values
+        if(m_Flock->getNeighbours()[i] <= m_Flock->getNoBoids())
         {
-            if( boidsVector[i].m_flockFlag == true)
+            if(boidsVector[m_Flock->getNeighbours()[i]].getID() != getID())
             {
-                if(distanceToBoid(boidsVector[i]) < 0.4)
+
+                //std::cout<<getNeighbourPnts()[i]<< "neighbour points of "<<getID()<<" \n";
+                if(distanceToBoid(boidsVector[m_Flock->getNeighbours()[i]]) < neighbourhoodRadius)
                 {
 
-
-
-
-                    cohesionVector[0] += boidsVector[i].m_pos[0];
-                    cohesionVector[2] += boidsVector[i].m_pos[2];
+                    cohesionVector[0] += boidsVector[getNeighbourPnts()[i]].m_pos[0];
+                    cohesionVector[2] += boidsVector[getNeighbourPnts()[i]].m_pos[2];
 
 
                     numberOfNeighbours += 1;
                 }
+
             }
         }
+
+
     }
+
+    // slow code ----------------------------------------------------------------
+//    for(int i = 0; i < m_Flock->getNoBoids(); i++)
+//    {
+//        if(boidsVector[i].getID() != getID())
+//        {
+//            if( boidsVector[i].m_flockFlag == true)
+//            {
+//                if(distanceToBoid(boidsVector[i]) < 0.4)
+//                {
+
+
+
+
+//                    cohesionVector[0] += boidsVector[i].m_pos[0];
+//                    cohesionVector[2] += boidsVector[i].m_pos[2];
+
+
+//                    numberOfNeighbours += 1;
+//                }
+//            }
+//        }
+//    }
 
     //avoid dividing by zero
     if(numberOfNeighbours != 0)
