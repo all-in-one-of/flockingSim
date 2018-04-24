@@ -33,7 +33,8 @@ void Prey_GPU::update()
 
 
 
-    m_pos+=m_vel;
+    m_pos[0]+=m_vel[0];
+    m_pos[2]+=m_vel[2];
 
 
 
@@ -78,46 +79,54 @@ void Prey_GPU::avoidBoundaries()
 
 
 
-    glm::vec3 desiredVel;
+    thrust::device_vector<float> desiredVel(3,0);
 
-    if(m_pos.z >= 2 && m_vel.z >0)
+    if(m_pos[2] >= 2 && m_vel[2] >0)
     {
-        desiredVel = {m_vel[0],0,-m_vel[2]};
+        desiredVel[0] = m_vel[0];
+        desiredVel[2] = -m_vel[2];
 
         //printf("desired vel %f,%f,%f \n",desiredVel[0],desiredVel[1],desiredVel[2]);
         //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
 
         //printf("vel: %f,%f,%f \n",m_vel[0],m_vel[1],m_vel[2]);
-        m_vel += steerBoid(desiredVel);
+        m_vel[0] += steerBoid(desiredVel)[0];
+        m_vel[2] += steerBoid(desiredVel)[2];
         //printf("new vel: %f,%f,%f \n",m_vel[0],m_vel[1],m_vel[2]);
 
         //limitVel(0.02);
         //std::cout<<" out of z bounds\n";
     }
-    else if(m_pos.z <= -2 && m_vel.z <0)
+    else if(m_pos[2] <= -2 && m_vel[2] <0)
     {
-        desiredVel = {m_vel[0],0,-m_vel[2]};
+        desiredVel[0] = m_vel[0];
+        desiredVel[2] = -m_vel[2];
 
         //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
-        m_vel += steerBoid(desiredVel);
+        m_vel[0] += steerBoid(desiredVel)[0];
+        m_vel[2] += steerBoid(desiredVel)[2];
 
         //limitVel(0.02);
         //std::cout<<" out of -z bounds\n";
     }
-    else if(m_pos.x >= 2 && m_vel.x >0)
+    else if(m_pos[0] >= 2 && m_vel[0] >0)
     {
-        desiredVel = {-m_vel[0],0,m_vel[2]};
+        desiredVel[0] = -m_vel[0];
+        desiredVel[2] = m_vel[2];
         //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
-        m_vel += steerBoid(desiredVel);
+        m_vel[0] += steerBoid(desiredVel)[0];
+        m_vel[2] += steerBoid(desiredVel)[2];
 
         //imitVel(0.02);
         //std::cout<<" out of x bounds\n";
     }
-    else if(m_pos.x <= -2 && m_vel.x <0)
+    else if(m_pos[0] <= -2 && m_vel[0] <0)
     {
-        desiredVel = {-m_vel[0],0,m_vel[2]};
+        desiredVel[0] = -m_vel[0];
+        desiredVel[2] = m_vel[2];
         //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
-        m_vel += steerBoid(desiredVel);
+        m_vel[0] += steerBoid(desiredVel)[0];
+        m_vel[2] += steerBoid(desiredVel)[2];
 
         //limitVel(0.02);
         //std::cout<<" out of -x bounds\n";
@@ -138,51 +147,51 @@ void Prey_GPU::avoidBoundaries()
 void Prey_GPU::updateRotation()
 {
 
-    //rotation 0 when facing in z axis
-        glm::vec3 facing = {0,0,1};
+//    //rotation 0 when facing in z axis
+//        glm::vec3 facing = {0,0,1};
 
-             //only update if moving
-             if(m_vel != glm::vec3{0,0,0})
-             {
-
-
-                 float mag1 = glm::length(facing);
-                 float mag2 = glm::length(m_vel);
-
-                 //find angle between z axis and boids velocity vector
-                 float steer = std::acos(glm::dot(facing, m_vel)/(mag1*mag2));
-
-                 //convert from radians to degrees
-                 //steer = steer*(180/M_PI);
+//             //only update if moving
+//             if(m_vel != glm::vec3{0,0,0})
+//             {
 
 
-                 //std::cout<<"vel "<<m_vel[0]<<"\n";
-                 //std::cout<<"angle "<<steer<<" \n";
+//                 float mag1 = glm::length(facing);
+//                 float mag2 = glm::length(m_vel);
+
+//                 //find angle between z axis and boids velocity vector
+//                 float steer = std::acos(glm::dot(facing, m_vel)/(mag1*mag2));
+
+//                 //convert from radians to degrees
+//                 //steer = steer*(180/M_PI);
 
 
-                 //if rotation past 180 degrees must take away from 360, then update boid rotation
-                 if(m_vel[0]>0)
-                 {
-                     m_rotateAngle = steer;
-                     m_rotation[1] = steer;
-                 }
-                 else
-                 {
-                     m_rotateAngle = 2*M_PI -steer;
-                     m_rotation[1]= 360-steer;
-                 }
-             }
+//                 //std::cout<<"vel "<<m_vel[0]<<"\n";
+//                 //std::cout<<"angle "<<steer<<" \n";
+
+
+//                 //if rotation past 180 degrees must take away from 360, then update boid rotation
+//                 if(m_vel[0]>0)
+//                 {
+//                     m_rotateAngle = steer;
+//                     m_rotation[1] = steer;
+//                 }
+//                 else
+//                 {
+//                     m_rotateAngle = 2*M_PI -steer;
+//                     m_rotation[1]= 360-steer;
+//                 }
+//             }
 
 }
 
 void Prey_GPU::flock()
 {
-        glm::vec3 steer = {0,0,0};
+        thrust::device_vector<float> steer(3,0);
 
         //compute the flocking component vectors
-        glm::vec3 alignment = {0,0,0};
-        glm::vec3 cohesion = {0,0,0};
-        glm::vec3 separation = {0,0,0};
+        thrust::device_vector<float> alignment(3,0);
+        thrust::device_vector<float> cohesion(3,0);
+        thrust::device_vector<float> separation(3,0);
 
         //alignment = alignBoid();
         //cohesion =cohesionBoid();
@@ -209,14 +218,15 @@ void Prey_GPU::flock()
 
 
             //steer towards flocking vector if required
-            m_vel += steer;// steerBoid(steer);
+            m_vel[0] += steer[0];// steerBoid(steer);
+            m_vel[2] += steer[2];
 
 
 
         }
 
 
-        if(m_vel != glm::vec3{0,0,0})
+        if(m_vel[0] != 0  && m_vel[2] != 0)
         {
             //m_vel = glm::normalize(m_vel);
 
@@ -227,10 +237,10 @@ void Prey_GPU::flock()
 
 }
 
-glm::vec3 Prey_GPU::alignBoid()
+thrust::device_vector<float> Prey_GPU::alignBoid()
 {
     int numberOfNeighbours = 0;
-    glm::vec3 alignmentVector {0,0,0};
+    thrust::device_vector<float> alignmentVector(3,0);
 
     std::vector <Prey_GPU> boidsVector = m_Flock->getBoidsVector();
 
@@ -325,13 +335,13 @@ glm::vec3 Prey_GPU::alignBoid()
 
 }
 
-glm::vec3 Prey_GPU::seperateBoid()
+thrust::device_vector<float> Prey_GPU::seperateBoid()
 {
     int numberOfNeighbours = 0;
-    glm::vec3 seperationVector {0,0,0};
+    thrust::device_vector<float> seperationVector(3,0);
     std::vector <Prey_GPU> boidsVector = m_Flock->getBoidsVector();
 
-    glm::vec3 diff {0,0,0};
+    thrust::device_vector<float> diff(3,0);
 
     float neighbourhoodRadius = 0.2;
 
@@ -405,7 +415,7 @@ glm::vec3 Prey_GPU::seperateBoid()
                     diff[0] = boidsVector[i].m_pos[0]-m_pos[0];
                     diff[2] = boidsVector[i].m_pos[2]-m_pos[2];
 
-                    glm::normalize(diff);
+                    diff = normaliseVector(diff);// glm::normalize(diff);
 
                     //the closer to its neighbors the greater the seperation vector
                     seperationVector[0] += diff[0] / (distanceToBoid(boidsVector[i]));
@@ -440,10 +450,10 @@ glm::vec3 Prey_GPU::seperateBoid()
 
 }
 
-glm::vec3 Prey_GPU::cohesionBoid()
+thrust::device_vector<float> Prey_GPU::cohesionBoid()
 {
     int numberOfNeighbours = 0;
-    glm::vec3 cohesionVector {0,0,0};
+    thrust::device_vector<float> cohesionVector(3,0);
 
     std::vector <Prey_GPU> boidsVector = m_Flock->getBoidsVector();
 
@@ -535,14 +545,14 @@ glm::vec3 Prey_GPU::cohesionBoid()
 
 }
 
-glm::vec3 Prey_GPU::steerBoid(glm::vec3 _target)
+thrust::device_vector<float> Prey_GPU::steerBoid(thrust::device_vector<float> _target)
 {
 
 
 
-    glm::vec3 steerVec = {0.0f,0.0f,0.0f};
+    thrust::device_vector<float> steerVec(3,0);
 
-    glm::vec3 diff = {0.0f,0.0f,0.0f};
+    thrust::device_vector<float> diff(3,0);
 
 
     diff[0] = _target[0] - m_vel[0];
@@ -579,11 +589,11 @@ void Prey_GPU::limitVel(float _limit)
 {
 
 
-    if( glm::length(m_vel) > _limit)
+    if( vectorMagnitude(m_vel) > _limit)
     {
 
-        m_vel[0] = (m_vel[0]/glm::length(m_vel))*_limit;
-        m_vel[2] = (m_vel[2]/glm::length(m_vel))*_limit;
+        m_vel[0] = (m_vel[0]/vectorMagnitude(m_vel))*_limit;
+        m_vel[2] = (m_vel[2]/vectorMagnitude(m_vel))*_limit;
 
         //std::cout<<"new vel "<<m_vel[0]<<" \n";
 
@@ -677,13 +687,13 @@ void Prey_GPU::limitVel(float _limit)
 
 //}
 
-glm::vec3 Prey_GPU::normaliseVector(glm::vec3 _vector)
+thrust::device_vector<float> Prey_GPU::normaliseVector(thrust::device_vector<float> _vector)
 {
-    glm::vec3 normalisedVector {0,0,0};
+    thrust::device_vector<float> normalisedVector(3,0);
 
 
-    normalisedVector[0] = _vector[0] / _vector.length();
-    normalisedVector[2] = _vector[2] / _vector.length();
+    normalisedVector[0] = _vector[0] / vectorMagnitude(_vector);
+    normalisedVector[2] = _vector[2] / vectorMagnitude(_vector);
 
     return normalisedVector;
 
@@ -691,7 +701,7 @@ glm::vec3 Prey_GPU::normaliseVector(glm::vec3 _vector)
 
 }
 
-float Prey_GPU::vectorMagnitude(glm::vec3 _vector)
+float Prey_GPU::vectorMagnitude(thrust::device_vector<float> _vector)
 {
     float mag;
 

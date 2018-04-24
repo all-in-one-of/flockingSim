@@ -72,6 +72,8 @@ Flock_GPU::Flock_GPU(int _numBoids )
 
         m_Boids.push_back(Prey_GPU(this,i));
 
+
+
         //setPositions<<<nBlocks, nThreads>>>(m_dPos_ptr, m_Boids[i].getPos().x, i);
 
 
@@ -81,12 +83,12 @@ Flock_GPU::Flock_GPU(int _numBoids )
 
 
 
-         m_dBoidsPosX[i]=m_Boids[i].getPos().x;
-         m_dBoidsPosZ[i]=m_Boids[i].getPos().z;
+//         m_dBoidsPosX[i]=m_Boids[i].getPos()[0];
+//         m_dBoidsPosZ[i]=m_Boids[i].getPos()[2];
 
          // make positions between 0-1 rather then -2 to 2
-         m_dBoidsPosX[i] = (1.0f/4.0f)*(m_dBoidsPosX[i] + 2);
-         m_dBoidsPosZ[i] = (1.0f/4.0f)*(m_dBoidsPosZ[i] + 2);
+         m_dBoidsPosX[i] = (1.0f/4.0f)*(m_Boids[i].getPos()[0] + 2);
+         m_dBoidsPosZ[i] = (1.0f/4.0f)*(m_Boids[i].getPos()[2] + 2);
 
 //        std::cout<<m_dPos[(3*i)]<<" "<<m_dPos[(3*i)+1]<<" "<<m_dPos[(3*i)+2]<<" \n";
 
@@ -128,20 +130,17 @@ void Flock_GPU::update()
     hash();
     cellOcc();
 
-    findNeighbours(0.3,0);
 
-    findNeighbours(0.3,1);
+    for(int i=0; i<m_numBoids; ++i)
+    {
 
-//    for(int i=0; i<m_numBoids; ++i)
-//    {
+        m_Boids[i].update();
 
-//        m_Boids[i].update();
+        // make positions between 0-1 rather then -2 to 2
+        m_dBoidsPosX[i] = (1.0f/4.0f)*(m_Boids[i].getPos()[0] + 2);
+        m_dBoidsPosZ[i] = (1.0f/4.0f)*(m_Boids[i].getPos()[2] + 2);
 
-//        // make positions between 0-1 rather then -2 to 2
-//        m_dBoidsPosX[i] = (1.0f/4.0f)*(m_Boids[i].getPos().x + 2);
-//        m_dBoidsPosZ[i] = (1.0f/4.0f)*(m_Boids[i].getPos().z + 2);
-
-//    }
+    }
 
 
 }
@@ -149,6 +148,10 @@ void Flock_GPU::update()
 
 void Flock_GPU::findNeighbours(float _neighbourhoodDist, int _boidID)
 {
+    // fill vectors with boid positions
+    // make positions between 0-1 rather then -2 to 2
+   // m_dBoidsPosX[i] = (1.0f/4.0f)*(m_Boids[i].getPos()[0] + 2);
+    //m_dBoidsPosZ[i] = (1.0f/4.0f)*(m_Boids[i].getPos()[2] + 2);
 
     // divide by grid resolution as grid 0-1 and boids plane -2 - 2
     _neighbourhoodDist /= (2 * m_gridRes);
@@ -448,7 +451,7 @@ void Flock_GPU::dumpGeo(uint _frameNumber, std::vector<Prey_GPU> _boids)
     {
 
 
-        ss<<_boids[i].getPos().x<<" "<<_boids[i].getPos().y<<" "<<_boids[i].getPos().z << " 1 ";
+        ss<<_boids[i].getPos()[0]<<" "<<_boids[i].getPos()[1]<<" "<<_boids[i].getPos()[2] << " 1 ";
         //ss<<"("<<_boids[i].cellCol.x<<" "<<_boids[i].cellCol.y<<" "<< _boids[i].cellCol.z<<")\n";
         ss<<"("<<std::abs(1)<<" "<<std::abs(1)<<" "<<std::abs(1)<<")\n";
     }

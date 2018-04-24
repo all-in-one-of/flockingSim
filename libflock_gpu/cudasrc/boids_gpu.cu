@@ -13,24 +13,31 @@ Boid_GPU::Boid_GPU(Flock_GPU *_Flock, int _ID)
   m_ID = _ID;
 
 
+  // make vector 3d
+  m_pos.resize(3,0);
+  m_vel.resize(3,0);
 
 
 
   m_rotation.operator =(glm::vec3{0,0,0});
 
 
-  m_pos={((float(rand())/RAND_MAX)-0.5)*4, 0, ((float(rand())/RAND_MAX)-0.5)*4};
+  m_pos[0]=((float(rand())/RAND_MAX)-0.5)*4;
+  m_pos[2]=((float(rand())/RAND_MAX)-0.5)*4;
 
 
 
-  m_vel = {(float(rand())/RAND_MAX), 0, (float(rand())/RAND_MAX)};
+
+  m_vel[0] = (float(rand())/RAND_MAX)/100;
+  m_vel[2] = (float(rand())/RAND_MAX)/100;
+
 
 
 
 
   //m_vel = glm::normalize(m_vel);
 
-  m_vel /= 100;
+
 
   //std::cout<<"vel "<<m_vel[0]<<" \n";
 

@@ -16,19 +16,19 @@ public:
 
     virtual void draw();
 
-    virtual glm::vec3 getVel(){return m_vel;}
+    virtual thrust::device_vector<float> getVel(){return m_vel;}
 
-    virtual void setVel(glm::vec3 _vel){m_vel = _vel;}
+    virtual void setVel(thrust::device_vector<float> _vel){m_vel = _vel;}
 
-    virtual glm::vec3 getPos(){return m_pos;}
+    virtual thrust::device_vector<float> getPos(){return m_pos;}
 
-    virtual void setPos(glm::vec3 _pos){m_pos = _pos;}
+    virtual void setPos(thrust::device_vector<float> _pos){m_pos = _pos;}
 
     virtual void limitVel(float _limit);
 
     virtual void updateRotation();
 
-    virtual glm::vec3 steerBoid(glm::vec3 _target);
+    virtual thrust::device_vector<float> steerBoid(thrust::device_vector<float> _target);
 
     virtual void avoidBoundaries();
 
@@ -36,9 +36,9 @@ public:
 
     virtual int getID(){return m_ID;}
 
-     glm::vec3 alignBoid();
-     glm::vec3 seperateBoid();
-     glm::vec3 cohesionBoid();
+     thrust::device_vector<float> alignBoid();
+     thrust::device_vector<float> seperateBoid();
+     thrust::device_vector<float> cohesionBoid();
 
      void flock();
 
@@ -50,9 +50,9 @@ public:
 
      std::vector <float> getNeighbourPnts(){return m_neighbourhoodPnts;}
 
-     glm::vec3 normaliseVector(glm::vec3 _vector);
+     thrust::device_vector<float> normaliseVector(thrust::device_vector<float> _vector);
 
-     float vectorMagnitude(glm::vec3 _vector);
+     float vectorMagnitude(thrust::device_vector<float> _vector);
 
 private:
 
