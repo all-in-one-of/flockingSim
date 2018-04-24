@@ -14,11 +14,11 @@ void flock_gpu()
 
     Flock_GPU *flocknew = new Flock_GPU(20);
 
-    while(count < 300)
-    {
+    //while(count < 150)
+    //{
         flocknew->update();
         count ++;
-    }
+    //}
 
 //    flocknew->hash();
 

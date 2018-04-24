@@ -46,7 +46,7 @@ public:
 
      float distanceToBoid(const Prey_GPU _boid);
 
-     void nearestNeighbours(float _neighbourhoodDist, int cell);
+     //void nearestNeighbours(float _neighbourhoodDist, int cell);
 
      std::vector <float> getNeighbourPnts(){return m_neighbourhoodPnts;}
 

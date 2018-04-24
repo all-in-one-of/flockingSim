@@ -48,7 +48,7 @@ public :
 
 
 //  float * getPos(){return m_dPos_ptr;}
-    thrust::device_vector<unsigned int> getNeighbours(){return m_dneighbourPnts;}
+    thrust::device_vector <unsigned int> getNeighbours(){return m_dneighbourPnts;}
 
 
 
@@ -71,15 +71,15 @@ private :
 
     // stores cellOcc
     thrust::device_vector<unsigned int> m_dCellOcc;
-    unsigned int * m_dCellOcc_ptr = thrust::raw_pointer_cast(&m_dCellOcc[0]);
+    unsigned int * m_dCellOcc_ptr;
 
     // stores cellOcc
     thrust::device_vector<unsigned int> m_dHash;
-    unsigned int * m_dHash_ptr = thrust::raw_pointer_cast(&m_dHash[0]);
+    unsigned int * m_dHash_ptr;
 
     // stores neighbour points
     thrust::device_vector<unsigned int> m_dneighbourPnts;
-    unsigned int * m_dneighbourPnts_ptr = thrust::raw_pointer_cast(&m_dneighbourPnts[0]);
+    unsigned int * m_dneighbourPnts_ptr;
 
     int m_frame_count = 0;
 

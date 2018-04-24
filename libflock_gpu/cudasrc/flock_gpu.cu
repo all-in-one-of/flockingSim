@@ -57,6 +57,8 @@ Flock_GPU::Flock_GPU(int _numBoids )
 
 
 
+
+
     //m_Boids.resize(m_numBoids);
 
     //BoidFactory *b = new BoidFactory;
@@ -116,33 +118,30 @@ void Flock_GPU::update()
 {
 
 
-    if(m_frame_count < 300)
-    {
+    //if(m_frame_count < 300)
+    //{
         //std::cout<<"dump frame \n";
         dumpGeo(m_frame_count,getBoidsVector());
         m_frame_count ++;
-    }
+    //}
 
     hash();
     cellOcc();
 
-    for(int i=0; i<m_numBoids; ++i)
-    {
+    findNeighbours(0.3,0);
 
+    findNeighbours(0.3,1);
 
+//    for(int i=0; i<m_numBoids; ++i)
+//    {
 
+//        m_Boids[i].update();
 
+//        // make positions between 0-1 rather then -2 to 2
+//        m_dBoidsPosX[i] = (1.0f/4.0f)*(m_Boids[i].getPos().x + 2);
+//        m_dBoidsPosZ[i] = (1.0f/4.0f)*(m_Boids[i].getPos().z + 2);
 
-        m_Boids[i].update();
-
-
-
-        // make positions between 0-1 rather then -2 to 2
-        m_dBoidsPosX[i] = (1.0f/4.0f)*(m_Boids[i].getPos().x + 2);
-        m_dBoidsPosZ[i] = (1.0f/4.0f)*(m_Boids[i].getPos().z + 2);
-
-
-    }
+//    }
 
 
 }
@@ -154,9 +153,11 @@ void Flock_GPU::findNeighbours(float _neighbourhoodDist, int _boidID)
     // divide by grid resolution as grid 0-1 and boids plane -2 - 2
     _neighbourhoodDist /= (2 * m_gridRes);
 
+
+    thrust::fill(m_dneighbourPnts.begin(), m_dneighbourPnts.begin() + m_numBoids, NULL_PNT);
     // reset vector values to null_pnt
-    m_dneighbourPnts.clear();
-    m_dneighbourPnts.resize(m_numBoids,NULL_PNT);
+    //m_dneighbourPnts.clear();
+    //m_dneighbourPnts.resize(m_numBoids,NULL_PNT);
 
 
 
@@ -295,24 +296,24 @@ void Flock_GPU::findNeighbours(float _neighbourhoodDist, int _boidID)
         //std::cout << "Grid sorted "<<NUM_POINTS<<" points into grid of "<<GRID_RESOLUTION*GRID_RESOLUTION*GRID_RESOLUTION<<" cells in " << t2-t1 << "s\n";
 
         // Only dump the debugging information if we have a manageable number of points.
-//        if (NUM_POINTS <= 100) {
+        if (NUM_POINTS <= 100) {
 
-//            std::cout << "Boid: "<<_boidID<<"\n";
-//            std::cout << "Boid Cell: "<<m_dHash[_boidID]<<"\n";
-//            //thrust::copy(m_dBoidsPosX.begin(), m_dBoidsPosX.end(), std::ostream_iterator<float>(std::cout, " "));
-//            //std::cout << "\n\n";
-//           // thrust::copy(m_dBoidsPosZ.begin(), m_dBoidsPosZ.end(), std::ostream_iterator<float>(std::cout, " "));
-//            //std::cout << "\n\n";
-//            //thrust::copy(m_dHash.begin(), m_dHash.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
-//            //std::cout << "\n\n";
-//            //thrust::copy(m_dCellOcc.begin(), m_dCellOcc.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
-//            //std::cout << "\n\n";
-//            //thrust::copy(d_neighbourCells.begin(), d_neighbourCells.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
-//            //std::cout << "\n\n";
-//            //thrust::copy(m_dneighbourPnts.begin(), m_dneighbourPnts.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
-//            std::cout << "\n\n";
+            std::cout << "Boid: "<<_boidID<<"\n";
+            std::cout << "Boid Cell: "<<m_dHash[_boidID]<<"\n";
+            thrust::copy(m_dBoidsPosX.begin(), m_dBoidsPosX.end(), std::ostream_iterator<float>(std::cout, " "));
+            std::cout << "\n\n";
+            thrust::copy(m_dBoidsPosZ.begin(), m_dBoidsPosZ.end(), std::ostream_iterator<float>(std::cout, " "));
+            std::cout << "\n\n";
+            thrust::copy(m_dHash.begin(), m_dHash.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
+            std::cout << "\n\n";
+            thrust::copy(m_dCellOcc.begin(), m_dCellOcc.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
+            std::cout << "\n\n";
+            thrust::copy(d_neighbourCells.begin(), d_neighbourCells.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
+            std::cout << "\n\n";
+            thrust::copy(m_dneighbourPnts.begin(), m_dneighbourPnts.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
+            std::cout << "\n\n";
 
-//        }
+        }
         //return 0;
 
 
@@ -419,7 +420,7 @@ void Flock_GPU::hash()
 
 void Flock_GPU::dumpGeo(uint _frameNumber, std::vector<Prey_GPU> _boids)
 {
-    char fname[300];
+    char fname[150];
 
     std::sprintf(fname,"geo/flock_gpu.%03d.geo",++_frameNumber);
     // we will use a stringstream as it may be more efficient
@@ -476,9 +477,12 @@ void Flock_GPU::dumpGeo(uint _frameNumber, std::vector<Prey_GPU> _boids)
 
 void Flock_GPU::cellOcc()
 {
+
+    thrust::fill(m_dCellOcc.begin(), m_dCellOcc.begin() + (m_gridRes*m_gridRes), 0);
+
     // reset vector values to 0
-    m_dCellOcc.clear();
-    m_dCellOcc.resize(m_gridRes*m_gridRes,0);
+    //m_dCellOcc.clear();
+    //m_dCellOcc.resize(m_gridRes*m_gridRes,0);
     unsigned int nThreads = 1024;
     unsigned int nBlocks = NUM_POINTS / nThreads + 1;
 
