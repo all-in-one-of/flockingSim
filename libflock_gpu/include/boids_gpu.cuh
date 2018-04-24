@@ -23,8 +23,6 @@ public :
 
     /// @brief a method to update the Boid position
   virtual void update() = 0;
-    /// @brief a method to draw the Boid
-  virtual void draw() = 0;
 
   virtual int getID()=0;
 
@@ -38,8 +36,6 @@ public :
 
   virtual void limitVel(float _limit) = 0;
 
-  virtual void updateRotation() = 0;
-
   virtual thrust::device_vector<float> steerBoid(thrust::device_vector<float> _target) = 0;
 
 
@@ -48,9 +44,11 @@ protected :
     int m_ID;
     /// @brief the curent Boid position
     thrust::device_vector<float> m_pos;
+    float * m_pos_ptr;
 
     /// @brief the velocity vector of the Boid
     thrust::device_vector<float> m_vel;
+    float * m_vel_ptr;
 
     glm::vec3 m_accel;
     /// @brief the rotation vector of the Boid

@@ -3,6 +3,7 @@
 
 #include "boids_gpu.cuh"
 
+
 #include <vector>
 class Prey_GPU: public Boid_GPU
 {
@@ -14,8 +15,6 @@ public:
     /// @brief a method to update the Boid position
     virtual void update();
 
-    virtual void draw();
-
     virtual thrust::device_vector<float> getVel(){return m_vel;}
 
     virtual void setVel(thrust::device_vector<float> _vel){m_vel = _vel;}
@@ -25,8 +24,6 @@ public:
     virtual void setPos(thrust::device_vector<float> _pos){m_pos = _pos;}
 
     virtual void limitVel(float _limit);
-
-    virtual void updateRotation();
 
     virtual thrust::device_vector<float> steerBoid(thrust::device_vector<float> _target);
 

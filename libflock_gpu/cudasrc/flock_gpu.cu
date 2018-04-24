@@ -87,8 +87,8 @@ Flock_GPU::Flock_GPU(int _numBoids )
 //         m_dBoidsPosZ[i]=m_Boids[i].getPos()[2];
 
          // make positions between 0-1 rather then -2 to 2
-         m_dBoidsPosX[i] = (1.0f/4.0f)*(m_Boids[i].getPos()[0] + 2);
-         m_dBoidsPosZ[i] = (1.0f/4.0f)*(m_Boids[i].getPos()[2] + 2);
+         //m_dBoidsPosX[i] = (1.0f/4.0f)*(m_Boids[i].getPos()[0] + 2);
+         //m_dBoidsPosZ[i] = (1.0f/4.0f)*(m_Boids[i].getPos()[2] + 2);
 
 //        std::cout<<m_dPos[(3*i)]<<" "<<m_dPos[(3*i)+1]<<" "<<m_dPos[(3*i)+2]<<" \n";
 
@@ -127,8 +127,10 @@ void Flock_GPU::update()
         m_frame_count ++;
     //}
 
-    hash();
-    cellOcc();
+    //hash();
+    //cellOcc();
+
+    //findNeighbours(0.24,0);
 
 
     for(int i=0; i<m_numBoids; ++i)
@@ -137,8 +139,8 @@ void Flock_GPU::update()
         m_Boids[i].update();
 
         // make positions between 0-1 rather then -2 to 2
-        m_dBoidsPosX[i] = (1.0f/4.0f)*(m_Boids[i].getPos()[0] + 2);
-        m_dBoidsPosZ[i] = (1.0f/4.0f)*(m_Boids[i].getPos()[2] + 2);
+        //m_dBoidsPosX[i] = (1.0f/4.0f)*(m_Boids[i].getPos()[0] + 2);
+        //m_dBoidsPosZ[i] = (1.0f/4.0f)*(m_Boids[i].getPos()[2] + 2);
 
     }
 
@@ -152,6 +154,10 @@ void Flock_GPU::findNeighbours(float _neighbourhoodDist, int _boidID)
     // make positions between 0-1 rather then -2 to 2
    // m_dBoidsPosX[i] = (1.0f/4.0f)*(m_Boids[i].getPos()[0] + 2);
     //m_dBoidsPosZ[i] = (1.0f/4.0f)*(m_Boids[i].getPos()[2] + 2);
+
+    thrust::fill(m_dBoidsPosX.begin(), m_dBoidsPosX.begin() + m_numBoids, float(rand())/RAND_MAX);
+
+    thrust::fill(m_dBoidsPosZ.begin(), m_dBoidsPosZ.begin() + m_numBoids, float(rand())/RAND_MAX);
 
     // divide by grid resolution as grid 0-1 and boids plane -2 - 2
     _neighbourhoodDist /= (2 * m_gridRes);
@@ -299,24 +305,24 @@ void Flock_GPU::findNeighbours(float _neighbourhoodDist, int _boidID)
         //std::cout << "Grid sorted "<<NUM_POINTS<<" points into grid of "<<GRID_RESOLUTION*GRID_RESOLUTION*GRID_RESOLUTION<<" cells in " << t2-t1 << "s\n";
 
         // Only dump the debugging information if we have a manageable number of points.
-        if (NUM_POINTS <= 100) {
+//        if (NUM_POINTS <= 100) {
 
-            std::cout << "Boid: "<<_boidID<<"\n";
-            std::cout << "Boid Cell: "<<m_dHash[_boidID]<<"\n";
-            thrust::copy(m_dBoidsPosX.begin(), m_dBoidsPosX.end(), std::ostream_iterator<float>(std::cout, " "));
-            std::cout << "\n\n";
-            thrust::copy(m_dBoidsPosZ.begin(), m_dBoidsPosZ.end(), std::ostream_iterator<float>(std::cout, " "));
-            std::cout << "\n\n";
-            thrust::copy(m_dHash.begin(), m_dHash.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
-            std::cout << "\n\n";
-            thrust::copy(m_dCellOcc.begin(), m_dCellOcc.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
-            std::cout << "\n\n";
-            thrust::copy(d_neighbourCells.begin(), d_neighbourCells.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
-            std::cout << "\n\n";
-            thrust::copy(m_dneighbourPnts.begin(), m_dneighbourPnts.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
-            std::cout << "\n\n";
+//            std::cout << "Boid: "<<_boidID<<"\n";
+//            std::cout << "Boid Cell: "<<m_dHash[_boidID]<<"\n";
+//            thrust::copy(m_dBoidsPosX.begin(), m_dBoidsPosX.end(), std::ostream_iterator<float>(std::cout, " "));
+//            std::cout << "\n\n";
+//            thrust::copy(m_dBoidsPosZ.begin(), m_dBoidsPosZ.end(), std::ostream_iterator<float>(std::cout, " "));
+//            std::cout << "\n\n";
+//            thrust::copy(m_dHash.begin(), m_dHash.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
+//            std::cout << "\n\n";
+//            thrust::copy(m_dCellOcc.begin(), m_dCellOcc.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
+//            std::cout << "\n\n";
+//            thrust::copy(d_neighbourCells.begin(), d_neighbourCells.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
+//            std::cout << "\n\n";
+//            thrust::copy(m_dneighbourPnts.begin(), m_dneighbourPnts.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
+//            std::cout << "\n\n";
 
-        }
+//        }
         //return 0;
 
 
@@ -326,10 +332,7 @@ void Flock_GPU::findNeighbours(float _neighbourhoodDist, int _boidID)
 /// @brief a method to draw all the Boids contained in the system
 void Flock_GPU::draw()
 {
-    for(int i=0; i<m_numBoids; ++i)
-    {
-        m_Boids[i].draw();
-    }
+
 
 
 }
@@ -356,67 +359,6 @@ void Flock_GPU::hash()
 
     // Make sure all threads have wrapped up before completing the timings
     cudaThreadSynchronize();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//    // reset and recaulculate each turn
-//    m_hashVec.clear();
-
-//    int res = m_gridRes;
-//    for(int i = 0; i< m_numBoids; i++)
-//    {
-//        glm::vec3 pos = m_Boids[i].getPos();
-
-//        //std::cout<<pos.m_x<<" "<<pos.m_z<<" original \n";
-
-//        // make position between 0-1 rather then -3 - 3
-//        float posx = pos[0];
-//        float posz = pos[2];
-//        posx = (1.0f/8.0f)*(posx + 4);
-//        posz = (1.0f/8.0f)*(posz + 4);
-
-//        //std::cout<<posx<<" "<<posz<<" altered \n";
-
-
-//        // 2d grid
-//        int gridPos[2];
-//        gridPos[0]=floor(posx * res);
-//        gridPos[1]=floor(posz * res);
-
-//        //std::cout<<gridPos[0]<<" "<<gridPos[1]<<" grid \n";
-
-
-
-//        // Test to see if all of the points are inside the grid
-//        bool isInside = true;
-//        unsigned int j;
-//        for (j=0; j<2; ++j)
-//            if ((gridPos[j] < 0) || (gridPos[j] >= res)) {
-//                isInside = false;
-//            }
-
-//        // Write out the hash value if the point is within range [0,1], else write NULL_HASH
-//        if (isInside) {
-//            m_hashVec.push_back( gridPos[0] + (res * gridPos[1]));
-//        } else {
-//            m_hashVec.push_back( NULL);
-//        }
-
-//        //std::cout<<m_hashVec[i]<<" hash \n";
-
-
-//    }
 
 }
 
@@ -494,37 +436,5 @@ void Flock_GPU::cellOcc()
 
     // Make sure all threads have wrapped up before completing the timings
     cudaThreadSynchronize();
-
-
-
-
-    //reset cellOcc array
-//    for(int i = 0; i<m_gridRes*m_gridRes; i++)
-//    {
-//        m_cellOcc[i] = 0;
-//    }
-
-//    for(int i = 0; i<m_numBoids; i++)
-//    {
-
-//        //std::cout<<m_hashVec[i]<<" hash \n";
-//        //std::cout<<m_cellOcc[m_hashVec[i]]<<" Cells \n";
-//        m_cellOcc[m_hashVec[i]] +=1;
-
-
-//        //std::cout<<m_cellOcc[m_hashVec[i]]<<" Cells now \n";
-
-
-
-//    }
-
-//    for(int i = 0; i<m_gridRes*m_gridRes; i++)
-//    {
-//        //std::cout<<m_cellOcc[i]<<" Cells \n";
-
-
-//    }
-
-    //std::cout<<"done \n";
 
 }

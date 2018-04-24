@@ -45,6 +45,7 @@ HEADERS += include/boids_gpu.cuh \
            include/random.cuh \
            include/nearestneighbour_gpu.cuh \
            include/libflock_gpu.h \
+           include/flock_kernals.cuh
            #include/drawScene.cuh
 
 

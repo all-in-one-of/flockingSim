@@ -1,7 +1,7 @@
 #include "prey_gpu.cuh"
 #include "flock_gpu.cuh"
 
-
+#include "flock_kernals.cuh"
 
 
 Prey_GPU::Prey_GPU(Flock_GPU *_Flock, const int _ID) : Boid_GPU(_Flock, _ID)
@@ -22,57 +22,42 @@ void Prey_GPU::update()
 
 
 
-    flock();
+    //flock();
 
-    avoidBoundaries();
+    //avoidBoundaries();
 
     //printf("vel: %f,%f,%f \n",m_vel[0], m_vel[1], m_vel[2]);
 
 
+    unsigned int nThreads = 1024;
+    unsigned int nBlocks = m_Flock->getNoBoids() / nThreads + 1;
+
+    std::cout<<"vel: "<<m_vel[0]<<m_vel[2]<<"\n";
+
+    avoidBoundaries_kernal<<<1,2>>>(m_pos_ptr, m_vel_ptr);
+
+    std::cout<<"new vel: "<<m_vel[0]<<m_vel[2]<<"\n";
 
 
+    cudaThreadSynchronize();
+
+    std::cout<<"pos: "<<m_pos[0]<<m_pos[2]<<"\n";
+
+    updatePos_kernal<<<1,2>>>(m_pos_ptr, m_vel_ptr);
+
+    cudaThreadSynchronize();
+
+    std::cout<<"new pos: "<<m_pos[0]<<m_pos[2]<<"\n";
 
 
-    m_pos[0]+=m_vel[0];
-    m_pos[2]+=m_vel[2];
+    //m_pos[0]+=m_vel[0];
+    //m_pos[2]+=m_vel[2];
 
-
-
-
-    updateRotation();
-}
-
-void Prey_GPU::draw()
-{
-
-
-        glm::mat4 MV;
-        glm::mat4 MVP;
-        glm::mat3 N;
-
-
-
-//        // translate to new position
-//        MV = glm::translate(MV, m_pos);
-//        MV = glm::rotate( MV, m_rotateAngle, glm::vec3( 0.0f, 1.0f, 0.0f ) );
-
-
-
-//        MVP = m_Flock->getScene()->getProjection() * m_Flock->getScene()->getCamera().viewMatrix() * MV;
-
-//        N = glm::mat3( glm::inverse( glm::transpose( MV ) ) );
-//        // link matrices with shader locations
-//        glUniformMatrix4fv( m_Flock->getScene()->getMVPAddress(), 1, GL_FALSE, glm::value_ptr( MVP ) );
-//        glUniformMatrix4fv( m_Flock->getScene()->getMVAddress(), 1, GL_FALSE, glm::value_ptr( MV ) );
-
-//        glUniformMatrix3fv( m_Flock->getScene()->getNAddress(), 1, GL_FALSE, glm::value_ptr( N ) );
-
-
-//        // draw
-//        glDrawArrays( GL_TRIANGLES, 0 , ( m_Flock->getScene()->getAmountVertexData() / 3 ) );
 
 
 }
+
+
 
 void Prey_GPU::avoidBoundaries()
 {
@@ -143,46 +128,6 @@ void Prey_GPU::avoidBoundaries()
 
 }
 
-
-void Prey_GPU::updateRotation()
-{
-
-//    //rotation 0 when facing in z axis
-//        glm::vec3 facing = {0,0,1};
-
-//             //only update if moving
-//             if(m_vel != glm::vec3{0,0,0})
-//             {
-
-
-//                 float mag1 = glm::length(facing);
-//                 float mag2 = glm::length(m_vel);
-
-//                 //find angle between z axis and boids velocity vector
-//                 float steer = std::acos(glm::dot(facing, m_vel)/(mag1*mag2));
-
-//                 //convert from radians to degrees
-//                 //steer = steer*(180/M_PI);
-
-
-//                 //std::cout<<"vel "<<m_vel[0]<<"\n";
-//                 //std::cout<<"angle "<<steer<<" \n";
-
-
-//                 //if rotation past 180 degrees must take away from 360, then update boid rotation
-//                 if(m_vel[0]>0)
-//                 {
-//                     m_rotateAngle = steer;
-//                     m_rotation[1] = steer;
-//                 }
-//                 else
-//                 {
-//                     m_rotateAngle = 2*M_PI -steer;
-//                     m_rotation[1]= 360-steer;
-//                 }
-//             }
-
-}
 
 void Prey_GPU::flock()
 {
@@ -600,92 +545,6 @@ void Prey_GPU::limitVel(float _limit)
     }
 }
 
-
-//void Prey_GPU::nearestNeighbours(float _neighbourhoodDist, int cell)
-//{
-
-//    //std::cout<<"nearest neighbour called on cell "<<cell<<" \n";
-
-//    // divide by grid resolution as grid 0-1 and boids plane -3 - 3
-//    _neighbourhoodDist /= (2 * m_Flock->m_gridRes);
-
-//    // the number of cells in each direction to check
-//    int bucketRadius = ceil(_neighbourhoodDist/(1.0/float(m_Flock->m_gridRes)));
-
-//    // Find surrounding cells
-//    int z = floor(float(cell/m_Flock->m_gridRes));
-//    int x = cell -(z*m_Flock->m_gridRes);
-
-//    int count = 0;
-
-//    int neighbourCells[m_Flock->m_gridRes*m_Flock->m_gridRes];
-
-
-//    for( int i = x - bucketRadius; i <= x + bucketRadius; ++i ){
-//        for( int j = z - bucketRadius; j <= z + bucketRadius; ++j ){
-//            if(i>=0 && j>=0 && i<=m_Flock->m_gridRes-1 && j<= m_Flock->m_gridRes-1)
-//            {
-//                //if((j*m_Flock->m_gridRes + i) != cell  )
-//                //{
-//                    neighbourCells[count] = (j*m_Flock->m_gridRes) + i;
-
-//                    //std::cout<<neighbourCells[count]<<" neighbour cells \n";
-
-//                    count ++;
-
-//                //}
-//            }
-
-//        }
-//    }
-
-
-
-////    int count2;
-
-//    // Remove empty cells
-//    for(int i = 0; i < count; i++)
-//    {
-//        //std::cout<< neighbourCells[i]<<"\n";
-//        // if cell  empty
-//        if(m_Flock->getCellOcc()[neighbourCells[i]] == 0)
-//        {
-//            //add points to neighbourhood
-
-//            //std::cout<< neighbourCells[i]<< " deleting cell \n";
-//            neighbourCells[i] = -1;
-
-////            count2++;
-
-//        }
-
-//    }
-
-
-//    // clear neighbour points before recalculating
-//    m_neighbourhoodPnts.clear();
-
-//    int count2 = 0;
-//    // order neighbours cells and iterate with while loop
-
-//    // find points in cells
-//    for(int i = 0; i < m_Flock->getNoBoids(); i++)
-//    {
-//        for(int j = 0; j<count; j++)
-//        {
-//            if(m_Flock->getHashVec()[i] == neighbourCells[j])
-//            {
-//                // add point id to list of points
-//                m_neighbourhoodPnts.push_back(i);
-
-//                count2++;
-
-//            }
-//        }
-
-//    }
-
-//}
 
 thrust::device_vector<float> Prey_GPU::normaliseVector(thrust::device_vector<float> _vector)
 {
