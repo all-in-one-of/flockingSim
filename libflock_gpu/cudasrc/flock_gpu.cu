@@ -2,7 +2,8 @@
 //#include "boidFactory.h"
 
 //#include "prey_gpu.cuh"
-
+#include <cuda.h>
+#include <curand.h>
 
 #include "nearestneighbour_gpu.cuh"
 
@@ -15,6 +16,10 @@
 
 /// Used to define a point not in the neighbourhood
 #define NULL_PNT UINT_MAX
+
+#define CURAND_CALL(x) do { if((x)!=CURAND_STATUS_SUCCESS) { \
+    printf("Error at %s:%d\n",__FILE__,__LINE__);\
+    return EXIT_FAILURE;}} while(0)
 
 //__global__ void setPositions(float * posVec, float _currentPos, int _id)
 //{
@@ -33,8 +38,12 @@ Flock_GPU::Flock_GPU(int _numBoids )
 
     //thrust::device_vector<float> d_Pos(m_numBoids*3);
 
+    // cant set size when constructing as member variable so resize here instead
     m_dBoidsPosX.resize(m_numBoids);
     m_dBoidsPosZ.resize(m_numBoids);
+
+    m_dBoidsVelX.resize(m_numBoids);
+    m_dBoidsVelZ.resize(m_numBoids);
 
     m_dHash.resize(m_numBoids);
     m_dCellOcc.resize(m_gridRes * m_gridRes);
@@ -42,9 +51,37 @@ Flock_GPU::Flock_GPU(int _numBoids )
     m_dneighbourPnts.resize(m_numBoids, NULL_PNT);
 
 
+    // fill vector with random values for pos
+    thrust::device_vector <float> tmp_PosPnts(NUM_POINTS*2);
+    float * tmp_PosPnts_ptr = thrust::raw_pointer_cast(&tmp_PosPnts[0]);
+    randFloats(tmp_PosPnts_ptr, NUM_POINTS*2);
 
+    // fill vector with random values for vel
+    thrust::device_vector <float> tmp_VelPnts(NUM_POINTS*2);
+    float * tmp_VelPnts_ptr = thrust::raw_pointer_cast(&tmp_VelPnts[0]);
+    randFloats(tmp_VelPnts_ptr, NUM_POINTS*2);
+
+
+
+    // give random start positions
+    m_dBoidsPosX.assign(tmp_PosPnts.begin(), tmp_PosPnts.begin() + NUM_POINTS);
+    m_dBoidsPosZ.assign(tmp_PosPnts.begin() + NUM_POINTS, tmp_PosPnts.begin() + 2*NUM_POINTS);
+
+    // give random start vel
+    m_dBoidsVelX.assign(tmp_VelPnts.begin(), tmp_VelPnts.begin() + NUM_POINTS);
+    m_dBoidsVelZ.assign(tmp_VelPnts.begin() + NUM_POINTS, tmp_VelPnts.begin() + 2*NUM_POINTS);
+
+
+
+
+
+
+    // create pointers pointing to the device vectors
     m_dBoidsPosX_ptr= thrust::raw_pointer_cast(&m_dBoidsPosX[0]);
     m_dBoidsPosZ_ptr= thrust::raw_pointer_cast(&m_dBoidsPosZ[0]);
+
+    m_dBoidsVelX_ptr= thrust::raw_pointer_cast(&m_dBoidsVelX[0]);
+    m_dBoidsVelZ_ptr= thrust::raw_pointer_cast(&m_dBoidsVelZ[0]);
 
 
     m_dHash_ptr= thrust::raw_pointer_cast(&m_dHash[0]);
@@ -54,7 +91,24 @@ Flock_GPU::Flock_GPU(int _numBoids )
 
 
 
+    // give random start positions
+//    thrust::fill(m_dBoidsPosX.begin(), m_dBoidsPosX.begin() + m_numBoids, ((float(rand())/RAND_MAX)-0.5)*4);
 
+//    thrust::fill(m_dBoidsPosZ.begin(), m_dBoidsPosZ.begin() + m_numBoids, ((float(rand())/RAND_MAX)-0.5)*4);
+
+//    // give random initial velocities
+//    thrust::fill(m_dBoidsPosX.begin(), m_dBoidsPosX.begin() + m_numBoids, ((float(rand())/RAND_MAX)-0.5)*4);
+
+//    thrust::fill(m_dBoidsPosZ.begin(), m_dBoidsPosZ.begin() + m_numBoids, ((float(rand())/RAND_MAX)-0.5)*4);
+
+
+
+
+//    randFloats(m_dBoidsPosX_ptr, NUM_POINTS);
+//    randFloats(m_dBoidsPosZ_ptr, NUM_POINTS);
+
+    //randFloats(m_dBoidsVelX_ptr, NUM_POINTS);
+    //randFloats(m_dBoidsVelZ_ptr, NUM_POINTS);
 
 
 
@@ -182,13 +236,13 @@ void Flock_GPU::findNeighbours(float _neighbourhoodDist, int _boidID)
         // First thing is we'll generate a big old vector of random numbers for the purposes of
         // fleshing out our point data. This is much faster to do in one step than 3 seperate
         // steps.
-        //thrust::device_vector<float> d_Rand(NUM_POINTS*3);
+//        thrust::device_vector<float> d_Rand(NUM_POINTS*3);
 
 
-        //float * d_Rand_ptr = thrust::raw_pointer_cast(&d_Rand[0]);
+//        float * d_Rand_ptr = thrust::raw_pointer_cast(&d_Rand[0]);
 
 
-        //randFloats(d_Rand_ptr, NUM_POINTS*3);
+//        randFloats(d_Rand_ptr, NUM_POINTS*3);
 
 
 
@@ -393,7 +447,7 @@ void Flock_GPU::dumpGeo(uint _frameNumber, std::vector<Prey_GPU> _boids)
     {
 
 
-        ss<<_boids[i].getPos()[0]<<" "<<_boids[i].getPos()[1]<<" "<<_boids[i].getPos()[2] << " 1 ";
+        ss<<m_dBoidsPosX[i]<<" "<<0<<" "<<m_dBoidsPosZ[i] << " 1 ";
         //ss<<"("<<_boids[i].cellCol.x<<" "<<_boids[i].cellCol.y<<" "<< _boids[i].cellCol.z<<")\n";
         ss<<"("<<std::abs(1)<<" "<<std::abs(1)<<" "<<std::abs(1)<<")\n";
     }
@@ -437,4 +491,28 @@ void Flock_GPU::cellOcc()
     // Make sure all threads have wrapped up before completing the timings
     cudaThreadSynchronize();
 
+}
+
+/**
+ * Fill an array with random floats using the CURAND function.
+ * \param devData The chunk of memory you want to fill with floats within the range (0,1]
+ * \param n The size of the chunk of data
+ */
+int Flock_GPU::randFloats(float *&devData, const size_t n) {
+
+    // The generator, used for random numbers
+    curandGenerator_t gen;
+
+    // Create pseudo-random number generator
+    CURAND_CALL(curandCreateGenerator(&gen, CURAND_RNG_PSEUDO_DEFAULT));
+
+    // Set seed to be the current time (note that calls close together will have same seed!)
+    CURAND_CALL(curandSetPseudoRandomGeneratorSeed(gen, time(NULL)));
+
+    // Generate n floats on device
+    CURAND_CALL(curandGenerateUniform(gen, devData, n));
+
+    // Cleanup
+    CURAND_CALL(curandDestroyGenerator(gen));
+    return EXIT_SUCCESS;
 }

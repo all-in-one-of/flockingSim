@@ -32,22 +32,25 @@ void Prey_GPU::update()
     unsigned int nThreads = 1024;
     unsigned int nBlocks = m_Flock->getNoBoids() / nThreads + 1;
 
-    std::cout<<"vel: "<<m_vel[0]<<m_vel[2]<<"\n";
+    limitVel_kernal<<<1,1>>>(0.02, m_Flock->getBoidsPosX(), m_Flock->getBoidsPosZ(), m_Flock->getBoidsVelX(), m_Flock->getBoidsVelZ(), m_ID);
+//    std::cout<<"vel: "<<m_vel[0]<<m_vel[2]<<"\n";
 
-    avoidBoundaries_kernal<<<1,2>>>(m_pos_ptr, m_vel_ptr);
+     cudaThreadSynchronize();
 
-    std::cout<<"new vel: "<<m_vel[0]<<m_vel[2]<<"\n";
+     avoidBoundaries_kernal<<<1,1>>>(m_Flock->getBoidsPosX(), m_Flock->getBoidsPosZ(), m_Flock->getBoidsVelX(), m_Flock->getBoidsVelZ(), m_ID);
 
+//    std::cout<<"new vel: "<<m_vel[0]<<m_vel[2]<<"\n";
 
-    cudaThreadSynchronize();
-
-    std::cout<<"pos: "<<m_pos[0]<<m_pos[2]<<"\n";
-
-    updatePos_kernal<<<1,2>>>(m_pos_ptr, m_vel_ptr);
 
     cudaThreadSynchronize();
 
-    std::cout<<"new pos: "<<m_pos[0]<<m_pos[2]<<"\n";
+
+
+    updatePos_kernal<<<1,1>>>(m_Flock->getBoidsPosX(), m_Flock->getBoidsPosZ(), m_Flock->getBoidsVelX(), m_Flock->getBoidsVelZ(), m_ID);
+
+    cudaThreadSynchronize();
+
+
 
 
     //m_pos[0]+=m_vel[0];

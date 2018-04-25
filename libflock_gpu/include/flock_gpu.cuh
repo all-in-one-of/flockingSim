@@ -42,6 +42,8 @@ public :
   void dumpGeo(uint _frameNumber,
                std::vector<Prey_GPU> _boids);
 
+  int randFloats(float *&devData, const size_t n);
+
   // takes all points and returns neighbour point indexes
   void findNeighbours(float _neighbourhoodDist, int _currentCell);
 
@@ -49,6 +51,12 @@ public :
 
 //  float * getPos(){return m_dPos_ptr;}
     thrust::device_vector <unsigned int> getNeighbours(){return m_dneighbourPnts;}
+
+    float* getBoidsPosX(){return m_dBoidsPosX_ptr;}
+    float* getBoidsPosZ(){return m_dBoidsPosZ_ptr;}
+
+    float* getBoidsVelX(){return m_dBoidsVelX_ptr;}
+    float* getBoidsVelZ(){return m_dBoidsVelZ_ptr;}
 
 
 
@@ -68,6 +76,13 @@ private :
 
     float * m_dBoidsPosX_ptr;
     float * m_dBoidsPosZ_ptr;
+
+    // stores point pos
+    thrust::device_vector<float> m_dBoidsVelX;
+    thrust::device_vector<float> m_dBoidsVelZ;
+
+    float * m_dBoidsVelX_ptr;
+    float * m_dBoidsVelZ_ptr;
 
     // stores cellOcc
     thrust::device_vector<unsigned int> m_dCellOcc;

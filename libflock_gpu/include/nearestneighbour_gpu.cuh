@@ -20,6 +20,8 @@
    #define printf(f, ...) ((void)(f, __VA_ARGS__),0)
 #endif
 
+
+
 /// The number of points to generate within 0,1
 #define NUM_POINTS 20
 

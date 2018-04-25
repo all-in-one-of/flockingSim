@@ -20,71 +20,79 @@
    #define printf(f, ...) ((void)(f, __VA_ARGS__),0)
 #endif
 
-__global__ void avoidBoundaries_kernal(float * _pos, float * _vel)
+
+
+
+
+__global__ void avoidBoundaries_kernal(float * _posx, float * _posz, float * _velx, float * _velz, int _ID)
 {
     printf("avoiding \n");
 
-//    float desiredVel[3];
+    float desiredVel[3];
 
-//    if(_pos[2] >= 2 && _vel[2] >0)
-//    {
-//        desiredVel[0] = _vel[0];
-//        desiredVel[2] = -_vel[2];
+    if(_posz[_ID] >= 2 && _velz[_ID] >0)
+    {
+        desiredVel[0] = _velx[_ID];
+        desiredVel[2] = -_velz[_ID];
 
-//        //printf("desired vel %f,%f,%f \n",desiredVel[0],desiredVel[1],desiredVel[2]);
-//        //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
+        //printf("desired vel %f,%f,%f \n",desiredVel[0],desiredVel[1],desiredVel[2]);
+        //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
 
-//        //printf("vel: %f,%f,%f \n",_vel[0],_vel[1],_vel[2]);
-//        _vel[0] = desiredVel[0]; //steerBoid(desiredVel)[0];
-//        _vel[2] = desiredVel[2]; //steerBoid(desiredVel)[2];
-//        //printf("new vel: %f,%f,%f \n",_vel[0],_vel[1],_vel[2]);
+        //printf("vel: %f,%f,%f \n",_vel[0],_vel[1],_velz[_ID]);
+        _velx[_ID] = desiredVel[0]; //steerBoid(desiredVel)[0];
+        _velz[_ID] = desiredVel[2]; //steerBoid(desiredVel)[2];
+        //printf("new vel: %f,%f,%f \n",_vel[0],_vel[1],_velz[_ID]);
 
-//        //limitVel(0.02);
-//        //std::cout<<" out of z bounds\n";
-//    }
-//    else if(_pos[2] <= -2 && _vel[2] <0)
-//    {
-//        desiredVel[0] = _vel[0];
-//        desiredVel[2] = -_vel[2];
+        //limitVel(0.02);
+        //std::cout<<" out of z bounds\n";
+    }
+    else if(_posz[_ID] <= -2 && _velz[_ID] <0)
+    {
+        desiredVel[0] = _velx[_ID];
+        desiredVel[2] = -_velz[_ID];
 
-//        //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
-//        _vel[0] = desiredVel[0]; //steerBoid(desiredVel)[0];
-//        _vel[2] = desiredVel[2]; //steerBoid(desiredVel)[2];
+        //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
+        _velx[_ID] = desiredVel[0]; //steerBoid(desiredVel)[0];
+        _velz[_ID] = desiredVel[2]; //steerBoid(desiredVel)[2];
 
-//        //limitVel(0.02);
-//        //std::cout<<" out of -z bounds\n";
-//    }
-//    else if(_pos[0] >= 2 && _vel[0] >0)
-//    {
-//        desiredVel[0] = -_vel[0];
-//        desiredVel[2] = _vel[2];
-//        //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
-//        _vel[0] = desiredVel[0]; //steerBoid(desiredVel)[0];
-//        _vel[2] = desiredVel[2]; //steerBoid(desiredVel)[2];
+        //limitVel(0.02);
+        //std::cout<<" out of -z bounds\n";
+    }
+    else if(_posx[_ID] >= 2 && _velx[_ID] >0)
+    {
+        desiredVel[0] = -_velx[_ID];
+        desiredVel[2] = _velz[_ID];
+        //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
+        _velx[_ID] = desiredVel[0]; //steerBoid(desiredVel)[0];
+        _velz[_ID] = desiredVel[2]; //steerBoid(desiredVel)[2];
 
-//        //imitVel(0.02);
-//        //std::cout<<" out of x bounds\n";
-//    }
-//    else if(_pos[0] <= -2 && _vel[0] <0)
-//    {
-//        desiredVel[0] = -_vel[0];
-//        desiredVel[2] = _vel[2];
-//        //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
-//        _vel[0] = desiredVel[0]; //steerBoid(desiredVel)[0];
-//        _vel[2] = desiredVel[2]; //steerBoid(desiredVel)[2];
+        //imitVel(0.02);
+        //std::cout<<" out of x bounds\n";
+    }
+    else if(_posx[_ID] <= -2 && _velx[_ID] <0)
+    {
+        desiredVel[0] = -_velx[_ID];
+        desiredVel[2] = _velz[_ID];
+        //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
+        _velx[_ID] = desiredVel[0]; //steerBoid(desiredVel)[0];
+        _velz[_ID] = desiredVel[2]; //steerBoid(desiredVel)[2];
 
-//        //limitVel(0.02);
-//        //std::cout<<" out of -x bounds\n";
-//    }
+        //limitVel(0.02);
+        //std::cout<<" out of -x bounds\n";
+    }
 
 }
 
-__global__ void updatePos_kernal(float * _pos, float * _vel)
+__global__ void updatePos_kernal(float * _posx, float * _posz, float * _velx, float * _velz, int _ID)
 {
-    printf("updating pos: %f, %f \n", _pos[0], _pos[2]);
+    printf("updating pos: %f, %f \n", _posx[_ID], _posz[_ID]);
 
-    _pos[0] += 1;// _vel[0];
-    _pos[2] += 2;//_vel[2];
+    uint idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    printf("id: %d \n",_ID);
+
+    _posx[_ID] +=  _velx[_ID];
+    _posz[_ID] +=  _velz[_ID];
 
     //printf("updating pos new: %f, %f \n", _pos[0], _pos[2]);
 
@@ -136,8 +144,20 @@ __device__ float distance_kernal()
 
 }
 
-__device__ void limitVel_kernal()
+__global__ void limitVel_kernal(float _limit, float * _posx, float * _posz, float * _velx, float * _velz, int _ID)
 {
+
+    float mag = sqrt((_velx[_ID]*_velz[_ID]) + (_velz[_ID]*_velz[_ID]));
+
+    if( mag > _limit)
+    {
+
+        _velx[_ID] = (_velx[_ID]/mag)*_limit;
+        _velz[_ID] = (_velz[_ID]/mag)*_limit;
+
+        //std::cout<<"new vel "<<m_vel[0]<<" \n";
+
+    }
 
 
 }
