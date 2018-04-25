@@ -7,6 +7,8 @@
 
 #include "nearestneighbour_gpu.cuh"
 
+#include "flock_kernals.cuh"
+
 #include<sys/time.h>
 #include <sstream>
 #include <iostream>
@@ -187,16 +189,43 @@ void Flock_GPU::update()
     //findNeighbours(0.24,0);
 
 
-    for(int i=0; i<m_numBoids; ++i)
-    {
+        unsigned int nThreads = 1024;
+        unsigned int nBlocks = m_numBoids/ nThreads + 1;
 
-        m_Boids[i].update();
 
-        // make positions between 0-1 rather then -2 to 2
-        //m_dBoidsPosX[i] = (1.0f/4.0f)*(m_Boids[i].getPos()[0] + 2);
-        //m_dBoidsPosZ[i] = (1.0f/4.0f)*(m_Boids[i].getPos()[2] + 2);
+//    //    std::cout<<"vel: "<<m_vel[0]<<m_vel[2]<<"\n";
 
-    }
+        //flock_kernal<<<nBlocks,nThreads>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, 0,  m_numBoids);
+
+        //cudaThreadSynchronize();
+
+        avoidBoundaries_kernal<<<nBlocks,1024>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
+
+//    //    std::cout<<"new vel: "<<m_vel[0]<<m_vel[2]<<"\n";
+
+
+        cudaThreadSynchronize();
+
+        limitVel_kernal<<<nBlocks,nThreads>>>(0.02, m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
+
+
+        cudaThreadSynchronize();
+
+
+        updatePos_kernal<<<nBlocks,1024>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
+
+        cudaThreadSynchronize();
+
+//    for(int i=0; i<m_numBoids; ++i)
+//    {
+
+//        m_Boids[i].update();
+
+//        // make positions between 0-1 rather then -2 to 2
+//        //m_dBoidsPosX[i] = (1.0f/4.0f)*(m_Boids[i].getPos()[0] + 2);
+//        //m_dBoidsPosZ[i] = (1.0f/4.0f)*(m_Boids[i].getPos()[2] + 2);
+
+//    }
 
 
 }

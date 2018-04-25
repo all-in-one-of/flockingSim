@@ -1,7 +1,7 @@
 #include "prey_gpu.cuh"
 #include "flock_gpu.cuh"
 
-#include "flock_kernals.cuh"
+//#include "flock_kernals.cuh"
 
 
 Prey_GPU::Prey_GPU(Flock_GPU *_Flock, const int _ID) : Boid_GPU(_Flock, _ID)
@@ -29,26 +29,26 @@ void Prey_GPU::update()
     //printf("vel: %f,%f,%f \n",m_vel[0], m_vel[1], m_vel[2]);
 
 
-    unsigned int nThreads = 1024;
-    unsigned int nBlocks = m_Flock->getNoBoids() / nThreads + 1;
+//    unsigned int nThreads = 1024;
+//    unsigned int nBlocks = m_Flock->getNoBoids() / nThreads + 1;
 
-    limitVel_kernal<<<1,1>>>(0.02, m_Flock->getBoidsPosX(), m_Flock->getBoidsPosZ(), m_Flock->getBoidsVelX(), m_Flock->getBoidsVelZ(), m_ID);
-//    std::cout<<"vel: "<<m_vel[0]<<m_vel[2]<<"\n";
+//    limitVel_kernal<<<1,1>>>(0.02, m_Flock->getBoidsPosX(), m_Flock->getBoidsPosZ(), m_Flock->getBoidsVelX(), m_Flock->getBoidsVelZ(), m_ID);
+////    std::cout<<"vel: "<<m_vel[0]<<m_vel[2]<<"\n";
 
-     cudaThreadSynchronize();
+//     cudaThreadSynchronize();
 
-     avoidBoundaries_kernal<<<1,1>>>(m_Flock->getBoidsPosX(), m_Flock->getBoidsPosZ(), m_Flock->getBoidsVelX(), m_Flock->getBoidsVelZ(), m_ID);
+//     avoidBoundaries_kernal<<<1,1>>>(m_Flock->getBoidsPosX(), m_Flock->getBoidsPosZ(), m_Flock->getBoidsVelX(), m_Flock->getBoidsVelZ(), m_ID);
 
-//    std::cout<<"new vel: "<<m_vel[0]<<m_vel[2]<<"\n";
-
-
-    cudaThreadSynchronize();
+////    std::cout<<"new vel: "<<m_vel[0]<<m_vel[2]<<"\n";
 
 
+//    cudaThreadSynchronize();
 
-    updatePos_kernal<<<1,1>>>(m_Flock->getBoidsPosX(), m_Flock->getBoidsPosZ(), m_Flock->getBoidsVelX(), m_Flock->getBoidsVelZ(), m_ID);
 
-    cudaThreadSynchronize();
+
+//    updatePos_kernal<<<1,1>>>(m_Flock->getBoidsPosX(), m_Flock->getBoidsPosZ(), m_Flock->getBoidsVelX(), m_Flock->getBoidsVelZ(), m_ID);
+
+//    cudaThreadSynchronize();
 
 
 

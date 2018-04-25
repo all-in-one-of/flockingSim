@@ -24,99 +24,91 @@
 
 
 
-__global__ void avoidBoundaries_kernal(float * _posx, float * _posz, float * _velx, float * _velz, int _ID)
+__global__ void avoidBoundaries_kernal(float * _posx, float * _posz, float * _velx, float * _velz, int _noBoids)
 {
     printf("avoiding \n");
 
+    uint idx = blockIdx.x * blockDim.x + threadIdx.x;
+
     float desiredVel[3];
-
-    if(_posz[_ID] >= 2 && _velz[_ID] >0)
+    if(idx<_noBoids)
     {
-        desiredVel[0] = _velx[_ID];
-        desiredVel[2] = -_velz[_ID];
 
-        //printf("desired vel %f,%f,%f \n",desiredVel[0],desiredVel[1],desiredVel[2]);
-        //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
+        if(_posz[idx] >= 2 && _velz[idx] >0)
+        {
+            desiredVel[0] = _velx[idx];
+            desiredVel[2] = -_velz[idx];
 
-        //printf("vel: %f,%f,%f \n",_vel[0],_vel[1],_velz[_ID]);
-        _velx[_ID] = desiredVel[0]; //steerBoid(desiredVel)[0];
-        _velz[_ID] = desiredVel[2]; //steerBoid(desiredVel)[2];
-        //printf("new vel: %f,%f,%f \n",_vel[0],_vel[1],_velz[_ID]);
+            //printf("desired vel %f,%f,%f \n",desiredVel[0],desiredVel[1],desiredVel[2]);
+            //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
 
-        //limitVel(0.02);
-        //std::cout<<" out of z bounds\n";
-    }
-    else if(_posz[_ID] <= -2 && _velz[_ID] <0)
-    {
-        desiredVel[0] = _velx[_ID];
-        desiredVel[2] = -_velz[_ID];
+            //printf("vel: %f,%f,%f \n",_vel[0],_vel[1],_velz[_ID]);
+            _velx[idx] = desiredVel[0]; //steerBoid(desiredVel)[0];
+            _velz[idx] = desiredVel[2]; //steerBoid(desiredVel)[2];
+            //printf("new vel: %f,%f,%f \n",_vel[0],_vel[1],_velz[idx]);
 
-        //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
-        _velx[_ID] = desiredVel[0]; //steerBoid(desiredVel)[0];
-        _velz[_ID] = desiredVel[2]; //steerBoid(desiredVel)[2];
+            //limitVel(0.02);
+            //std::cout<<" out of z bounds\n";
+        }
+        else if(_posz[idx] <= -2 && _velz[idx] <0)
+        {
+            desiredVel[0] = _velx[idx];
+            desiredVel[2] = -_velz[idx];
 
-        //limitVel(0.02);
-        //std::cout<<" out of -z bounds\n";
-    }
-    else if(_posx[_ID] >= 2 && _velx[_ID] >0)
-    {
-        desiredVel[0] = -_velx[_ID];
-        desiredVel[2] = _velz[_ID];
-        //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
-        _velx[_ID] = desiredVel[0]; //steerBoid(desiredVel)[0];
-        _velz[_ID] = desiredVel[2]; //steerBoid(desiredVel)[2];
+            //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
+            _velx[idx] = desiredVel[0]; //steerBoid(desiredVel)[0];
+            _velz[idx] = desiredVel[2]; //steerBoid(desiredVel)[2];
 
-        //imitVel(0.02);
-        //std::cout<<" out of x bounds\n";
-    }
-    else if(_posx[_ID] <= -2 && _velx[_ID] <0)
-    {
-        desiredVel[0] = -_velx[_ID];
-        desiredVel[2] = _velz[_ID];
-        //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
-        _velx[_ID] = desiredVel[0]; //steerBoid(desiredVel)[0];
-        _velz[_ID] = desiredVel[2]; //steerBoid(desiredVel)[2];
+            //limitVel(0.02);
+            //std::cout<<" out of -z bounds\n";
+        }
+        else if(_posx[idx] >= 2 && _velx[idx] >0)
+        {
+            desiredVel[0] = -_velx[idx];
+            desiredVel[2] = _velz[idx];
+            //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
+            _velx[idx] = desiredVel[0]; //steerBoid(desiredVel)[0];
+            _velz[idx] = desiredVel[2]; //steerBoid(desiredVel)[2];
 
-        //limitVel(0.02);
-        //std::cout<<" out of -x bounds\n";
+            //imitVel(0.02);
+            //std::cout<<" out of x bounds\n";
+        }
+        else if(_posx[idx] <= -2 && _velx[idx] <0)
+        {
+            desiredVel[0] = -_velx[idx];
+            desiredVel[2] = _velz[idx];
+            //std::cout<<" desired vel "<<desiredVel[0]<<" "<<desiredVel[2]<<" \n";
+            _velx[idx] = desiredVel[0]; //steerBoid(desiredVel)[0];
+            _velz[idx] = desiredVel[2]; //steerBoid(desiredVel)[2];
+
+            //limitVel(0.02);
+            //std::cout<<" out of -x bounds\n";
+        }
     }
 
 }
 
-__global__ void updatePos_kernal(float * _posx, float * _posz, float * _velx, float * _velz, int _ID)
+__global__ void updatePos_kernal(float * _posx, float * _posz, float * _velx, float * _velz, int _noBoids)
 {
-    printf("updating pos: %f, %f \n", _posx[_ID], _posz[_ID]);
+
 
     uint idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    printf("id: %d \n",_ID);
 
-    _posx[_ID] +=  _velx[_ID];
-    _posz[_ID] +=  _velz[_ID];
+
+    if(idx< _noBoids)
+    {
+     printf("id: %d \n",idx);
+
+    _posx[idx] +=  _velx[idx];
+    _posz[idx] +=  _velz[idx];
+
+    }
 
     //printf("updating pos new: %f, %f \n", _pos[0], _pos[2]);
 
 }
 
-__global__ void flock_kernal()
-{
-
-}
-
-__device__ void align_kernal()
-{
-
-}
-
-__device__ void seperate_kernal()
-{
-
-}
-
-__device__ void cohesion_kernal()
-{
-
-}
 
 __device__ float * steerBoid_kernal(float * _target, float * _current)
 {
@@ -139,33 +131,160 @@ __device__ float * steerBoid_kernal(float * _target, float * _current)
 
 }
 
-__device__ float distance_kernal()
+__device__ float distance_kernal(float  _posx, float  _posz, float  _otherPosx, float  _otherPosz)
 {
+
+
+    float distance = sqrtf(((_posx-_otherPosx)*(_posx-_otherPosx)) + ((_posz-_otherPosz)*(_posz-_otherPosz)));
+
+
+    printf("distance: %f", distance);
+
+    return distance;
 
 }
 
-__global__ void limitVel_kernal(float _limit, float * _posx, float * _posz, float * _velx, float * _velz, int _ID)
+__global__ void limitVel_kernal(float _limit, float * _posx, float * _posz, float * _velx, float * _velz, int _noBoids)
 {
+    uint idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    float mag = sqrt((_velx[_ID]*_velz[_ID]) + (_velz[_ID]*_velz[_ID]));
-
-    if( mag > _limit)
+    if(idx < _noBoids)
     {
 
-        _velx[_ID] = (_velx[_ID]/mag)*_limit;
-        _velz[_ID] = (_velz[_ID]/mag)*_limit;
+        float mag = sqrt((_velx[idx]*_velz[idx]) + (_velz[idx]*_velz[idx]));
 
-        //std::cout<<"new vel "<<m_vel[0]<<" \n";
+        if( mag > _limit)
+        {
 
+            _velx[idx] = (_velx[idx]/mag)*_limit;
+            _velz[idx] = (_velz[idx]/mag)*_limit;
+
+            //std::cout<<"new vel "<<m_vel[0]<<" \n";
+
+        }
     }
 
 
 }
 
-__device__ float vectorMag_kernal()
+__device__ float vectorMag_kernal(float * _vector)
+{
+    float mag;
+
+    mag = sqrt((_vector[0]*_vector[0]) + (_vector[2]*_vector[2]));
+
+    return mag;
+
+}
+
+__device__ void normalise_kernal(float _vector[])
+{
+
+    float normalisedVector[3];
+
+
+    normalisedVector[0] = _vector[0] / vectorMag_kernal(_vector);
+    normalisedVector[2] = _vector[2] / vectorMag_kernal(_vector);
+
+
+
+}
+
+__device__ void align_kernal()
 {
 
 }
+
+__device__ void seperate_kernal()
+{
+
+}
+
+__device__ void cohesion_kernal(float  _cohesionVector[], float * _posx, float * _posz, float * _velx, float * _velz, int _ID, int _numBoids)
+{
+
+    uint idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if(idx < _numBoids)
+    {
+
+
+        int numberOfNeighbours = 0;
+
+            //for(int i = 0; i < _numBoids; i++)
+            //{
+                if(idx != _ID)
+                {
+
+                    if(distance_kernal(_posx[_ID], _posz[_ID], _posx[idx], _posz[idx]) < 0.4)
+                    {
+
+                        printf("position : %f, %f \n", _posx[idx], _posz[idx]);
+
+                        _cohesionVector[0] =  _posx[idx];
+                        _cohesionVector[2] =  _posz[idx];
+
+                        printf("cohesion 1: %f, %f \n", _cohesionVector[0], _cohesionVector[2]);
+
+                        numberOfNeighbours += 1;
+                    }
+
+                }
+            //}
+
+        printf("neighbours %d \n", numberOfNeighbours);
+
+        //avoid dividing by zero
+        if(numberOfNeighbours != 0)
+        {
+
+
+            //find average position
+            _cohesionVector[0] /= numberOfNeighbours;
+            _cohesionVector[2] /= numberOfNeighbours;
+
+            //find vector from agent to average position
+            _cohesionVector[0] = (_cohesionVector[0] - _posx[_ID]);
+            _cohesionVector[2] = (_cohesionVector[2] - _posz[_ID]);
+
+            //std::cout<<cohesionVector[0]<<" "<<cohesionVector[2]<<" nomalise these\n";
+            //normalise_kernal(_cohesionVector);// glm::normalize(cohesionVector);
+
+
+        }
+
+    }
+
+    //_cohesionVector[0]+=1;
+    //_cohesionVector[2]+=1;
+
+}
+
+__global__ void flock_kernal(float * _posx, float * _posz, float * _velx, float * _velz, int _ID, int _numBoids)
+{
+
+    float _cohesionVector[3];
+
+    //float *cohesion_ptr = &cohesion[0];
+
+    int numberOfNeighbours = 0;
+
+    uint idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+
+
+    cohesion_kernal(_cohesionVector, _posx, _posz, _velx, _velz,  _ID, _numBoids);
+
+        printf("cohesion 2 : %f, %f \n", _cohesionVector[0], _cohesionVector[2]);
+
+        _velx[_ID]+= _cohesionVector[0];
+        _velz[_ID]+= _cohesionVector[2];
+
+
+}
+
+
+
 
 
 #endif // FLOCK_KERNALS_H
