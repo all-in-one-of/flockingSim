@@ -54,14 +54,14 @@ Flock_GPU::Flock_GPU(int _numBoids )
 
 
     // fill vector with random values for pos
-    thrust::device_vector <float> tmp_PosPnts(NUM_POINTS*2);
+    thrust::device_vector <float> tmp_PosPnts(NUM_POINTS*4);
     float * tmp_PosPnts_ptr = thrust::raw_pointer_cast(&tmp_PosPnts[0]);
-    randFloats(tmp_PosPnts_ptr, NUM_POINTS*2);
+    randFloats(tmp_PosPnts_ptr, NUM_POINTS*4);
 
     // fill vector with random values for vel
-    thrust::device_vector <float> tmp_VelPnts(NUM_POINTS*2);
-    float * tmp_VelPnts_ptr = thrust::raw_pointer_cast(&tmp_VelPnts[0]);
-    randFloats(tmp_VelPnts_ptr, NUM_POINTS*2);
+//    thrust::device_vector <float> tmp_VelPnts(NUM_POINTS*2);
+//    float * tmp_VelPnts_ptr = thrust::raw_pointer_cast(&tmp_VelPnts[0]);
+//    randFloats(tmp_VelPnts_ptr, NUM_POINTS*2);
 
 
 
@@ -70,8 +70,8 @@ Flock_GPU::Flock_GPU(int _numBoids )
     m_dBoidsPosZ.assign(tmp_PosPnts.begin() + NUM_POINTS, tmp_PosPnts.begin() + 2*NUM_POINTS);
 
     // give random start vel
-    m_dBoidsVelX.assign(tmp_VelPnts.begin(), tmp_VelPnts.begin() + NUM_POINTS);
-    m_dBoidsVelZ.assign(tmp_VelPnts.begin() + NUM_POINTS, tmp_VelPnts.begin() + 2*NUM_POINTS);
+    m_dBoidsVelX.assign(tmp_PosPnts.begin() + 2*NUM_POINTS, tmp_PosPnts.begin() + 3*NUM_POINTS);
+    m_dBoidsVelZ.assign(tmp_PosPnts.begin() + 3*NUM_POINTS, tmp_PosPnts.begin() + 4*NUM_POINTS);
 
 
 
@@ -188,7 +188,6 @@ void Flock_GPU::update()
 
     //findNeighbours(0.24,0);
 
-
         unsigned int nThreads = 1024;
         unsigned int nBlocks = m_numBoids/ nThreads + 1;
 
@@ -203,7 +202,9 @@ void Flock_GPU::update()
         dim3 grid2(1, 1); // grid 2x2 blocks
 
 
-//    //    std::cout<<"vel: "<<m_vel[0]<<m_vel[2]<<"\n";
+        std::cout<<"vel: "<<m_dBoidsVelX[0]<<m_dBoidsVelZ[0]<<"\n";
+
+        std::cout<<"pos: "<<m_dBoidsPosX[0]<<m_dBoidsPosZ[0]<<"\n";
 
         flock_kernal<<<grid2,block2>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, 0,  m_numBoids);
 
@@ -212,6 +213,9 @@ void Flock_GPU::update()
         //avoidBoundaries_kernal<<<nBlocks,1024>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
 
 //    //    std::cout<<"new vel: "<<m_vel[0]<<m_vel[2]<<"\n";
+
+
+
 
 
 

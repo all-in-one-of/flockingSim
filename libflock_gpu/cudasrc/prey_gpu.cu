@@ -473,7 +473,6 @@ thrust::device_vector<float> Prey_GPU::cohesionBoid()
     {
 
 
-
         //find average position
         cohesionVector[0] /= numberOfNeighbours;
         cohesionVector[2] /= numberOfNeighbours;

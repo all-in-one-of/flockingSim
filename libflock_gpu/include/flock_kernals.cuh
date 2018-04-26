@@ -284,10 +284,19 @@ __global__ void flock_kernal(float * _posx, float * _posz, float * _velx, float 
 
     if(idx < noBoids && idy < noBoids)
     {
-        // reset values
-        numberOfNeighbours[idx] = 0;
-        _cohesionVectorX[idx] = 0;
-        _cohesionVectorZ[idx] = 0;
+         //printf("position : %f, %f, %f   id: %d\n",_posx[idx],0.0f, _posz[idx], idx);
+         //printf("vel : %f, %f, %f   id: %d\n",_velx[idx],0.0f, _velz[idx], idx);
+
+             // reset values
+             numberOfNeighbours[idx] = 0;
+             _cohesionVectorX[idx] = 0;
+             _cohesionVectorZ[idx] = 0;
+
+             // wait for threads to sync
+             __syncthreads();
+
+
+
 
 
 
@@ -300,11 +309,11 @@ __global__ void flock_kernal(float * _posx, float * _posz, float * _velx, float 
                 {
                     printf("distance from function: %f \n",distance_kernal(_posx[idx], _posz[idx], _posx[idy], _posz[idy]) );
 
-                    if(distance_kernal(_posx[idx], _posz[idx], _posx[idy], _posz[idy]) < 0.4)
+                    if(distance_kernal(_posx[idx], _posz[idx], _posx[idy], _posz[idy]) < 0.2)
                     {
                         printf("Thread x: %d, Thread y: %d \n", idx, idy );
 
-                        printf("position : %f, %f \n", _posx[idy], _posz[idy]);
+                        printf("position : %f, %f id: %d, %d \n", _posx[idy], _posz[idy], idx, idy);
 
                         // add neighbours position to current boids part of the cohesion vector
                         atomicAdd(&(_cohesionVectorX[idx]), _posx[idy]);
@@ -313,7 +322,7 @@ __global__ void flock_kernal(float * _posx, float * _posz, float * _velx, float 
                        // _cohesionVector[0] +=  _posx[idx];
                        // _cohesionVector[2] +=  _posz[idx];
 
-                        printf("cohesion 1: %f, %f \n", _cohesionVectorX[idx], _cohesionVectorZ[idx]);
+                        printf("cohesion 1: %f, %f id: %d \n", _cohesionVectorX[idx], _cohesionVectorZ[idx], idx);
 
 
                         printf("Add neighbour \n");
@@ -321,7 +330,7 @@ __global__ void flock_kernal(float * _posx, float * _posz, float * _velx, float 
                         atomicAdd(&numberOfNeighbours[idx], 1);
 
 
-                        printf("neighbours %d \n", numberOfNeighbours[idx]);
+                        printf("neighbours %d id: %d\n", numberOfNeighbours[idx], idx);
                         //numberOfNeighbours += 1;
                     }
 
@@ -340,8 +349,6 @@ __global__ void flock_kernal(float * _posx, float * _posz, float * _velx, float 
 
         currentThread = 0;
 
-        printf("number of boids: %d \n", noBoids);
-
         //limit to 1D
         if(idy == 0 && idx< noBoids)
         {
@@ -352,10 +359,14 @@ __global__ void flock_kernal(float * _posx, float * _posz, float * _velx, float 
             if(numberOfNeighbours[idx] > 0)
             {
 
+                printf("cohesion 3: %f, %f id: %d \n", _cohesionVectorX[idx], _cohesionVectorZ[idx], idx);
 
-                int tmpX = _cohesionVectorX[idx]/numberOfNeighbours[idx];
-                int tmpZ = _cohesionVectorZ[idx]/numberOfNeighbours[idx];
+                printf("position 2: %f, %f id: %d, \n", _posx[idx], _posz[idx], idx);
 
+                float tmpX = _cohesionVectorX[idx]/numberOfNeighbours[idx];
+                float tmpZ = _cohesionVectorZ[idx]/numberOfNeighbours[idx];
+
+                printf("division: %f, %f id: %d \n", tmpX, tmpZ, idx);
 
                 //find average position
                 _cohesionVectorX[idx] = tmpX;
@@ -363,26 +374,18 @@ __global__ void flock_kernal(float * _posx, float * _posz, float * _velx, float 
 
 
                 //find vector from agent to average position
-                atomicAdd(&_cohesionVectorX[idx], - _posx[idx]);
-                atomicAdd(&_cohesionVectorZ[idx], - _posz[idx]);
+                //atomicAdd(&_cohesionVectorX[idx], - _posx[idx]);
+                //atomicAdd(&_cohesionVectorZ[idx], - _posz[idx]);
 
 
-                //_cohesionVectorX[idx] = ( _cohesionVectorX[idx] - _posx[idx]);
-                //_cohesionVectorZ[idx] = ( _cohesionVectorZ[idx] - _posz[idx]);
+                _cohesionVectorX[idx] = ( _cohesionVectorX[idx] - _posx[idx]);
+                _cohesionVectorZ[idx] = ( _cohesionVectorZ[idx] - _posz[idx]);
 
-                printf("cohesion 2: %f, %f id: %d \n", _cohesionVectorX[idx], _cohesionVectorZ[idx], idx);
+                printf("cohesion 4: %f, %f id: %d \n", _cohesionVectorX[idx], _cohesionVectorZ[idx], idx);
                 //normalise_kernal(_cohesionVector);// glm::normalize(cohesionVector);
 
 
-            }
-
-
-
-
-            //cohesion_kernal(_cohesionVector, _posx, _posz, _velx, _velz,  _ID, noBoids);
-
-            printf("cohesion 3: %f, %f id: %d \n", _cohesionVectorX[idx], _cohesionVectorZ[idx], idx);
-            printf("vel: %f, %f, %f   id: %d\n",_velx[idx],0.0f, _velz[idx], idx);
+            printf("vel 2: %f, %f, %f   id: %d\n",_velx[idx],0.0f, _velz[idx], idx);
 
             atomicAdd(&(_velx[idx]), _cohesionVectorX[idx]);
             atomicAdd(&(_velz[idx]), _cohesionVectorZ[idx]);
@@ -399,6 +402,8 @@ __global__ void flock_kernal(float * _posx, float * _posz, float * _velx, float 
 //            {
 //                atomicAdd(&currentThread,1);
 //            }
+
+            }
 
         }
 
