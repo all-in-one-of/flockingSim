@@ -192,25 +192,31 @@ void Flock_GPU::update()
         unsigned int nThreads = 1024;
         unsigned int nBlocks = m_numBoids/ nThreads + 1;
 
+        //thrust::device_vector<unsigned int> d_numNeighbourBoids(GRID_RESOLUTION*GRID_RESOLUTION, NULL_CELL);
+
+
+        //unsigned int * d_numNeighbourBoids_ptr = thrust::raw_pointer_cast(&d_numNeighbourBoids[0]);
+
+
 
 //    //    std::cout<<"vel: "<<m_vel[0]<<m_vel[2]<<"\n";
 
-        //flock_kernal<<<nBlocks,nThreads>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, 0,  m_numBoids);
+        flock_kernal<<<nBlocks,nThreads>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, 0,  m_numBoids);
 
-        //cudaThreadSynchronize();
+        cudaThreadSynchronize();
 
         avoidBoundaries_kernal<<<nBlocks,1024>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
 
 //    //    std::cout<<"new vel: "<<m_vel[0]<<m_vel[2]<<"\n";
 
 
+
+
         cudaThreadSynchronize();
 
         limitVel_kernal<<<nBlocks,nThreads>>>(0.02, m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
 
-
         cudaThreadSynchronize();
-
 
         updatePos_kernal<<<nBlocks,1024>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
 
