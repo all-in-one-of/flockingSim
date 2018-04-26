@@ -11,6 +11,7 @@
 #include <thrust/device_vector.h>
 #include <thrust/sort.h>
 
+
 #include <iostream>
 #include <stdio.h>
 
@@ -20,7 +21,7 @@
    #define printf(f, ...) ((void)(f, __VA_ARGS__),0)
 #endif
 
-
+#define NUM_BOIDS 20
 
 
 
@@ -262,109 +263,148 @@ __device__ void cohesion_kernal(float  _cohesionVector[], float * _posx, float *
 
 __global__ void flock_kernal(float * _posx, float * _posz, float * _velx, float * _velz, int _ID, int _numBoids)
 {
+    int const noBoids = _numBoids;
 
-    float _cohesionVector[3];
+    __shared__ float _cohesionVectorX[NUM_BOIDS];
+    __shared__ float _cohesionVectorZ[NUM_BOIDS];
 
-    _cohesionVector[0] = 0;
-    _cohesionVector[2] = 0;
+
 
     //float *cohesion_ptr = &cohesion[0];
 
-     __shared__ unsigned int numberOfNeighbours;
-
-     numberOfNeighbours = 0;
+     __shared__ unsigned int numberOfNeighbours[NUM_BOIDS];
 
 
 
+
+    // current boid whos neighbours were looking for
     uint idx = blockIdx.x * blockDim.x + threadIdx.x;
+    // neighbours of current boid
+    uint idy = blockIdx.y * blockDim.y + threadIdx.y;
 
-    if(idx < _numBoids)
+    if(idx < noBoids && idy < noBoids)
     {
+        // reset values
+        numberOfNeighbours[idx] = 0;
+        _cohesionVectorX[idx] = 0;
+        _cohesionVectorZ[idx] = 0;
 
 
 
 
-            //for(int i = 0; i < _numBoids; i++)
+
+
+            //for(int i = 0; i < noBoids; i++)
             //{
-                if(idx != _ID)
+                if(idx != idy)
                 {
-                    printf("distance from function: %f \n",distance_kernal(_posx[_ID], _posz[_ID], _posx[idx], _posz[idx]) );
+                    printf("distance from function: %f \n",distance_kernal(_posx[idx], _posz[idx], _posx[idy], _posz[idy]) );
 
-                    if(distance_kernal(_posx[_ID], _posz[_ID], _posx[idx], _posz[idx]) < 0.4)
+                    if(distance_kernal(_posx[idx], _posz[idx], _posx[idy], _posz[idy]) < 0.4)
                     {
+                        printf("Thread x: %d, Thread y: %d \n", idx, idy );
 
-                        printf("position : %f, %f \n", _posx[idx], _posz[idx]);
+                        printf("position : %f, %f \n", _posx[idy], _posz[idy]);
 
-
-                        //atomicAdd(&(_cohesionVector[0]), _posx[idx]);
-                        //atomicAdd(&(_cohesionVector[0]), _posz[idx]);
+                        // add neighbours position to current boids part of the cohesion vector
+                        atomicAdd(&(_cohesionVectorX[idx]), _posx[idy]);
+                        atomicAdd(&(_cohesionVectorZ[idx]), _posz[idy]);
 
                        // _cohesionVector[0] +=  _posx[idx];
                        // _cohesionVector[2] +=  _posz[idx];
 
-                        printf("cohesion 1: %f, %f \n", _cohesionVector[0], _cohesionVector[2]);
+                        printf("cohesion 1: %f, %f \n", _cohesionVectorX[idx], _cohesionVectorZ[idx]);
 
 
                         printf("Add neighbour \n");
 
-                        atomicAdd(&numberOfNeighbours, 1);
+                        atomicAdd(&numberOfNeighbours[idx], 1);
 
+
+                        printf("neighbours %d \n", numberOfNeighbours[idx]);
                         //numberOfNeighbours += 1;
                     }
 
                 }
             //}
 
+     }
 
-       }
+
+
 
         // wait for threads to sync
         __syncthreads();
 
-       // printf("neighbours %d \n", numberOfNeighbours);
-        if(idx=0)
+        __shared__ int currentThread;
+
+        currentThread = 0;
+
+        printf("number of boids: %d \n", noBoids);
+
+        //limit to 1D
+        if(idy == 0 && idx< noBoids)
         {
-        //avoid dividing by zero
-        if(numberOfNeighbours > 0)
-        {
+
+            printf("Thread Serial x : %d, Thread y: %d \n", idx, idy );
+
+            //avoid dividing by zero
+            if(numberOfNeighbours[idx] > 0)
+            {
 
 
-            //find average position
-            _cohesionVector[0] /= numberOfNeighbours;
-            _cohesionVector[2] /= numberOfNeighbours;
+                int tmpX = _cohesionVectorX[idx]/numberOfNeighbours[idx];
+                int tmpZ = _cohesionVectorZ[idx]/numberOfNeighbours[idx];
 
-            //find vector from agent to average position
-            _cohesionVector[0] = ( _cohesionVector[0] - _posx[_ID]);
-            _cohesionVector[2] = ( _cohesionVector[2] - _posz[_ID]);
 
-            printf("cohesion 2: %f, %f \n", _cohesionVector[0], _cohesionVector[2]);
-            //normalise_kernal(_cohesionVector);// glm::normalize(cohesionVector);
+                //find average position
+                _cohesionVectorX[idx] = tmpX;
+                _cohesionVectorZ[idx] = tmpZ;
 
+
+                //find vector from agent to average position
+                atomicAdd(&_cohesionVectorX[idx], - _posx[idx]);
+                atomicAdd(&_cohesionVectorZ[idx], - _posz[idx]);
+
+
+                //_cohesionVectorX[idx] = ( _cohesionVectorX[idx] - _posx[idx]);
+                //_cohesionVectorZ[idx] = ( _cohesionVectorZ[idx] - _posz[idx]);
+
+                printf("cohesion 2: %f, %f id: %d \n", _cohesionVectorX[idx], _cohesionVectorZ[idx], idx);
+                //normalise_kernal(_cohesionVector);// glm::normalize(cohesionVector);
+
+
+            }
+
+
+
+
+            //cohesion_kernal(_cohesionVector, _posx, _posz, _velx, _velz,  _ID, noBoids);
+
+            printf("cohesion 3: %f, %f id: %d \n", _cohesionVectorX[idx], _cohesionVectorZ[idx], idx);
+            printf("vel: %f, %f, %f   id: %d\n",_velx[idx],0.0f, _velz[idx], idx);
+
+            atomicAdd(&(_velx[idx]), _cohesionVectorX[idx]);
+            atomicAdd(&(_velz[idx]), _cohesionVectorZ[idx]);
+
+            //_velx[idx]+= _cohesionVectorX[idx];
+            //_velz[idx]+= _cohesionVectorZ[idx];
+
+            printf("new vel: %f, %f, %f id %d \n",_velx[idx],0.0f, _velz[idx], idx);
+
+            //_velx[_ID]+= _cohesionVector[0];
+            //_velz[_ID]+= _cohesionVector[2];}
+
+//            if(currentThread < _numBoids-1)
+//            {
+//                atomicAdd(&currentThread,1);
+//            }
 
         }
-
-
-
-
-
-
-
-
-    //cohesion_kernal(_cohesionVector, _posx, _posz, _velx, _velz,  _ID, _numBoids);
-
-        printf("vel: %f, %f, %f \n",_velx[_ID],0, _velz[_ID]);
-
-        atomicAdd(&(_velx[_ID]), _cohesionVector[0]);
-        atomicAdd(&(_velz[_ID]), _cohesionVector[2]);
-
-        printf("new vel: %f, %f, %f \n",_velx[_ID],0, _velz[_ID]);
-
-        }
-        //_velx[_ID]+= _cohesionVector[0];
-        //_velz[_ID]+= _cohesionVector[2];
-
 
 }
+
+
 
 
 

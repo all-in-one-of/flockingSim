@@ -197,18 +197,21 @@ void Flock_GPU::update()
 
         //unsigned int * d_numNeighbourBoids_ptr = thrust::raw_pointer_cast(&d_numNeighbourBoids[0]);
 
+        // for nearest neighbour
+        unsigned int blockN = NUM_POINTS/ (GRID_RESOLUTION*GRID_RESOLUTION*NUM_POINTS) + 1;
+        dim3 block2(32, 32); // block of (X,Y) threads
+        dim3 grid2(1, 1); // grid 2x2 blocks
 
 
 //    //    std::cout<<"vel: "<<m_vel[0]<<m_vel[2]<<"\n";
 
-        flock_kernal<<<nBlocks,nThreads>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, 0,  m_numBoids);
+        flock_kernal<<<grid2,block2>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, 0,  m_numBoids);
 
-        cudaThreadSynchronize();
+        //cudaThreadSynchronize();
 
-        avoidBoundaries_kernal<<<nBlocks,1024>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
+        //avoidBoundaries_kernal<<<nBlocks,1024>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
 
 //    //    std::cout<<"new vel: "<<m_vel[0]<<m_vel[2]<<"\n";
-
 
 
 

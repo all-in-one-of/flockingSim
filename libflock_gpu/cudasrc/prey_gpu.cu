@@ -164,7 +164,6 @@ void Prey_GPU::flock()
             //steer =glm::normalize(steer);
 
 
-
             //steer towards flocking vector if required
             m_vel[0] += steer[0];// steerBoid(steer);
             m_vel[2] += steer[2];
