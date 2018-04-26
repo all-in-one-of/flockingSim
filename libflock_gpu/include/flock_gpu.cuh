@@ -84,6 +84,25 @@ private :
     float * m_dBoidsVelX_ptr;
     float * m_dBoidsVelZ_ptr;
 
+    // stores flocking vectors
+    thrust::device_vector<float> m_dCohesionX;
+    thrust::device_vector<float> m_dCohesionZ;
+
+    float * m_dCohesionX_ptr;
+    float * m_dCohesionZ_ptr;
+
+    thrust::device_vector<float> m_dSeperationX;
+    thrust::device_vector<float> m_dSeperationZ;
+
+    float * m_dSeperationX_ptr;
+    float * m_dSeperationZ_ptr;
+
+    thrust::device_vector<float> m_dAlignmentX;
+    thrust::device_vector<float> m_dAlignmentZ;
+
+    float * m_dAlignmentX_ptr;
+    float * m_dAlignmentZ_ptr;
+
     // stores cellOcc
     thrust::device_vector<unsigned int> m_dCellOcc;
     unsigned int * m_dCellOcc_ptr;

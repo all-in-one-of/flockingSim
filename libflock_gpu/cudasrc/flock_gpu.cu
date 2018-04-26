@@ -47,6 +47,15 @@ Flock_GPU::Flock_GPU(int _numBoids )
     m_dBoidsVelX.resize(m_numBoids);
     m_dBoidsVelZ.resize(m_numBoids);
 
+    m_dCohesionX.resize(m_numBoids);
+    m_dCohesionZ.resize(m_numBoids);
+
+    m_dSeperationX.resize(m_numBoids);
+    m_dSeperationZ.resize(m_numBoids);
+
+    m_dAlignmentX.resize(m_numBoids);
+    m_dAlignmentZ.resize(m_numBoids);
+
     m_dHash.resize(m_numBoids);
     m_dCellOcc.resize(m_gridRes * m_gridRes);
 
@@ -84,6 +93,15 @@ Flock_GPU::Flock_GPU(int _numBoids )
 
     m_dBoidsVelX_ptr= thrust::raw_pointer_cast(&m_dBoidsVelX[0]);
     m_dBoidsVelZ_ptr= thrust::raw_pointer_cast(&m_dBoidsVelZ[0]);
+
+    m_dCohesionX_ptr= thrust::raw_pointer_cast(&m_dCohesionX[0]);
+    m_dCohesionZ_ptr= thrust::raw_pointer_cast(&m_dCohesionZ[0]);
+
+    m_dSeperationX_ptr= thrust::raw_pointer_cast(&m_dSeperationX[0]);
+    m_dSeperationZ_ptr= thrust::raw_pointer_cast(&m_dSeperationZ[0]);
+
+    m_dAlignmentX_ptr= thrust::raw_pointer_cast(&m_dAlignmentX[0]);
+    m_dAlignmentZ_ptr= thrust::raw_pointer_cast(&m_dAlignmentZ[0]);
 
 
     m_dHash_ptr= thrust::raw_pointer_cast(&m_dHash[0]);
@@ -188,6 +206,10 @@ void Flock_GPU::update()
 
     //findNeighbours(0.24,0);
 
+
+
+
+
         unsigned int nThreads = 1024;
         unsigned int nBlocks = m_numBoids/ nThreads + 1;
 
@@ -201,19 +223,27 @@ void Flock_GPU::update()
         dim3 block2(32, 32); // block of (X,Y) threads
         dim3 grid2(1, 1); // grid 2x2 blocks
 
+        // reset vectors
+        thrust::fill(m_dCohesionX.begin(), m_dCohesionX.begin() + m_numBoids, 0);
+        thrust::fill(m_dCohesionZ.begin(), m_dCohesionZ.begin() + m_numBoids, 0);
+
+        thrust::fill(m_dSeperationX.begin(), m_dSeperationX.begin() + m_numBoids, 0);
+        thrust::fill(m_dSeperationZ.begin(), m_dSeperationZ.begin() + m_numBoids, 0);
+
+
+
 
         std::cout<<"vel: "<<m_dBoidsVelX[0]<<m_dBoidsVelZ[0]<<"\n";
 
         std::cout<<"pos: "<<m_dBoidsPosX[0]<<m_dBoidsPosZ[0]<<"\n";
 
-        flock_kernal<<<grid2,block2>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, 0,  m_numBoids);
+        flock_kernal<<<grid2,block2>>>(m_dCohesionX_ptr, m_dCohesionZ_ptr, m_dSeperationX_ptr, m_dSeperationZ_ptr, m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr,  m_numBoids);
 
-        //cudaThreadSynchronize();
+        cudaThreadSynchronize();
 
-        //avoidBoundaries_kernal<<<nBlocks,1024>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
+        avoidBoundaries_kernal<<<nBlocks,1024>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
 
 //    //    std::cout<<"new vel: "<<m_vel[0]<<m_vel[2]<<"\n";
-
 
 
 
@@ -224,6 +254,8 @@ void Flock_GPU::update()
         limitVel_kernal<<<nBlocks,nThreads>>>(0.02, m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
 
         cudaThreadSynchronize();
+
+        std::cout<<"new vel: "<<m_dBoidsVelX[0]<<m_dBoidsVelX[2]<<"\n";
 
         updatePos_kernal<<<nBlocks,1024>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
 
