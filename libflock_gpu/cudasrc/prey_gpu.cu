@@ -169,18 +169,21 @@ void Prey_GPU::flock()
             m_vel[2] += steer[2];
 
 
-
         }
+
+
 
 
         if(m_vel[0] != 0  && m_vel[2] != 0)
         {
             //m_vel = glm::normalize(m_vel);
 
-
             // limit velocity
             limitVel(0.02);
         }
+
+
+
 
 }
 
@@ -239,7 +242,6 @@ thrust::device_vector<float> Prey_GPU::alignBoid()
 //            {
 //                if( distanceToBoid(boidsVector[i]) < 0.3)
 //                {
-
 
 
 

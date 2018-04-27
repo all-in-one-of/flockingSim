@@ -180,11 +180,11 @@ __global__ void limitVel_kernal(float _limit, float * _posx, float * _posz, floa
 
 }
 
-__device__ float vectorMag_kernal(float * _vector)
+__device__ float vectorMag_kernal(float  _vector1, float  _vector2, float  _vector3)
 {
     float mag;
 
-    mag = sqrtf((_vector[0]*_vector[0]) + (_vector[2]*_vector[2]));
+    mag = sqrtf((_vector1*_vector1) + (_vector2*_vector2) + (_vector3*_vector3));
 
     return mag;
 
@@ -200,8 +200,8 @@ __device__ void normalise_kernal(float  _v1, float  _v2, float  _v3)
 
 
 
-    _v1 = _vector[0] / vectorMag_kernal(_vector);
-    _v3 = _vector[2] / vectorMag_kernal(_vector);
+    _v1 = _vector[0] / vectorMag_kernal(_v1, _v2, _v3);
+    _v3 = _vector[2] / vectorMag_kernal(_v1, _v2, _v3);
 
 
 
@@ -209,9 +209,161 @@ __device__ void normalise_kernal(float  _v1, float  _v2, float  _v3)
 
 }
 
-__device__ void align_kernal()
+__device__ void alignment_kernal(float * _alignmentVectorX, float * _alignmentVectorZ, float * _posx, float * _posz, float * _velx, float * _velz, int _numBoids)
 {
 
+    int const noBoids = _numBoids;
+
+
+
+    //float *seperation_ptr = &seperation[0];
+
+     __shared__ unsigned int numberOfNeighbours[NUM_BOIDS];
+
+
+
+
+    // current boid whos neighbours were looking for
+     uint idx = blockIdx.x * blockDim.x + threadIdx.x;
+    // neighbours of current boid
+    uint idy = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if(idx < noBoids && idy < noBoids)
+    {
+         //printf("position : %f, %f, %f   id: %d\n",_posx[idx],0.0f, _posz[idx], idx);
+         //printf("vel : %f, %f, %f   id: %d\n",_velx[idx],0.0f, _velz[idx], idx);
+
+             // reset values
+             numberOfNeighbours[idx] = 0;
+
+             // wait for threads to sync
+             __syncthreads();
+
+
+            //for(int i = 0; i < noBoids; i++)
+            //{
+                if(idx != idy)
+                {
+                    //printf("distance from function: %f \n",distance_kernal(_posx[idx], _posz[idx], _posx[idy], _posz[idy]) );
+
+                    if(distance_kernal(_posx[idx], _posz[idx], _posx[idy], _posz[idy]) < 0.15)
+                    {
+                        printf("Thread x: %d, Thread y: %d \n", idx, idy );
+
+                        //printf("positionX : %f, %f positionZ : %f, %f id: %d, %d \n", _posx[idx], _posz[idx], _posx[idy], _posz[idy], idx, idy);
+
+
+                        atomicAdd(&(_alignmentVectorX[idx]), _velx[idy]);
+                        atomicAdd(&(_alignmentVectorZ[idx]), _velz[idy]);
+
+
+
+
+                        //printf("diff: %f, %f, %f \n", _diffVectorX[idx], 0.0f , _diffVectorZ[idx]);
+
+                        // normalise (make atomic)
+                        //_diffVectorX[idx] = _diffVectorX[idx] / norm3d(_diffVectorX[idx], 0.0f, _diffVectorZ[idx]);
+                        //_diffVectorZ[idx] = _diffVectorZ[idx] / norm3d(_diffVectorX[idx], 0.0f, _diffVectorZ[idx]);
+
+
+                        //normalise_kernal(_diffVectorX[idx], 0, _diffVectorZ[idx]);
+
+                        //printf("normalised diff: %f, %f, %f \n", _diffVectorX[idx], 0.0f , _diffVectorZ[idx]);
+
+                        // normalise here
+
+                        // add neighbours position to current boids part of the seperation vector
+                        //atomicAdd(&(_seperationVectorX[idx]), _diffVectorX[idx]);
+                        //atomicAdd(&(_seperationVectorZ[idx]), _diffVectorZ[idx]);
+
+
+
+                        // add neighbours position to current boids part of the seperation vector
+
+
+                       // _seperationVector[0] +=  _posx[idx];
+                       // _seperationVector[2] +=  _posz[idx];
+
+                        printf("alignment 1: %f, %f id: %d \n", _alignmentVectorX[idx], _alignmentVectorZ[idx], idx);
+
+
+                        printf("Add neighbour \n");
+
+                        atomicAdd(&numberOfNeighbours[idx], 1);
+
+
+                        printf("neighbours %d id: %d\n", numberOfNeighbours[idx], idx);
+                        //numberOfNeighbours += 1;
+                    }
+
+                }
+            //}
+
+     }
+
+
+
+
+        // wait for threads to sync
+        __syncthreads();
+
+
+
+        //limit to 1D
+        if(idy == 0 && idx< noBoids)
+        {
+
+            printf("Thread Serial x : %d, Thread y: %d \n", idx, idy );
+
+            //avoid dividing by zero
+            if(numberOfNeighbours[idx] > 0)
+            {
+
+                //printf("seperation 3: %f, %f id: %d \n", _seperationVectorX[idx], _seperationVectorZ[idx], idx);
+
+                //printf("position 2: %f, %f id: %d, \n", _posx[idx], _posz[idx], idx);
+
+                float tmpX = _alignmentVectorX[idx]/numberOfNeighbours[idx];
+                float tmpZ = _alignmentVectorZ[idx]/numberOfNeighbours[idx];
+
+                printf("division: %f, %f id: %d \n", tmpX, tmpZ, idx);
+
+                //find average position
+                _alignmentVectorX[idx] = tmpX;
+                _alignmentVectorZ[idx] = tmpZ;
+
+
+                //find vector from agent to average position
+                //atomicAdd(&_seperationVectorX[idx], - _posx[idx]);
+                //atomicAdd(&_seperationVectorZ[idx], - _posz[idx]);
+
+
+                //_seperationVectorX[idx] = ( _seperationVectorX[idx] * -1);
+                //_seperationVectorZ[idx] = ( _seperationVectorZ[idx] * -1);
+
+                printf("alignment 2: %f, %f id: %d \n", _alignmentVectorX[idx], _alignmentVectorZ[idx], idx);
+
+
+                //normalise_kernal(_seperationVectorX[idx], 0, _seperationVectorZ[idx]);// glm::normalize(seperationVector);
+
+
+            //printf("vel 2: %f, %f, %f   id: %d\n",_velx[idx],0.0f, _velz[idx], idx);
+
+            //atomicAdd(&(_velx[idx]), _seperationVectorX[idx]);
+            //atomicAdd(&(_velz[idx]), _seperationVectorZ[idx]);
+
+            //_velx[idx]+= _seperationVectorX[idx];
+            //_velz[idx]+= _seperationVectorZ[idx];
+
+            //printf("new vel: %f, %f, %f id %d \n",_velx[idx],0.0f, _velz[idx], idx);
+
+            //_velx[_ID]+= _seperationVector[0];
+            //_velz[_ID]+= _seperationVector[2];}
+
+
+            }
+
+        }
 }
 
 __device__ void seperation_kernal(float * _seperationVectorX, float * _seperationVectorZ, float * _posx, float * _posz, float * _velx, float * _velz, int _numBoids)
@@ -256,7 +408,7 @@ __device__ void seperation_kernal(float * _seperationVectorX, float * _seperatio
                 {
                     //printf("distance from function: %f \n",distance_kernal(_posx[idx], _posz[idx], _posx[idy], _posz[idy]) );
 
-                    if(distance_kernal(_posx[idx], _posz[idx], _posx[idy], _posz[idy]) < 0.2)
+                    if(distance_kernal(_posx[idx], _posz[idx], _posx[idy], _posz[idy]) < 0.1)
                     {
                         printf("Thread x: %d, Thread y: %d \n", idx, idy );
 
@@ -375,6 +527,14 @@ __device__ void seperation_kernal(float * _seperationVectorX, float * _seperatio
 
             }
 
+//            else
+//            {
+//                // if no neighbours make sure it is empty
+//                _seperationVectorX[idx] = 0;
+//                _seperationVectorZ[idx] = 0;
+
+//            }
+
         }
 }
 
@@ -412,12 +572,6 @@ __device__ void cohesion_kernal(float * _cohesionVectorX, float * _cohesionVecto
 
              // wait for threads to sync
              __syncthreads();
-
-
-
-
-
-
 
 
 
@@ -525,38 +679,79 @@ __device__ void cohesion_kernal(float * _cohesionVectorX, float * _cohesionVecto
 
 }
 
-__global__ void flock_kernal(float * _cohesionVectorX, float * _cohesionVectorZ,float * _seperationVectorX, float * _seperationVectorZ, float * _posx, float * _posz, float * _velx, float * _velz, int _numBoids)
+__global__ void flock_kernal(float * _cohesionVectorX, float * _cohesionVectorZ,float * _seperationVectorX, float * _seperationVectorZ, float * _alignmentVectorX, float * _alignmentVectorZ, float * _posx, float * _posz, float * _velx, float * _velz, int _numBoids)
 {
     uint idx = blockIdx.x * blockDim.x + threadIdx.x;
     uint idy = blockIdx.y * blockDim.y + threadIdx.y;
 
+    float seperationWeight = 1.3;
+
+    float mag[NUM_BOIDS];
+
+
 
     if( idx <_numBoids)
     {
-    // calculate cohesion
-    //cohesion_kernal(_cohesionVectorX, _cohesionVectorZ, _posx, _posz, _velx, _velz, _numBoids);
+        // calculate cohesion
+        cohesion_kernal(_cohesionVectorX, _cohesionVectorZ, _posx, _posz, _velx, _velz, _numBoids);
 
-    seperation_kernal(_seperationVectorX, _seperationVectorZ, _posx, _posz, _velx, _velz, _numBoids);
+        seperation_kernal(_seperationVectorX, _seperationVectorZ, _posx, _posz, _velx, _velz, _numBoids);
 
-    // wait for threads to sync (dont add cohesion vector until calculated)
-    __syncthreads();
+        alignment_kernal(_alignmentVectorX, _alignmentVectorZ, _posx, _posz, _velx, _velz, _numBoids);
 
-    if(idy == 0)
-    {
-        //printf("cohesion output: %f, %f id: %d \n", _cohesionVectorX[idx], _cohesionVectorZ[idx], idx);
+        // wait for threads to sync (dont add cohesion vector until calculated)
+        __syncthreads();
 
-        //printf("vel 2: %f, %f, %f   id: %d\n",_velx[idx],0.0f, _velz[idx], idx);
+        if(idy == 0)
+        {
 
-        //_velx[idx]+= _cohesionVectorX[idx];
-        //_velz[idx]+= _cohesionVectorZ[idx];
 
-        _velx[idx]+= _seperationVectorX[idx];
-        _velz[idx]+= _seperationVectorZ[idx];
 
-        //printf("new vel: %f, %f, %f id %d \n",_velx[idx],0.0f, _velz[idx], idx);
+            // normalise individual vectors
+
+            mag[idx] = norm3d(_cohesionVectorX[idx], 0.0f, _cohesionVectorZ[idx]);
+
+
+            if(mag[idx] > 0)
+            {
+                _cohesionVectorX[idx] = (_cohesionVectorX[idx] / mag[idx]);
+                _cohesionVectorZ[idx] = (_cohesionVectorZ[idx] / mag[idx]);
+
+            }
+
+            mag[idx] = norm3d(_alignmentVectorX[idx], 0.0f, _alignmentVectorZ[idx]);
+
+            if(mag[idx] > 0)
+            {
+                _alignmentVectorX[idx] = (_alignmentVectorX[idx] / mag[idx]);
+                _alignmentVectorZ[idx] = (_alignmentVectorZ[idx] / mag[idx]);
+            }
+
+            mag[idx] = norm3d(_seperationVectorX[idx], 0.0f, _seperationVectorZ[idx]);
+
+            if(mag[idx]>0)
+            {
+                _seperationVectorX[idx] = (_seperationVectorX[idx] / mag[idx]);
+                _seperationVectorZ[idx] = (_seperationVectorZ[idx] / mag[idx]);
+            }
+
+            printf("cohesion output: %f, %f id: %d \n", _cohesionVectorX[idx], _cohesionVectorZ[idx], idx);
+            printf("alignment output: %f, %f id: %d \n", _alignmentVectorX[idx], _alignmentVectorZ[idx], idx);
+            printf("seperation output: %f, %f id: %d \n", _seperationVectorX[idx], _seperationVectorZ[idx], idx);
+
+            //printf("vel 2: %f, %f, %f   id: %d\n",_velx[idx],0.0f, _velz[idx], idx);
+
+            _velx[idx]+=  _cohesionVectorX[idx] + _seperationVectorX[idx] +  _alignmentVectorX[idx];
+            _velz[idx]+=  _cohesionVectorZ[idx] + _seperationVectorZ[idx] +  _alignmentVectorZ[idx];
+
+            //_velx[idx]+= _alignmentVectorX[idx];
+            //_velz[idx]+= _alignmentVectorZ[idx];
+
+            //printf("new vel: %f, %f, %f id %d \n",_velx[idx],0.0f, _velz[idx], idx);
+        }
     }
 
-    }
+
 
 
 //    int const noBoids = _numBoids;

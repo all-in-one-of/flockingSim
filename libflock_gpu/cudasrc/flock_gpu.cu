@@ -194,20 +194,10 @@ void Flock_GPU::update()
 {
 
 
-
-
-    //if(m_frame_count < 300)
-    //{
-        //std::cout<<"dump frame \n";
-        dumpGeo(m_frame_count,getBoidsVector());
-        m_frame_count ++;
-    //}
-
     //hash();
     //cellOcc();
 
     //findNeighbours(0.24,0);
-
 
 
         unsigned int nThreads = 1024;
@@ -230,38 +220,36 @@ void Flock_GPU::update()
         thrust::fill(m_dSeperationX.begin(), m_dSeperationX.begin() + m_numBoids, 0);
         thrust::fill(m_dSeperationZ.begin(), m_dSeperationZ.begin() + m_numBoids, 0);
 
+        thrust::fill(m_dAlignmentX.begin(), m_dAlignmentX.begin() + m_numBoids, 0);
+        thrust::fill(m_dAlignmentZ.begin(), m_dAlignmentZ.begin() + m_numBoids, 0);
 
-        std::cout<<"vel: "<<m_dBoidsVelX[0]<<m_dBoidsVelZ[0]<<"\n";
 
-        std::cout<<"pos: "<<m_dBoidsPosX[0]<<m_dBoidsPosZ[0]<<"\n";
 
-        flock_kernal<<<grid2,block2>>>(m_dCohesionX_ptr, m_dCohesionZ_ptr, m_dSeperationX_ptr, m_dSeperationZ_ptr, m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr,  m_numBoids);
+
+        flock_kernal<<<grid2,block2>>>(m_dCohesionX_ptr, m_dCohesionZ_ptr, m_dSeperationX_ptr, m_dSeperationZ_ptr, m_dAlignmentX_ptr, m_dAlignmentZ_ptr, m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr,  m_numBoids);
 
         cudaThreadSynchronize();
 
         limitVel_kernal<<<nBlocks,nThreads>>>(0.02, m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
-
 
         cudaThreadSynchronize();
 
         avoidBoundaries_kernal<<<nBlocks,1024>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
 
-    //std::cout<<"vel: "<<m_dBoidsVelX[0]<<m_dBoidsVelX[2]<<"\n";
 
         cudaThreadSynchronize();
 
-        limitVel_kernal<<<nBlocks,nThreads>>>(0.02, m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
-
-
-
-
-        cudaThreadSynchronize();
-
-        //std::cout<<"new vel: "<<m_dBoidsVelX[0]<<m_dBoidsVelX[2]<<"\n";
 
         updatePos_kernal<<<nBlocks,1024>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
 
         cudaThreadSynchronize();
+
+
+
+        // export position as bgeo for houdini
+        dumpGeo(m_frame_count,getBoidsVector());
+        m_frame_count ++;
+
 
 //    for(int i=0; i<m_numBoids; ++i)
 //    {
