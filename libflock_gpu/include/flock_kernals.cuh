@@ -149,18 +149,30 @@ __global__ void limitVel_kernal(float _limit, float * _posx, float * _posz, floa
 {
     uint idx = blockIdx.x * blockDim.x + threadIdx.x;
 
+
+
+
+
+    float mag[NUM_BOIDS];
+
     if(idx < _noBoids)
     {
+        printf("original vel: %f, %f id: %d \n",_velx[idx], _velz[idx], idx);
 
-        float mag = sqrtf((_velx[idx]*_velz[idx]) + (_velz[idx]*_velz[idx]));
+        mag[idx] = sqrtf((_velx[idx]*_velx[idx]) + (_velz[idx]*_velz[idx]));
 
-        if( mag > _limit)
+        printf("mag: %f id: %d \n", mag[idx], idx);
+
+
+        if( mag[idx] > _limit)
         {
+            printf("vel: %f, %f id: %d \n",_velx[idx], _velz[idx], idx);
 
-            _velx[idx] = (_velx[idx]/mag)*_limit;
-            _velz[idx] = (_velz[idx]/mag)*_limit;
+            _velx[idx] = (_velx[idx]/mag[idx])*_limit;
+            _velz[idx] = (_velz[idx]/mag[idx])*_limit;
 
-            //std::cout<<"new vel "<<m_vel[0]<<" \n";
+            printf("new vel: %f, %f id: %d \n",_velx[idx], _velz[idx], idx);
+
 
         }
     }
@@ -183,13 +195,15 @@ __device__ void normalise_kernal(float  _v1, float  _v2, float  _v3)
     float _vector[3];
     _vector[0] = _v1;
     _vector[1] = _v2;
-    _vector[2] = _v3;
+    _vector[2] =_v3;
 
 
 
 
     _v1 = _vector[0] / vectorMag_kernal(_vector);
     _v3 = _vector[2] / vectorMag_kernal(_vector);
+
+
 
 
 
@@ -246,14 +260,33 @@ __device__ void seperation_kernal(float * _seperationVectorX, float * _seperatio
                     {
                         printf("Thread x: %d, Thread y: %d \n", idx, idy );
 
-                        printf("position : %f, %f id: %d, %d \n", _posx[idy], _posz[idy], idx, idy);
+                        printf("positionX : %f, %f positionZ : %f, %f id: %d, %d \n", _posx[idx], _posz[idx], _posx[idy], _posz[idy], idx, idy);
 
 
-                        // add neighbours position to current boids part of the seperation vector
-                        atomicAdd(&(_seperationVectorX[idx]), (_posx[idy]-_posx[idx]));
-                        atomicAdd(&(_seperationVectorZ[idx]), (_posx[idy]-_posz[idx]));
+                        atomicAdd(&(_diffVectorX[idx]), (_posx[idy]-_posx[idx]));
+                        atomicAdd(&(_diffVectorZ[idx]), (_posz[idy]-_posz[idx]));
+
+
+
+
+                        printf("diff: %f, %f, %f \n", _diffVectorX[idx], 0.0f , _diffVectorZ[idx]);
+
+                        // normalise (make atomic)
+                        _diffVectorX[idx] = _diffVectorX[idx] / norm3d(_diffVectorX[idx], 0.0f, _diffVectorZ[idx]);
+                        _diffVectorZ[idx] = _diffVectorZ[idx] / norm3d(_diffVectorX[idx], 0.0f, _diffVectorZ[idx]);
+
+
+                        //normalise_kernal(_diffVectorX[idx], 0, _diffVectorZ[idx]);
+
+                        printf("normalised diff: %f, %f, %f \n", _diffVectorX[idx], 0.0f , _diffVectorZ[idx]);
 
                         // normalise here
+
+                        // add neighbours position to current boids part of the seperation vector
+                        atomicAdd(&(_seperationVectorX[idx]), _diffVectorX[idx]);
+                        atomicAdd(&(_seperationVectorZ[idx]), _diffVectorZ[idx]);
+
+
 
                         // add neighbours position to current boids part of the seperation vector
 

@@ -347,8 +347,6 @@ thrust::device_vector<float> Prey_GPU::seperateBoid()
 
 
 
-
-
     for(int i = 0; i <m_Flock->getNoBoids(); i++)
     {
         if(boidsVector[i].getID() != getID())
@@ -378,6 +376,7 @@ thrust::device_vector<float> Prey_GPU::seperateBoid()
     //avoid dividing by zero
     if(numberOfNeighbours != 0)
     {
+
 
         seperationVector[0] /= numberOfNeighbours;
         seperationVector[2] /= numberOfNeighbours;
@@ -533,6 +532,10 @@ float Prey_GPU::distanceToBoid(const Prey_GPU _boid)
 
 void Prey_GPU::limitVel(float _limit)
 {
+
+
+
+
 
 
     if( vectorMagnitude(m_vel) > _limit)

@@ -194,6 +194,8 @@ void Flock_GPU::update()
 {
 
 
+
+
     //if(m_frame_count < 300)
     //{
         //std::cout<<"dump frame \n";
@@ -205,8 +207,6 @@ void Flock_GPU::update()
     //cellOcc();
 
     //findNeighbours(0.24,0);
-
-
 
 
 
@@ -231,8 +231,6 @@ void Flock_GPU::update()
         thrust::fill(m_dSeperationZ.begin(), m_dSeperationZ.begin() + m_numBoids, 0);
 
 
-
-
         std::cout<<"vel: "<<m_dBoidsVelX[0]<<m_dBoidsVelZ[0]<<"\n";
 
         std::cout<<"pos: "<<m_dBoidsPosX[0]<<m_dBoidsPosZ[0]<<"\n";
@@ -241,21 +239,25 @@ void Flock_GPU::update()
 
         cudaThreadSynchronize();
 
+        limitVel_kernal<<<nBlocks,nThreads>>>(0.02, m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
+
+
+        cudaThreadSynchronize();
+
         avoidBoundaries_kernal<<<nBlocks,1024>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
 
-//    //    std::cout<<"new vel: "<<m_vel[0]<<m_vel[2]<<"\n";
-
-
-
-
+    //std::cout<<"vel: "<<m_dBoidsVelX[0]<<m_dBoidsVelX[2]<<"\n";
 
         cudaThreadSynchronize();
 
         limitVel_kernal<<<nBlocks,nThreads>>>(0.02, m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
 
+
+
+
         cudaThreadSynchronize();
 
-        std::cout<<"new vel: "<<m_dBoidsVelX[0]<<m_dBoidsVelX[2]<<"\n";
+        //std::cout<<"new vel: "<<m_dBoidsVelX[0]<<m_dBoidsVelX[2]<<"\n";
 
         updatePos_kernal<<<nBlocks,1024>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
 
