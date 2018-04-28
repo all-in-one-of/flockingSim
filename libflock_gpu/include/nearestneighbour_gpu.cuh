@@ -23,7 +23,7 @@
 
 
 /// The number of points to generate within 0,1
-#define NUM_POINTS 20
+#define NUM_BOIDS 100
 
 /// The resolution of our grid (dependent on the radius of influence of each point)
 #define GRID_RESOLUTION 4
@@ -91,7 +91,7 @@ __global__ void pointHash(unsigned int *hash,
   * vector doesn't need to be presorted, but performance will probably improve if the memory is
   * contiguous.
   * \param cellOcc A vector, size GRID_RES^3, which will contain the occupancy of each cell
-  * \param hash A vector, size NUM_POINTS, which contains the hash of the grid cell of this point
+  * \param hash A vector, size NUM_BOIDS, which contains the hash of the grid cell of this point
   * \param nCells The size of the cellOcc vector (GRID_RES^3)
   * \param nPoints The number of points (size of hash)
   */

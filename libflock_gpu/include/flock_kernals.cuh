@@ -11,6 +11,7 @@
 #include <thrust/device_vector.h>
 #include <thrust/sort.h>
 
+#include "nearestneighbour_gpu.cuh"
 
 #include <iostream>
 #include <stdio.h>
@@ -21,7 +22,7 @@
    #define printf(f, ...) ((void)(f, __VA_ARGS__),0)
 #endif
 
-#define NUM_BOIDS 20
+
 
 
 
@@ -99,7 +100,7 @@ __global__ void updatePos_kernal(float * _posx, float * _posz, float * _velx, fl
 
     if(idx< _noBoids)
     {
-     printf("id: %d \n",idx);
+    // printf("id: %d \n",idx);
 
     _posx[idx] +=  _velx[idx];
     _posz[idx] +=  _velz[idx];
@@ -139,7 +140,7 @@ __device__ float distance_kernal(float  _posx, float  _posz, float  _otherPosx, 
     float distance = sqrtf(((_posx-_otherPosx)*(_posx-_otherPosx)) + ((_posz-_otherPosz)*(_posz-_otherPosz)));
 
 
-    printf("distance: %f \n", distance);
+    //printf("distance: %f \n", distance);
 
     return distance;
 
@@ -157,21 +158,21 @@ __global__ void limitVel_kernal(float _limit, float * _posx, float * _posz, floa
 
     if(idx < _noBoids)
     {
-        printf("original vel: %f, %f id: %d \n",_velx[idx], _velz[idx], idx);
+        //printf("original vel: %f, %f id: %d \n",_velx[idx], _velz[idx], idx);
 
         mag[idx] = sqrtf((_velx[idx]*_velx[idx]) + (_velz[idx]*_velz[idx]));
 
-        printf("mag: %f id: %d \n", mag[idx], idx);
+        //printf("mag: %f id: %d \n", mag[idx], idx);
 
 
         if( mag[idx] > _limit)
         {
-            printf("vel: %f, %f id: %d \n",_velx[idx], _velz[idx], idx);
+            //printf("vel: %f, %f id: %d \n",_velx[idx], _velz[idx], idx);
 
             _velx[idx] = (_velx[idx]/mag[idx])*_limit;
             _velz[idx] = (_velz[idx]/mag[idx])*_limit;
 
-            printf("new vel: %f, %f id: %d \n",_velx[idx], _velz[idx], idx);
+            //printf("new vel: %f, %f id: %d \n",_velx[idx], _velz[idx], idx);
 
 
         }
@@ -248,7 +249,7 @@ __device__ void alignment_kernal(float * _alignmentVectorX, float * _alignmentVe
 
                     if(distance_kernal(_posx[idx], _posz[idx], _posx[idy], _posz[idy]) < 0.15)
                     {
-                        printf("Thread x: %d, Thread y: %d \n", idx, idy );
+                        //printf("Thread x: %d, Thread y: %d \n", idx, idy );
 
                         //printf("positionX : %f, %f positionZ : %f, %f id: %d, %d \n", _posx[idx], _posz[idx], _posx[idy], _posz[idy], idx, idy);
 
@@ -284,15 +285,15 @@ __device__ void alignment_kernal(float * _alignmentVectorX, float * _alignmentVe
                        // _seperationVector[0] +=  _posx[idx];
                        // _seperationVector[2] +=  _posz[idx];
 
-                        printf("alignment 1: %f, %f id: %d \n", _alignmentVectorX[idx], _alignmentVectorZ[idx], idx);
+                        //printf("alignment 1: %f, %f id: %d \n", _alignmentVectorX[idx], _alignmentVectorZ[idx], idx);
 
 
-                        printf("Add neighbour \n");
+                        //printf("Add neighbour \n");
 
                         atomicAdd(&numberOfNeighbours[idx], 1);
 
 
-                        printf("neighbours %d id: %d\n", numberOfNeighbours[idx], idx);
+                        //printf("neighbours %d id: %d\n", numberOfNeighbours[idx], idx);
                         //numberOfNeighbours += 1;
                     }
 
@@ -313,7 +314,7 @@ __device__ void alignment_kernal(float * _alignmentVectorX, float * _alignmentVe
         if(idy == 0 && idx< noBoids)
         {
 
-            printf("Thread Serial x : %d, Thread y: %d \n", idx, idy );
+            //printf("Thread Serial x : %d, Thread y: %d \n", idx, idy );
 
             //avoid dividing by zero
             if(numberOfNeighbours[idx] > 0)
@@ -326,7 +327,7 @@ __device__ void alignment_kernal(float * _alignmentVectorX, float * _alignmentVe
                 float tmpX = _alignmentVectorX[idx]/numberOfNeighbours[idx];
                 float tmpZ = _alignmentVectorZ[idx]/numberOfNeighbours[idx];
 
-                printf("division: %f, %f id: %d \n", tmpX, tmpZ, idx);
+                //printf("division: %f, %f id: %d \n", tmpX, tmpZ, idx);
 
                 //find average position
                 _alignmentVectorX[idx] = tmpX;
@@ -341,7 +342,7 @@ __device__ void alignment_kernal(float * _alignmentVectorX, float * _alignmentVe
                 //_seperationVectorX[idx] = ( _seperationVectorX[idx] * -1);
                 //_seperationVectorZ[idx] = ( _seperationVectorZ[idx] * -1);
 
-                printf("alignment 2: %f, %f id: %d \n", _alignmentVectorX[idx], _alignmentVectorZ[idx], idx);
+               // printf("alignment 2: %f, %f id: %d \n", _alignmentVectorX[idx], _alignmentVectorZ[idx], idx);
 
 
                 //normalise_kernal(_seperationVectorX[idx], 0, _seperationVectorZ[idx]);// glm::normalize(seperationVector);
@@ -410,9 +411,9 @@ __device__ void seperation_kernal(float * _seperationVectorX, float * _seperatio
 
                     if(distance_kernal(_posx[idx], _posz[idx], _posx[idy], _posz[idy]) < 0.1)
                     {
-                        printf("Thread x: %d, Thread y: %d \n", idx, idy );
+                        //printf("Thread x: %d, Thread y: %d \n", idx, idy );
 
-                        printf("positionX : %f, %f positionZ : %f, %f id: %d, %d \n", _posx[idx], _posz[idx], _posx[idy], _posz[idy], idx, idy);
+                        //printf("positionX : %f, %f positionZ : %f, %f id: %d, %d \n", _posx[idx], _posz[idx], _posx[idy], _posz[idy], idx, idy);
 
 
                         atomicAdd(&(_diffVectorX[idx]), (_posx[idy]-_posx[idx]));
@@ -421,7 +422,7 @@ __device__ void seperation_kernal(float * _seperationVectorX, float * _seperatio
 
 
 
-                        printf("diff: %f, %f, %f \n", _diffVectorX[idx], 0.0f , _diffVectorZ[idx]);
+                        //printf("diff: %f, %f, %f \n", _diffVectorX[idx], 0.0f , _diffVectorZ[idx]);
 
                         // normalise (make atomic)
                         _diffVectorX[idx] = _diffVectorX[idx] / norm3d(_diffVectorX[idx], 0.0f, _diffVectorZ[idx]);
@@ -430,7 +431,7 @@ __device__ void seperation_kernal(float * _seperationVectorX, float * _seperatio
 
                         //normalise_kernal(_diffVectorX[idx], 0, _diffVectorZ[idx]);
 
-                        printf("normalised diff: %f, %f, %f \n", _diffVectorX[idx], 0.0f , _diffVectorZ[idx]);
+                       // printf("normalised diff: %f, %f, %f \n", _diffVectorX[idx], 0.0f , _diffVectorZ[idx]);
 
                         // normalise here
 
@@ -446,15 +447,15 @@ __device__ void seperation_kernal(float * _seperationVectorX, float * _seperatio
                        // _seperationVector[0] +=  _posx[idx];
                        // _seperationVector[2] +=  _posz[idx];
 
-                        printf("seperation 1: %f, %f id: %d \n", _seperationVectorX[idx], _seperationVectorZ[idx], idx);
+                        //printf("seperation 1: %f, %f id: %d \n", _seperationVectorX[idx], _seperationVectorZ[idx], idx);
 
 
-                        printf("Add neighbour \n");
+                        //printf("Add neighbour \n");
 
                         atomicAdd(&numberOfNeighbours[idx], 1);
 
 
-                        printf("neighbours %d id: %d\n", numberOfNeighbours[idx], idx);
+                        //printf("neighbours %d id: %d\n", numberOfNeighbours[idx], idx);
                         //numberOfNeighbours += 1;
                     }
 
@@ -477,20 +478,20 @@ __device__ void seperation_kernal(float * _seperationVectorX, float * _seperatio
         if(idy == 0 && idx< noBoids)
         {
 
-            printf("Thread Serial x : %d, Thread y: %d \n", idx, idy );
+            //printf("Thread Serial x : %d, Thread y: %d \n", idx, idy );
 
             //avoid dividing by zero
             if(numberOfNeighbours[idx] > 0)
             {
 
-                printf("seperation 3: %f, %f id: %d \n", _seperationVectorX[idx], _seperationVectorZ[idx], idx);
+                //printf("seperation 3: %f, %f id: %d \n", _seperationVectorX[idx], _seperationVectorZ[idx], idx);
 
-                printf("position 2: %f, %f id: %d, \n", _posx[idx], _posz[idx], idx);
+               // printf("position 2: %f, %f id: %d, \n", _posx[idx], _posz[idx], idx);
 
                 float tmpX = _seperationVectorX[idx]/numberOfNeighbours[idx];
                 float tmpZ = _seperationVectorZ[idx]/numberOfNeighbours[idx];
 
-                printf("division: %f, %f id: %d \n", tmpX, tmpZ, idx);
+                //printf("division: %f, %f id: %d \n", tmpX, tmpZ, idx);
 
                 //find average position
                 _seperationVectorX[idx] = tmpX;
@@ -505,7 +506,7 @@ __device__ void seperation_kernal(float * _seperationVectorX, float * _seperatio
                 _seperationVectorX[idx] = ( _seperationVectorX[idx] * -1);
                 _seperationVectorZ[idx] = ( _seperationVectorZ[idx] * -1);
 
-                printf("seperation 4: %f, %f id: %d \n", _seperationVectorX[idx], _seperationVectorZ[idx], idx);
+                //printf("seperation 4: %f, %f id: %d \n", _seperationVectorX[idx], _seperationVectorZ[idx], idx);
 
 
                 //normalise_kernal(_seperationVectorX[idx], 0, _seperationVectorZ[idx]);// glm::normalize(seperationVector);
@@ -583,9 +584,9 @@ __device__ void cohesion_kernal(float * _cohesionVectorX, float * _cohesionVecto
 
                     if(distance_kernal(_posx[idx], _posz[idx], _posx[idy], _posz[idy]) < 0.2)
                     {
-                        printf("Thread x: %d, Thread y: %d \n", idx, idy );
+                        //printf("Thread x: %d, Thread y: %d \n", idx, idy );
 
-                        printf("position : %f, %f id: %d, %d \n", _posx[idy], _posz[idy], idx, idy);
+                        //printf("position : %f, %f id: %d, %d \n", _posx[idy], _posz[idy], idx, idy);
 
                         // add neighbours position to current boids part of the cohesion vector
                         atomicAdd(&(_cohesionVectorX[idx]), _posx[idy]);
@@ -594,15 +595,15 @@ __device__ void cohesion_kernal(float * _cohesionVectorX, float * _cohesionVecto
                        // _cohesionVector[0] +=  _posx[idx];
                        // _cohesionVector[2] +=  _posz[idx];
 
-                        printf("cohesion 1: %f, %f id: %d \n", _cohesionVectorX[idx], _cohesionVectorZ[idx], idx);
+                        //printf("cohesion 1: %f, %f id: %d \n", _cohesionVectorX[idx], _cohesionVectorZ[idx], idx);
 
 
-                        printf("Add neighbour \n");
+                        //printf("Add neighbour \n");
 
                         atomicAdd(&numberOfNeighbours[idx], 1);
 
 
-                        printf("neighbours %d id: %d\n", numberOfNeighbours[idx], idx);
+                       // printf("neighbours %d id: %d\n", numberOfNeighbours[idx], idx);
                         //numberOfNeighbours += 1;
                     }
 
@@ -625,20 +626,20 @@ __device__ void cohesion_kernal(float * _cohesionVectorX, float * _cohesionVecto
         if(idy == 0 && idx< noBoids)
         {
 
-            printf("Thread Serial x : %d, Thread y: %d \n", idx, idy );
+           // printf("Thread Serial x : %d, Thread y: %d \n", idx, idy );
 
             //avoid dividing by zero
             if(numberOfNeighbours[idx] > 0)
             {
 
-                printf("cohesion 3: %f, %f id: %d \n", _cohesionVectorX[idx], _cohesionVectorZ[idx], idx);
+               // printf("cohesion 3: %f, %f id: %d \n", _cohesionVectorX[idx], _cohesionVectorZ[idx], idx);
 
-                printf("position 2: %f, %f id: %d, \n", _posx[idx], _posz[idx], idx);
+                //printf("position 2: %f, %f id: %d, \n", _posx[idx], _posz[idx], idx);
 
                 float tmpX = _cohesionVectorX[idx]/numberOfNeighbours[idx];
                 float tmpZ = _cohesionVectorZ[idx]/numberOfNeighbours[idx];
 
-                printf("division: %f, %f id: %d \n", tmpX, tmpZ, idx);
+                //printf("division: %f, %f id: %d \n", tmpX, tmpZ, idx);
 
                 //find average position
                 _cohesionVectorX[idx] = tmpX;
@@ -653,7 +654,7 @@ __device__ void cohesion_kernal(float * _cohesionVectorX, float * _cohesionVecto
                 _cohesionVectorX[idx] = ( _cohesionVectorX[idx] - _posx[idx]);
                 _cohesionVectorZ[idx] = ( _cohesionVectorZ[idx] - _posz[idx]);
 
-                printf("cohesion 4: %f, %f id: %d \n", _cohesionVectorX[idx], _cohesionVectorZ[idx], idx);
+                //printf("cohesion 4: %f, %f id: %d \n", _cohesionVectorX[idx], _cohesionVectorZ[idx], idx);
 
 
                 //normalise_kernal(_cohesionVectorX[idx], 0, _cohesionVectorZ[idx]);// glm::normalize(cohesionVector);
@@ -735,9 +736,9 @@ __global__ void flock_kernal(float * _cohesionVectorX, float * _cohesionVectorZ,
                 _seperationVectorZ[idx] = (_seperationVectorZ[idx] / mag[idx]);
             }
 
-            printf("cohesion output: %f, %f id: %d \n", _cohesionVectorX[idx], _cohesionVectorZ[idx], idx);
-            printf("alignment output: %f, %f id: %d \n", _alignmentVectorX[idx], _alignmentVectorZ[idx], idx);
-            printf("seperation output: %f, %f id: %d \n", _seperationVectorX[idx], _seperationVectorZ[idx], idx);
+            //printf("cohesion output: %f, %f id: %d \n", _cohesionVectorX[idx], _cohesionVectorZ[idx], idx);
+            //printf("alignment output: %f, %f id: %d \n", _alignmentVectorX[idx], _alignmentVectorZ[idx], idx);
+            //printf("seperation output: %f, %f id: %d \n", _seperationVectorX[idx], _seperationVectorZ[idx], idx);
 
             //printf("vel 2: %f, %f, %f   id: %d\n",_velx[idx],0.0f, _velz[idx], idx);
 

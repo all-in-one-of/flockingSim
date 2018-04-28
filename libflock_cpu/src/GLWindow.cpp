@@ -174,7 +174,25 @@ void GLWindow::paintGL()
       m_frame_count ++;
   }
 
-  m_flock->update();
+
+  struct timeval tim;
+  double t1, t2;
+  gettimeofday(&tim, NULL);
+  t1=tim.tv_sec+(tim.tv_usec/1000000.0);
+
+
+
+   m_flock->update();
+
+
+
+
+  gettimeofday(&tim, NULL);
+  t2=tim.tv_sec+(tim.tv_usec/1000000.0);
+
+  std::cout << "CPU frame "<<m_frame_count<<" took " << t2-t1 << "s\n";
+
+
 
   renderScene();
 

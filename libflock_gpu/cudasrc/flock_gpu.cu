@@ -35,7 +35,6 @@
 Flock_GPU::Flock_GPU(int _numBoids )
 {
 
-
     m_numBoids=_numBoids;
 
     //thrust::device_vector<float> d_Pos(m_numBoids*3);
@@ -63,24 +62,24 @@ Flock_GPU::Flock_GPU(int _numBoids )
 
 
     // fill vector with random values for pos
-    thrust::device_vector <float> tmp_PosPnts(NUM_POINTS*4);
+    thrust::device_vector <float> tmp_PosPnts(NUM_BOIDS*4);
     float * tmp_PosPnts_ptr = thrust::raw_pointer_cast(&tmp_PosPnts[0]);
-    randFloats(tmp_PosPnts_ptr, NUM_POINTS*4);
+    randFloats(tmp_PosPnts_ptr, NUM_BOIDS*4);
 
     // fill vector with random values for vel
-//    thrust::device_vector <float> tmp_VelPnts(NUM_POINTS*2);
+//    thrust::device_vector <float> tmp_VelPnts(NUM_BOIDS*2);
 //    float * tmp_VelPnts_ptr = thrust::raw_pointer_cast(&tmp_VelPnts[0]);
-//    randFloats(tmp_VelPnts_ptr, NUM_POINTS*2);
+//    randFloats(tmp_VelPnts_ptr, NUM_BOIDS*2);
 
 
 
     // give random start positions
-    m_dBoidsPosX.assign(tmp_PosPnts.begin(), tmp_PosPnts.begin() + NUM_POINTS);
-    m_dBoidsPosZ.assign(tmp_PosPnts.begin() + NUM_POINTS, tmp_PosPnts.begin() + 2*NUM_POINTS);
+    m_dBoidsPosX.assign(tmp_PosPnts.begin(), tmp_PosPnts.begin() + NUM_BOIDS);
+    m_dBoidsPosZ.assign(tmp_PosPnts.begin() + NUM_BOIDS, tmp_PosPnts.begin() + 2*NUM_BOIDS);
 
     // give random start vel
-    m_dBoidsVelX.assign(tmp_PosPnts.begin() + 2*NUM_POINTS, tmp_PosPnts.begin() + 3*NUM_POINTS);
-    m_dBoidsVelZ.assign(tmp_PosPnts.begin() + 3*NUM_POINTS, tmp_PosPnts.begin() + 4*NUM_POINTS);
+    m_dBoidsVelX.assign(tmp_PosPnts.begin() + 2*NUM_BOIDS, tmp_PosPnts.begin() + 3*NUM_BOIDS);
+    m_dBoidsVelZ.assign(tmp_PosPnts.begin() + 3*NUM_BOIDS, tmp_PosPnts.begin() + 4*NUM_BOIDS);
 
 
 
@@ -124,11 +123,11 @@ Flock_GPU::Flock_GPU(int _numBoids )
 
 
 
-//    randFloats(m_dBoidsPosX_ptr, NUM_POINTS);
-//    randFloats(m_dBoidsPosZ_ptr, NUM_POINTS);
+//    randFloats(m_dBoidsPosX_ptr, NUM_BOIDS);
+//    randFloats(m_dBoidsPosZ_ptr, NUM_BOIDS);
 
-    //randFloats(m_dBoidsVelX_ptr, NUM_POINTS);
-    //randFloats(m_dBoidsVelZ_ptr, NUM_POINTS);
+    //randFloats(m_dBoidsVelX_ptr, NUM_BOIDS);
+    //randFloats(m_dBoidsVelZ_ptr, NUM_BOIDS);
 
 
 
@@ -138,7 +137,7 @@ Flock_GPU::Flock_GPU(int _numBoids )
     //BoidFactory *b = new BoidFactory;
 
     //unsigned int nThreads = 1024;
-    //unsigned int nBlocks = NUM_POINTS / nThreads + 1;
+    //unsigned int nBlocks = NUM_BOIDS / nThreads + 1;
 
 
     for (int i=0; i< _numBoids; ++i)
@@ -209,9 +208,9 @@ void Flock_GPU::update()
         //unsigned int * d_numNeighbourBoids_ptr = thrust::raw_pointer_cast(&d_numNeighbourBoids[0]);
 
         // for nearest neighbour
-        unsigned int blockN = NUM_POINTS/ (GRID_RESOLUTION*GRID_RESOLUTION*NUM_POINTS) + 1;
+        unsigned int blockN = (NUM_BOIDS * NUM_BOIDS)/ (32*32) + 1;
         dim3 block2(32, 32); // block of (X,Y) threads
-        dim3 grid2(1, 1); // grid 2x2 blocks
+        dim3 grid2(blockN, 1); // grid blockN * blockN blocks
 
         // reset vectors
         thrust::fill(m_dCohesionX.begin(), m_dCohesionX.begin() + m_numBoids, 0);
@@ -300,13 +299,13 @@ void Flock_GPU::findNeighbours(float _neighbourhoodDist, int _boidID)
         // First thing is we'll generate a big old vector of random numbers for the purposes of
         // fleshing out our point data. This is much faster to do in one step than 3 seperate
         // steps.
-//        thrust::device_vector<float> d_Rand(NUM_POINTS*3);
+//        thrust::device_vector<float> d_Rand(NUM_BOIDS*3);
 
 
 //        float * d_Rand_ptr = thrust::raw_pointer_cast(&d_Rand[0]);
 
 
-//        randFloats(d_Rand_ptr, NUM_POINTS*3);
+//        randFloats(d_Rand_ptr, NUM_BOIDS*3);
 
 
 
@@ -319,19 +318,19 @@ void Flock_GPU::findNeighbours(float _neighbourhoodDist, int _boidID)
         // example, if we only need to look at first element of the structure then it
         // is wasteful to load the entire structure from memory.  With the SoA approach,
         // we can chose which elements of the structure we wish to read.
-        //thrust::device_vector<float> d_Px(d_Rand.begin(), d_Rand.begin()+NUM_POINTS);
-        //thrust::device_vector<float> d_Py(d_Rand.begin()+NUM_POINTS, d_Rand.begin()+2*NUM_POINTS);
-    //    thrust::device_vector<float> d_Pz(d_Rand.begin()+2*NUM_POINTS, d_Rand.end());
+        //thrust::device_vector<float> d_Px(d_Rand.begin(), d_Rand.begin()+NUM_BOIDS);
+        //thrust::device_vector<float> d_Py(d_Rand.begin()+NUM_BOIDS, d_Rand.begin()+2*NUM_BOIDS);
+    //    thrust::device_vector<float> d_Pz(d_Rand.begin()+2*NUM_BOIDS, d_Rand.end());
 
         // This vector will hold the grid cell occupancy (set to zero)
         //thrust::device_vector<unsigned int> d_cellOcc(GRID_RESOLUTION*GRID_RESOLUTION, 0);
 
         // This vector will hold our hash values, one for each point
-        //thrust::device_vector<unsigned int> d_hash(NUM_POINTS);
+        //thrust::device_vector<unsigned int> d_hash(NUM_BOIDS);
         //thrust::copy(d_hash.begin(), d_hash.end(), std::ostream_iterator<unsigned int>(std::cout, " "));
 
         // Vector storing neighbour pnts idx
-        //thrust::device_vector<unsigned int> d_neighbours(NUM_POINTS,NULL_PNT);
+        //thrust::device_vector<unsigned int> d_neighbours(NUM_BOIDS,NULL_PNT);
 
         // Holds neighbour cells
         thrust::device_vector<unsigned int> d_neighbourCells(GRID_RESOLUTION*GRID_RESOLUTION, NULL_CELL);
@@ -349,7 +348,7 @@ void Flock_GPU::findNeighbours(float _neighbourhoodDist, int _boidID)
         // is pretty standard. Remember that each block will be assigned to a single SM, with it's
         // own local memory.
         unsigned int nThreads = 1024;
-        unsigned int nBlocks = NUM_POINTS / nThreads + 1;
+        unsigned int nBlocks = NUM_BOIDS / nThreads + 1;
 
 
         //dim3 threadsPerBlock(8, 8);
@@ -360,8 +359,8 @@ void Flock_GPU::findNeighbours(float _neighbourhoodDist, int _boidID)
          dim3 grid(1, 1); // grid 2x2 blocks
 
          // for nearest neighbour
-         unsigned int blockN = NUM_POINTS/ (GRID_RESOLUTION*GRID_RESOLUTION*NUM_POINTS) + 1;
-         dim3 block2(GRID_RESOLUTION*GRID_RESOLUTION, NUM_POINTS); // block of (X,Y) threads
+         unsigned int blockN = NUM_BOIDS/ (GRID_RESOLUTION*GRID_RESOLUTION*NUM_BOIDS) + 1;
+         dim3 block2(GRID_RESOLUTION*GRID_RESOLUTION, NUM_BOIDS); // block of (X,Y) threads
          dim3 grid2(blockN, blockN); // grid 2x2 blocks
 
 
@@ -373,7 +372,7 @@ void Flock_GPU::findNeighbours(float _neighbourhoodDist, int _boidID)
 //        // The special CUDA syntax below executes our parallel function with the specified parameters
 //        // using the number of blocks and threads provided.
 //        pointHash<<<nBlocks, nThreads>>>(m_dHash_ptr, m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr,
-//                                         NUM_POINTS,
+//                                         NUM_BOIDS,
 //                                         GRID_RESOLUTION);
 
 //        // Make sure all threads have wrapped up before completing the timings
@@ -408,7 +407,7 @@ void Flock_GPU::findNeighbours(float _neighbourhoodDist, int _boidID)
         //thrust::sort(d_neighbourCells.begin(), d_neighbourCells.end());
 
         // Finds pnt index in neighbourhood cells
-        nearestNeighbourPnts<<<grid2, block2>>>(m_dneighbourPnts_ptr, d_neighbourCells_ptr, m_dHash_ptr,NUM_POINTS,GRID_RESOLUTION);
+        nearestNeighbourPnts<<<grid2, block2>>>(m_dneighbourPnts_ptr, d_neighbourCells_ptr, m_dHash_ptr,NUM_BOIDS,GRID_RESOLUTION);
 
         cudaThreadSynchronize();
 
@@ -420,10 +419,10 @@ void Flock_GPU::findNeighbours(float _neighbourhoodDist, int _boidID)
 
         gettimeofday(&tim, NULL);
         t2=tim.tv_sec+(tim.tv_usec/1000000.0);
-        //std::cout << "Grid sorted "<<NUM_POINTS<<" points into grid of "<<GRID_RESOLUTION*GRID_RESOLUTION*GRID_RESOLUTION<<" cells in " << t2-t1 << "s\n";
+        //std::cout << "Grid sorted "<<NUM_BOIDS<<" points into grid of "<<GRID_RESOLUTION*GRID_RESOLUTION*GRID_RESOLUTION<<" cells in " << t2-t1 << "s\n";
 
         // Only dump the debugging information if we have a manageable number of points.
-//        if (NUM_POINTS <= 100) {
+//        if (NUM_BOIDS <= 100) {
 
 //            std::cout << "Boid: "<<_boidID<<"\n";
 //            std::cout << "Boid Cell: "<<m_dHash[_boidID]<<"\n";
@@ -459,12 +458,12 @@ void Flock_GPU::hash()
 {
 
     unsigned int nThreads = 1024;
-    unsigned int nBlocks = NUM_POINTS / nThreads + 1;
+    unsigned int nBlocks = NUM_BOIDS / nThreads + 1;
 
     // The special CUDA syntax below executes our parallel function with the specified parameters
     // using the number of blocks and threads provided.
     pointHash<<<nBlocks, nThreads>>>(m_dHash_ptr, m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr,
-                                     NUM_POINTS,
+                                     NUM_BOIDS,
                                      GRID_RESOLUTION);
 
     // Make sure all threads have wrapped up before completing the timings
@@ -547,7 +546,7 @@ void Flock_GPU::cellOcc()
     //m_dCellOcc.clear();
     //m_dCellOcc.resize(m_gridRes*m_gridRes,0);
     unsigned int nThreads = 1024;
-    unsigned int nBlocks = NUM_POINTS / nThreads + 1;
+    unsigned int nBlocks = NUM_BOIDS / nThreads + 1;
 
     // Now we can count the number of points in each grid cell
     countCellOccupancy<<<nBlocks, nThreads>>>(m_dCellOcc_ptr, m_dHash_ptr, m_dCellOcc.size(), m_dHash.size());

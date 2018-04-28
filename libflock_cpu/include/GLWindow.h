@@ -16,6 +16,7 @@
 #include <memory>
 #include "Buffer.h"
 #include "Flock.h"
+#include <sys/time.h>
 
 
 class GLWindow : public QOpenGLWidget
