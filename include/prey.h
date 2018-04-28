@@ -13,8 +13,6 @@ public:
     /// @brief a method to update the Boid position
     virtual void update();
 
-    virtual void draw();
-
     virtual glm::vec3 getVel(){return m_vel;}
 
     virtual void setVel(glm::vec3 _vel){m_vel = _vel;}

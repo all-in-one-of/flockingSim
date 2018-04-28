@@ -8,11 +8,8 @@
 #include <vector>
 
 #include "prey.h"
-#include "predator.h"
 
-#include "GLWindow.h"
 
-class GLWindow;
 
 class Flock
 {
@@ -21,13 +18,13 @@ public :
 	/// @brief ctor
     /// @param _pos the position of the Flock
     /// @param _numBoids the number of Boids to create
-    Flock(GLWindow *_scene, int _numBoids );
+    Flock(int _numBoids);
+
     /// @brief destructor
     ~Flock();
     /// @brief a method to update each of the Boids contained in the system
   void update();
-    /// @brief a method to draw all the Boids contained in the system
-  void draw();
+
   void createBoidsMesh();
   int getNoBoids(){return m_numBoids;}
   std::vector <Prey> getBoidsVector(){return m_Boids;}
@@ -39,7 +36,7 @@ public :
 
   int m_gridRes = 6;
 
-  GLWindow* getScene(){return m_scene;}
+  void dumpGeo(uint _frameNumber);
 
   //std::vector <float> m_testVec;
 
@@ -66,7 +63,6 @@ private :
 
 
 
-    GLWindow *m_scene;
 
 
 

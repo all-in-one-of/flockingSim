@@ -37,31 +37,15 @@ INCLUDEPATH += $$PWD/include \
                $$PWD/shaders
 
 HEADERS += include/Boid.h \
-           include/flock_cpu.h \
-           include/Buffer.h \
-           include/Camera.h \
            include/Flock.h \
-           include/GLWindow.h \
-           include/MainWindow.h \
-           include/Mesh.h \
            include/prey.h \
-           include/Scene.h \
-           include/Shader.h \
-           include/TrackballCamera.h \
+
 
 
 SOURCES += src/Boid.cpp \
-           src/Buffer.cpp \
-           src/Camera.cpp \
            src/Flock.cpp \
-           src/flock_cpu.cpp \
-           src/GLWindow.cpp \
-           src/MainWindow.cpp \
-           src/Mesh.cpp \
            src/prey.cpp \
-           src/Scene.cpp \
-           src/Shader.cpp \
-           src/TrackballCamera.cpp \
+
 
 OTHER_FILES += shaders/* \
                models/*

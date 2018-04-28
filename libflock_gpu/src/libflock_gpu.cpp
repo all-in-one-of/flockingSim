@@ -3,7 +3,7 @@
 
 #include "drawScene.cuh"
 
-void flock_gpu()
+void flock_gpu(int _numBoids)
 {
 
     //drawScene(argc,argv);
@@ -12,15 +12,10 @@ void flock_gpu()
     int count = 0;
 
 
-    Flock_GPU *flocknew = new Flock_GPU(100);
+    Flock_GPU *flocknew = new Flock_GPU(_numBoids);
 
     while(count < 150)
     {
-        struct timeval tim;
-        double t1, t2;
-        gettimeofday(&tim, NULL);
-        t1=tim.tv_sec+(tim.tv_usec/1000000.0);
-
 
 
 
@@ -29,13 +24,8 @@ void flock_gpu()
         flocknew->update();
 
 
-        gettimeofday(&tim, NULL);
-        t2=tim.tv_sec+(tim.tv_usec/1000000.0);
 
-        std::cout << "GPU frame "<<count<<" took " << t2-t1 << "s\n";
-
-        count ++;
-
+        count++;
     }
 
     std::cout<<"DONE \n";

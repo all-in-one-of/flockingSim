@@ -2,7 +2,8 @@
 #define Boid_H_
 
 
-#include <glm.hpp>
+
+#include <glm/glm.hpp>
 #include <stdlib.h>
 
 // pre-declare Flock class
@@ -19,8 +20,7 @@ public :
 
     /// @brief a method to update the Boid position
   virtual void update() = 0;
-    /// @brief a method to draw the Boid
-  virtual void draw() = 0;
+
 
   virtual int getID()=0;
 
