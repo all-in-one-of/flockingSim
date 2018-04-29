@@ -24,7 +24,19 @@ int main(int argc, char **argv)
     t1=tim.tv_sec+(tim.tv_usec/1000000.0);
 
 
-    flock_gpu(100);
+
+
+    libFlock gpu(100);
+
+    for(int i = 0; i< 150; i++)
+    {
+
+        gpu.updateFlock();
+
+        gpu.dumpGeo(i);
+
+
+    }
 
 
 
@@ -37,20 +49,15 @@ int main(int argc, char **argv)
     double t1_cpu, t2_cpu;
     gettimeofday(&tim, NULL);
     t1_cpu=tim.tv_sec+(tim.tv_usec/1000000.0);
+
     Flock f(100);
 
     for(int i = 0; i< 150; i++)
     {
 
-
-
         f.update();
 
         f.dumpGeo(i);
-
-
-
-
 
     }
 

@@ -46,7 +46,7 @@ HEADERS += include/boids_gpu.cuh \
            include/nearestneighbour_gpu.cuh \
            include/libflock_gpu.h \
            include/flock_kernals.cuh
-           #include/drawScene.cuh
+
 
 
 
@@ -57,7 +57,7 @@ CUDA_SOURCES += cudasrc/boids_gpu.cu \
                 cudasrc/flock_gpu.cu \
                 cudasrc/prey_gpu.cu \
                 cudasrc/random.cu \
-                #cudasrc/drawScene.cu
+
 
 SOURCES += src/main.cpp \
            src/libflock_gpu.cpp
@@ -79,7 +79,7 @@ NVCCBIN = $$CUDA_DIR/bin/nvcc
 
 #prepare intermediate cuda compiler
 cuda.input = CUDA_SOURCES
-cuda.output = $$CUDA_OBJECTS_DIR/${QMAKE_FILE_BASE}.o
+cuda.output = $$CUDA_OBJECTS_DIR/${QMAKE_FILE_BASE}.o      #cudasrc/drawScene.cu
 cuda.commands = $$NVCCBIN $$NVCCFLAGS -dc $$CUDA_INC $$LIBS ${QMAKE_FILE_NAME} -o ${QMAKE_FILE_OUT}
  
 #Set our variable out. These obj files need to be used to create the link obj file

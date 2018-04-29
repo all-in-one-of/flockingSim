@@ -1,44 +1,25 @@
 #include "libflock_gpu.h"
 #include "flock_gpu.cuh"
 
-#include "drawScene.cuh"
 
-void flock_gpu(int _numBoids)
+libFlock::libFlock(int _numBoids)
+{
+    m_flock = new Flock_GPU(_numBoids);
+}
+
+
+void libFlock::dumpGeo(int _numFrame)
+{
+    m_flock->dumpGeo(_numFrame);
+
+
+}
+
+
+void libFlock::updateFlock()
 {
 
-    //drawScene(argc,argv);
-
-
-    int count = 0;
-
-
-    Flock_GPU *flocknew = new Flock_GPU(_numBoids);
-
-    while(count < 150)
-    {
-
-
-
-
-
-        flocknew->update();
-
-
-
-        count++;
-    }
-
-    std::cout<<"DONE \n";
-
-//    flocknew->hash();
-
-//    flocknew->cellOcc();
-
-    //flocknew->findNeighbours(0.24,2);
-
-
-
-
+    m_flock->update();
 
 
 }

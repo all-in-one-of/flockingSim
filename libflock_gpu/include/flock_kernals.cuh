@@ -146,7 +146,7 @@ __device__ float distance_kernal(float  _posx, float  _posz, float  _otherPosx, 
 
 }
 
-__global__ void limitVel_kernal(float _limit, float * _posx, float * _posz, float * _velx, float * _velz, int _noBoids)
+__global__ void limitVel_kernal(float _limit, float * _posx, float * _posz, float * _velx, float * _velz, const int _noBoids)
 {
     uint idx = blockIdx.x * blockDim.x + threadIdx.x;
 

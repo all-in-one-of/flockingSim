@@ -39,8 +39,7 @@ public :
 
   int m_gridRes = 4;
 
-  void dumpGeo(uint _frameNumber,
-               std::vector<Prey_GPU> _boids);
+  void dumpGeo(uint _frameNumber);
 
   int randFloats(float *&devData, const size_t n);
 

@@ -150,7 +150,7 @@ void Prey::flock()
         //flocking component weights
         float alignmentWeight = 1;
         float cohesionWeight = 1;
-        float separationWeight = 1.3;
+        float separationWeight = 1;
 
         //find resulting flocking vector
         steer[0] += (cohesion[0] * cohesionWeight) + (alignment[0] * alignmentWeight) + (separation[0] * separationWeight);

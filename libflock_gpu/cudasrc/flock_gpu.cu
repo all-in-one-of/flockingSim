@@ -245,11 +245,6 @@ void Flock_GPU::update()
 
 
 
-        // export position as bgeo for houdini
-        dumpGeo(m_frame_count,getBoidsVector());
-        m_frame_count ++;
-
-
 //    for(int i=0; i<m_numBoids; ++i)
 //    {
 
@@ -480,7 +475,7 @@ void Flock_GPU::hash()
 }
 
 
-void Flock_GPU::dumpGeo(uint _frameNumber, std::vector<Prey_GPU> _boids)
+void Flock_GPU::dumpGeo(uint _frameNumber)
 {
     char fname[150];
 
@@ -506,12 +501,12 @@ void Flock_GPU::dumpGeo(uint _frameNumber, std::vector<Prey_GPU> _boids)
     ss <<"Cd 3 float 1 1 1\n";
     // now we write out the particle data in the format
     // x y z 1 (attrib so in this case colour)
-    for(unsigned int i=0; i<_boids.size(); ++i)
+    for(unsigned int i=0; i<m_numBoids; ++i)
     {
 
 
         ss<<m_dBoidsPosX[i]<<" "<<0<<" "<<m_dBoidsPosZ[i] << " 1 ";
-        //ss<<"("<<_boids[i].cellCol.x<<" "<<_boids[i].cellCol.y<<" "<< _boids[i].cellCol.z<<")\n";
+
         ss<<"("<<std::abs(1)<<" "<<std::abs(1)<<" "<<std::abs(1)<<")\n";
     }
 
@@ -519,8 +514,8 @@ void Flock_GPU::dumpGeo(uint _frameNumber, std::vector<Prey_GPU> _boids)
     ss<<"PrimitiveAttrib\n";
     ss<<"generator 1 index 1 location1\n";
     ss<<"dopobject 1 index 1 /obj/AutoDopNetwork:1\n";
-    ss<<"Part "<<_boids.size()<<" ";
-    for(size_t i=0; i<_boids.size(); ++i)
+    ss<<"Part "<<m_numBoids<<" ";
+    for(size_t i=0; i<m_numBoids; ++i)
     {
         ss<<i<<" ";
     }

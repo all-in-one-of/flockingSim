@@ -29,7 +29,7 @@ Boid::Boid(Flock *_Flock, int _ID)
 
   //m_vel = glm::normalize(m_vel);
 
-  m_vel /= 100;
+  //m_vel /= 100;
 
   //std::cout<<"vel "<<m_vel[0]<<" \n";
 
