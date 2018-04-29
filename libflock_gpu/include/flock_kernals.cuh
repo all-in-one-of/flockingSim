@@ -22,7 +22,7 @@
 #endif
 
 /// The number of points to generate within 0,1
-#define NUM_BOIDS 100
+#define NUM_BOIDS 200
 
 __global__ void avoidBoundaries_kernal(float * _posx, float * _posz, float * _velx, float * _velz, int _noBoids)
 {
@@ -108,8 +108,8 @@ __device__ float * steerBoid_kernal(float * _target1,float * _target2,float * _t
 //   diffZ = _target3 - _currentZ[idx];
 
 
-//    _currentX =( (diff[0]/vectorMag_kernal(diff[0], diff[1], diff[2]))*0.02f);
-//    _currentZ =( (diff[2]/vectorMag_kernal(diff[0], diff[1], diff[2]))*0.02f);
+//    _currentX[idx] =( (diff[0]/vectorMag_kernal(diffX, 0, diffZ))*0.02f);
+//    _currentZ[idx] =( (diff[2]/vectorMag_kernal(diffX, 0, diffZ))*0.02f);
 
 }
 
@@ -480,6 +480,8 @@ __global__ void flock_kernal(float * _cohesionVectorX, float * _cohesionVectorZ,
 
             _velx[idx]+=  _cohesionVectorX[idx] + _seperationVectorX[idx] +  _alignmentVectorX[idx];
             _velz[idx]+=  _cohesionVectorZ[idx] + _seperationVectorZ[idx] +  _alignmentVectorZ[idx];
+
+
 
 
         }

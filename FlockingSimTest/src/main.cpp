@@ -26,7 +26,7 @@ int main()
 
 
 
-    libFlock gpu(100);
+    libFlock gpu(200);
 
     for(int i = 0; i< 150; i++)
     {
@@ -50,7 +50,7 @@ int main()
     gettimeofday(&tim, NULL);
     t1_cpu=tim.tv_sec+(tim.tv_usec/1000000.0);
 
-    Flock f(100);
+    Flock f(200);
 
     for(int i = 0; i< 150; i++)
     {

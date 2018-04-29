@@ -1,10 +1,8 @@
 #include "flock_gpu.cuh"
 
-
 //#include "prey_gpu.cuh"
 #include <cuda.h>
 #include <curand.h>
-
 
 #include "flock_kernals.cuh"
 
@@ -22,11 +20,6 @@
     printf("Error at %s:%d\n",__FILE__,__LINE__);\
     return EXIT_FAILURE;}} while(0)
 
-//__global__ void setPositions(float * posVec, float _currentPos, int _id)
-//{
-//    posVec[_id] = _currentPos;
-
-//}
 
 /// @brief ctor
 /// @param _pos the position of the Flock
@@ -61,12 +54,6 @@ Flock_GPU::Flock_GPU(int _numBoids )
     float * tmp_PosPnts_ptr = thrust::raw_pointer_cast(&tmp_PosPnts[0]);
     randFloats(tmp_PosPnts_ptr, NUM_BOIDS*4);
 
-    // fill vector with random values for vel
-//    thrust::device_vector <float> tmp_VelPnts(NUM_BOIDS*2);
-//    float * tmp_VelPnts_ptr = thrust::raw_pointer_cast(&tmp_VelPnts[0]);
-//    randFloats(tmp_VelPnts_ptr, NUM_BOIDS*2);
-
-
 
     // give random start positions
     m_dBoidsPosX.assign(tmp_PosPnts.begin(), tmp_PosPnts.begin() + NUM_BOIDS);
@@ -75,9 +62,6 @@ Flock_GPU::Flock_GPU(int _numBoids )
     // give random start vel
     m_dBoidsVelX.assign(tmp_PosPnts.begin() + 2*NUM_BOIDS, tmp_PosPnts.begin() + 3*NUM_BOIDS);
     m_dBoidsVelZ.assign(tmp_PosPnts.begin() + 3*NUM_BOIDS, tmp_PosPnts.begin() + 4*NUM_BOIDS);
-
-
-
 
 
 
@@ -96,8 +80,6 @@ Flock_GPU::Flock_GPU(int _numBoids )
 
     m_dAlignmentX_ptr= thrust::raw_pointer_cast(&m_dAlignmentX[0]);
     m_dAlignmentZ_ptr= thrust::raw_pointer_cast(&m_dAlignmentZ[0]);
-
-
 
 
 
