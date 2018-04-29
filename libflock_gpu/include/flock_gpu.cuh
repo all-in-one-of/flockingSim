@@ -12,8 +12,8 @@
 #include <thrust/device_vector.h>
 #include <thrust/sort.h>
 
-#include "prey_gpu.cuh"
-//class Prey_GPU;
+
+
 class Flock_GPU
 {
 public :
@@ -30,26 +30,13 @@ public :
   void draw();
   void createBoidsMesh();
   int getNoBoids(){return m_numBoids;}
-  std::vector <Prey_GPU> getBoidsVector(){return m_Boids;}
-  void hash();
-  void cellOcc();
 
-  int* getCellOcc(){return m_cellOcc;}
-  std::vector <int> getHashVec(){return m_hashVec;}
 
-  int m_gridRes = 4;
 
   void dumpGeo(uint _frameNumber);
 
   int randFloats(float *&devData, const size_t n);
 
-  // takes all points and returns neighbour point indexes
-  void findNeighbours(float _neighbourhoodDist, int _currentCell);
-
-
-
-//  float * getPos(){return m_dPos_ptr;}
-    thrust::device_vector <unsigned int> getNeighbours(){return m_dneighbourPnts;}
 
     float* getBoidsPosX(){return m_dBoidsPosX_ptr;}
     float* getBoidsPosZ(){return m_dBoidsPosZ_ptr;}
@@ -63,10 +50,7 @@ public :
 private :
     /// @brief the number of Boids
     int m_numBoids;
-    /// @brief the container for the Boids
-    std::vector <Prey_GPU> m_Boids;
-    std::vector <int> m_hashVec;
-    int m_cellOcc[36];
+
 
     // GPU -------------------------------------------------------------------------
     // stores point pos
@@ -102,17 +86,6 @@ private :
     float * m_dAlignmentX_ptr;
     float * m_dAlignmentZ_ptr;
 
-    // stores cellOcc
-    thrust::device_vector<unsigned int> m_dCellOcc;
-    unsigned int * m_dCellOcc_ptr;
-
-    // stores cellOcc
-    thrust::device_vector<unsigned int> m_dHash;
-    unsigned int * m_dHash_ptr;
-
-    // stores neighbour points
-    thrust::device_vector<unsigned int> m_dneighbourPnts;
-    unsigned int * m_dneighbourPnts_ptr;
 
     int m_frame_count = 0;
 

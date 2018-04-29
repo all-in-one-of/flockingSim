@@ -15,7 +15,7 @@ basic OpenGL demo modified from http://qt-project.org/doc/qt-5.0/qtgui/openglwin
 
 
 
-int main(int argc, char **argv)
+int main()
 {
 
     struct timeval tim;

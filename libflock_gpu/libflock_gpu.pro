@@ -39,11 +39,8 @@ isEmpty(CUDA_DIR) {
 }
  
 # Include headers
-HEADERS += include/boids_gpu.cuh \
-           include/flock_gpu.cuh \
-           include/prey_gpu.cuh \
+HEADERS += include/flock_gpu.cuh \
            include/random.cuh \
-           include/nearestneighbour_gpu.cuh \
            include/libflock_gpu.h \
            include/flock_kernals.cuh
 
@@ -53,14 +50,11 @@ HEADERS += include/boids_gpu.cuh \
 
 
 ## CUDA_SOURCES - the source (generally .cu) files for nvcc. No spaces in path names
-CUDA_SOURCES += cudasrc/boids_gpu.cu \
-                cudasrc/flock_gpu.cu \
-                cudasrc/prey_gpu.cu \
+CUDA_SOURCES += cudasrc/flock_gpu.cu \
                 cudasrc/random.cu \
 
 
-SOURCES += src/main.cpp \
-           src/libflock_gpu.cpp
+SOURCES +=     src/libflock_gpu.cpp
 
 
 
