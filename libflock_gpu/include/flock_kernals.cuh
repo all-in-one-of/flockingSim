@@ -22,7 +22,7 @@
 #endif
 
 /// The number of points to generate within 0,1
-#define NUM_BOIDS 200
+#define NUM_BOIDS 100
 
 __global__ void avoidBoundaries_kernal(float * _posx, float * _posz, float * _velx, float * _velz, int _noBoids)
 {
