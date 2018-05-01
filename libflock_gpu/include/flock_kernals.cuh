@@ -22,7 +22,7 @@
 #endif
 
 /// The number of points to generate within 0,1
-#define NUM_BOIDS 100
+#define NUM_BOIDS 1000
 
 __device__ float vectorMag_kernal(float  _vector1, float  _vector2, float  _vector3)
 {
@@ -117,7 +117,10 @@ __global__ void avoidBoundaries_kernal(float * _posx, float * _posz, float * _ve
 
 
         }
+
+
     }
+
 
 }
 

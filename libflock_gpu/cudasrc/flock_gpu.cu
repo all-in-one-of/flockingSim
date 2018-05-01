@@ -106,7 +106,7 @@ void Flock_GPU::update()
         //unsigned int * d_numNeighbourBoids_ptr = thrust::raw_pointer_cast(&d_numNeighbourBoids[0]);
 
         // for nearest neighbour
-        unsigned int blockN = (NUM_BOIDS * NUM_BOIDS)/ (32*32) + 1;
+        unsigned int blockN = NUM_BOIDS/32 + 1;
         dim3 block2(32, 32); // block of (X,Y) threads
         dim3 grid2(blockN, 1); // grid blockN * blockN blocks
 
@@ -119,6 +119,7 @@ void Flock_GPU::update()
 
         thrust::fill(m_dAlignmentX.begin(), m_dAlignmentX.begin() + m_numBoids, 0);
         thrust::fill(m_dAlignmentZ.begin(), m_dAlignmentZ.begin() + m_numBoids, 0);
+
 
 
 
