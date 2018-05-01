@@ -8,30 +8,30 @@ class Prey: public Boid
 public:
     Prey(Flock *_Flock, const int _ID);
 
-    virtual ~Prey();
+    ~Prey();
+
 
     /// @brief a method to update the Boid position
-    virtual void update();
+    void update();
 
-    virtual glm::vec3 getVel(){return m_vel;}
+    int getID() const {return m_ID;}
 
-    virtual void setVel(glm::vec3 _vel){m_vel = _vel;}
+    glm::vec3 getVel() const {return m_vel;}
 
-    virtual glm::vec3 getPos(){return m_pos;}
+    void setVel(const glm::vec3 _vel){m_vel = _vel;}
 
-    virtual void setPos(glm::vec3 _pos){m_pos = _pos;}
+    glm::vec3 getPos() const {return m_pos;}
 
-    virtual void limitVel(float _limit);
+    void setPos(const glm::vec3 _pos){m_pos = _pos;}
 
-    virtual void updateRotation();
+    void limitVel(const float _limit);
 
-    virtual glm::vec3 steerBoid(glm::vec3 _target);
-
-    virtual void avoidBoundaries();
+    glm::vec3 steerBoid(const glm::vec3 _target);
 
 
 
-    virtual int getID(){return m_ID;}
+    void avoidBoundaries();
+
 
      glm::vec3 alignBoid();
      glm::vec3 seperateBoid();
@@ -39,13 +39,13 @@ public:
 
      void flock();
 
-     bool getFlockFLag(){return m_flockFlag;}
+     bool getFlockFLag() const {return m_flockFlag;}
 
      float distanceToBoid(const Prey _boid);
 
-     void nearestNeighbours(float _neighbourhoodDist, int cell);
+     void nearestNeighbours(const float _neighbourhoodDist, const int cell);
 
-     std::vector <float> getNeighbourPnts(){return m_neighbourhoodPnts;}
+     std::vector <float> getNeighbourPnts() const {return m_neighbourhoodPnts;}
 
 private:
 

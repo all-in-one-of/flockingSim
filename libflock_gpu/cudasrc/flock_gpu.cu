@@ -122,23 +122,21 @@ void Flock_GPU::update()
 
 
 
-
-
-        flock_kernal<<<grid2,block2>>>(m_dCohesionX_ptr, m_dCohesionZ_ptr, m_dSeperationX_ptr, m_dSeperationZ_ptr, m_dAlignmentX_ptr, m_dAlignmentZ_ptr, m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr,  m_numBoids);
+        flock_kernal<<<grid2,block2>>>(m_dCohesionX_ptr, m_dCohesionZ_ptr, m_dSeperationX_ptr, m_dSeperationZ_ptr, m_dAlignmentX_ptr, m_dAlignmentZ_ptr, m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr);
 
         cudaThreadSynchronize();
 
-        limitVel_kernal<<<nBlocks,nThreads>>>(0.02, m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
+        limitVel_kernal<<<nBlocks,nThreads>>>(0.02, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr);
 
         cudaThreadSynchronize();
 
-        avoidBoundaries_kernal<<<nBlocks,1024>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
+        avoidBoundaries_kernal<<<nBlocks,1024>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr);
 
 
         cudaThreadSynchronize();
 
 
-        updatePos_kernal<<<nBlocks,1024>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr, m_numBoids);
+        updatePos_kernal<<<nBlocks,1024>>>(m_dBoidsPosX_ptr, m_dBoidsPosZ_ptr, m_dBoidsVelX_ptr, m_dBoidsVelZ_ptr);
 
         cudaThreadSynchronize();
 

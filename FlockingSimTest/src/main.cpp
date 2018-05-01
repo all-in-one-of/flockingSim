@@ -26,7 +26,7 @@ int main()
 
 
 
-    libFlock gpu(1000);
+    libFlock gpu(100);
 
     for(int i = 0; i< 150; i++)
     {

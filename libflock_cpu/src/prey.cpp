@@ -31,8 +31,6 @@ void Prey::update()
 
 
 
-
-    updateRotation();
 }
 
 
@@ -92,40 +90,6 @@ void Prey::avoidBoundaries()
 
 }
 
-
-void Prey::updateRotation()
-{
-
-    //rotation 0 when facing in z axis
-        glm::vec3 facing = {0,0,1};
-
-             //only update if moving
-             if(m_vel != glm::vec3{0,0,0})
-             {
-
-
-                 float mag1 = glm::length(facing);
-                 float mag2 = glm::length(m_vel);
-
-                 //find angle between z axis and boids velocity vector
-                 float steer = std::acos(glm::dot(facing, m_vel)/(mag1*mag2));
-
-
-
-                 //if rotation past 180 degrees must take away from 360, then update boid rotation
-                 if(m_vel[0]>0)
-                 {
-                     m_rotateAngle = steer;
-                     m_rotation[1] = steer;
-                 }
-                 else
-                 {
-                     m_rotateAngle = 2*M_PI -steer;
-                     m_rotation[1]= 360-steer;
-                 }
-             }
-
-}
 
 void Prey::flock()
 {
@@ -357,6 +321,97 @@ void Prey::limitVel(float _limit)
 
     }
 }
+
+void Prey::nearestNeighbours(float _neighbourhoodDist, int cell)
+{
+
+
+
+
+
+    //std::cout<<"nearest neighbour called on cell "<<cell<<" \n";
+
+    // divide by grid resolution as grid 0-1 and boids plane -3 - 3
+    _neighbourhoodDist /= (2 * m_Flock->m_gridRes);
+
+    // the number of cells in each direction to check
+    int bucketRadius = ceil(_neighbourhoodDist/(1.0/float(m_Flock->m_gridRes)));
+
+    // Find surrounding cells
+    int z = floor(float(cell/m_Flock->m_gridRes));
+    int x = cell -(z*m_Flock->m_gridRes);
+
+    int count = 0;
+
+    int neighbourCells[m_Flock->m_gridRes*m_Flock->m_gridRes];
+
+
+    for( int i = x - bucketRadius; i <= x + bucketRadius; ++i ){
+        for( int j = z - bucketRadius; j <= z + bucketRadius; ++j ){
+            if(i>=0 && j>=0 && i<=m_Flock->m_gridRes-1 && j<= m_Flock->m_gridRes-1)
+            {
+                //if((j*m_Flock->m_gridRes + i) != cell  )
+                //{
+                    neighbourCells[count] = (j*m_Flock->m_gridRes) + i;
+
+                    //std::cout<<neighbourCells[count]<<" neighbour cells \n";
+
+                    count ++;
+
+                //}
+            }
+
+        }
+    }
+
+
+
+//    int count2;
+
+    // Remove empty cells
+    for(int i = 0; i < count; i++)
+    {
+        //std::cout<< neighbourCells[i]<<"\n";
+        // if cell  empty
+        if(m_Flock->getCellOcc()[neighbourCells[i]] == 0)
+        {
+            //add points to neighbourhood
+
+            //std::cout<< neighbourCells[i]<< " deleting cell \n";
+            neighbourCells[i] = -1;
+
+//            count2++;
+
+        }
+
+    }
+
+
+    // clear neighbour points before recalculating
+    m_neighbourhoodPnts.clear();
+
+    int count2 = 0;
+    // order neighbours cells and iterate with while loop
+
+    // find points in cells
+    for(int i = 0; i < m_Flock->getNoBoids(); i++)
+    {
+        for(int j = 0; j<count; j++)
+        {
+            if(m_Flock->getHashVec()[i] == neighbourCells[j])
+            {
+                // add point id to list of points
+                m_neighbourhoodPnts.push_back(i);
+
+                count2++;
+
+            }
+        }
+
+    }
+
+}
+
 
 
 

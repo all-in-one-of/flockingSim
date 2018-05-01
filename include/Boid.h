@@ -22,21 +22,19 @@ public :
   virtual void update() = 0;
 
 
-  virtual int getID()=0;
+  virtual int getID() const =0;
 
-  virtual glm::vec3 getVel()=0;
+  virtual glm::vec3 getVel() const =0;
 
-  virtual void setVel(glm::vec3 _vel) = 0;
+  virtual void setVel(const glm::vec3 _vel) = 0;
 
-  virtual glm::vec3 getPos()=0;
+  virtual glm::vec3 getPos() const =0;
 
-  virtual void setPos(glm::vec3 _pos) = 0;
+  virtual void setPos(const glm::vec3 _pos) = 0;
 
-  virtual void limitVel(float _limit) = 0;
+  virtual void limitVel(const float _limit) = 0;
 
-  virtual void updateRotation() = 0;
-
-  virtual glm::vec3 steerBoid(glm::vec3 _target) = 0;
+  virtual glm::vec3 steerBoid(const glm::vec3 _target) = 0;
 
 
 protected :

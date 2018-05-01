@@ -21,7 +21,7 @@ public :
     /// @brief ctor
     /// @param _pos the position of the Flock
     /// @param _numBoids the number of Boids to create
-    Flock_GPU(int _numBoids );
+    Flock_GPU(const int _numBoids );
     /// @brief destructor
     ~Flock_GPU();
     /// @brief a method to update each of the Boids contained in the system
@@ -29,17 +29,17 @@ public :
     /// @brief a method to draw all the Boids contained in the system
   void draw();
   void createBoidsMesh();
-  int getNoBoids(){return m_numBoids;}
+  int getNoBoids() const {return m_numBoids;}
 
 
 
-  void dumpGeo(uint _frameNumber);
+  void dumpGeo(const uint _frameNumber);
 
   int randFloats(float *&devData, const size_t n);
 
 
-    float* getBoidsPosX(){return m_dBoidsPosX_ptr;}
-    float* getBoidsPosZ(){return m_dBoidsPosZ_ptr;}
+    float* getBoidsPosX()const {return m_dBoidsPosX_ptr;}
+    float* getBoidsPosZ()const {return m_dBoidsPosZ_ptr;}
 
     float* getBoidsVelX(){return m_dBoidsVelX_ptr;}
     float* getBoidsVelZ(){return m_dBoidsVelZ_ptr;}
