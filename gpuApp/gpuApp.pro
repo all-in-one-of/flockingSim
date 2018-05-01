@@ -3,13 +3,13 @@
 include(../common.pri)
 
 # This is set to build a dynamic library
-TEMPLATE = lib
+TEMPLATE = app
 
 # Use this directory to store all the intermediate objects
 OBJECTS_DIR = obj
 
 # Set this up as the installation directory for our library
-TARGET = $$LIB_INSTALL_DIR/gpuApp
+TARGET = gpuApp
 
 # Set the C++ flags for this compilation when using the host compiler
 QMAKE_CXXFLAGS += -std=c++11 -fPIC
@@ -90,7 +90,7 @@ cudalink.depend_command = $$NVCCBIN $$NVCCFLAGS -M $$CUDA_INC ${QMAKE_FILE_NAME}
 QMAKE_EXTRA_COMPILERS += cudalink
 
 
-# Set up the post install script to copy the headers into the appropriate directory
-includeinstall.commands = mkdir -p $$INC_INSTALL_DIR && cp include/*.h $$INC_INSTALL_DIR
-QMAKE_EXTRA_TARGETS += includeinstall
-POST_TARGETDEPS += includeinstall
+## Set up the post install script to copy the headers into the appropriate directory
+#includeinstall.commands = mkdir -p $$INC_INSTALL_DIR && cp include/*.h $$INC_INSTALL_DIR
+#QMAKE_EXTRA_TARGETS += includeinstall
+#POST_TARGETDEPS += includeinstall
