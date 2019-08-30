@@ -1,4 +1,5 @@
 # GPU nad CPU Flocking
+
 ## The Project
 
 The project in which I have chosen to parallelize for this assignment is a flocking system that uses Craig Roberts theories on flocking and steering to simulate a group of boids flocking together. 
